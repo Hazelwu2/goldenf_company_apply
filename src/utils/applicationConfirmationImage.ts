@@ -16,8 +16,7 @@ export function parseConfirmationImageData(value: string | null): ConfirmationIm
         typeof record === 'object' &&
         (record.level === 'A' || record.level === 'MA' || record.level === 'SMA') &&
         typeof record.role === 'string' &&
-        typeof record.code === 'string' &&
-        typeof record.name === 'string',
+        typeof record.code === 'string',
     )
     return recordsAreValid ? (candidate as ConfirmationImageData) : null
   } catch {
@@ -40,16 +39,13 @@ function escapeXml(value: string): string {
 
 export function createConfirmationSvg(data: ConfirmationImageData): string {
   const width = 1200
-  const rowHeight = 96
-  const height = 500 + data.records.length * rowHeight
+  const rowHeight = 48
+  const height = 520 + data.records.length * rowHeight
   const records = data.records
     .map((record, index) => {
-      const y = 386 + index * rowHeight
+      const y = 430 + index * rowHeight
       const branch = index === 0 ? '' : `${'　'.repeat(index - 1)}└─ `
-      return `
-        <rect x="72" y="${y}" width="1056" height="72" rx="12" fill="#F3F2ED" stroke="#D2D5CD"/>
-        <text x="96" y="${y + 28}" class="role">${escapeXml(`${branch}${record.role}`)}</text>
-        <text x="96" y="${y + 53}" class="record">${escapeXml(record.code)} · ${escapeXml(record.name)}</text>`
+      return `<text x="96" y="${y}" class="hierarchy">${escapeXml(`${branch}${record.role} — (${record.code})`)}</text>`
     })
     .join('')
 
@@ -60,8 +56,8 @@ export function createConfirmationSvg(data: ConfirmationImageData): string {
       .title { font-size: 38px; font-weight: 700; }
       .label { font-size: 20px; fill: #4B5650; }
       .reference { font-family: ui-monospace, monospace; font-size: 46px; font-weight: 700; fill: #293D35; letter-spacing: 2px; }
-      .role { font-size: 19px; font-weight: 600; fill: #3E5B4C; }
-      .record { font-family: ui-monospace, monospace; font-size: 21px; }
+      .summary-label { font-size: 20px; font-weight: 600; fill: #3E5B4C; }
+      .hierarchy { font-family: ui-monospace, "Noto Sans SC", "PingFang SC", sans-serif; font-size: 21px; font-weight: 600; }
       .footer { font-size: 18px; fill: #65716B; }
     </style>
     <rect width="1200" height="${height}" fill="#F3F2ED"/>
@@ -72,6 +68,8 @@ export function createConfirmationSvg(data: ConfirmationImageData): string {
     <text x="72" y="218" class="label">开线编号 / Application Reference No.</text>
     <text x="72" y="278" class="reference">${escapeXml(data.referenceNo)}</text>
     <text x="72" y="326" class="label">提交时间 / Submitted At　${escapeXml(data.submittedAt)}</text>
+    <line x1="72" y1="356" x2="1128" y2="356" stroke="#D2D5CD"/>
+    <text x="72" y="394" class="summary-label">组合摘要 / Application Summary</text>
     ${records}
     <text x="72" y="${height - 88}" class="footer">请妥善保存此确认单，查询时请提供开线编号。</text>
     <text x="72" y="${height - 58}" class="footer">Keep this confirmation and provide the application number for future enquiries.</text>

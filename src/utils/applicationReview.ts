@@ -62,7 +62,6 @@ export interface ConfirmationRecord {
   level: 'A' | 'MA' | 'SMA'
   role: string
   code: string
-  name: string
 }
 
 interface ConfirmationImageSource {
@@ -269,7 +268,6 @@ export function buildConfirmationImageData(source: ConfirmationImageSource): Con
         level,
         role: `${levelMeta[level].titleZh} / ${levelMeta[level].titleEn}`,
         code: data.code || '—',
-        name: data.name || '—',
       }
     }),
   }

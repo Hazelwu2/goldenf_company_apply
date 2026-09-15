@@ -107,8 +107,8 @@ test('download image data contains the reference summary but excludes sensitive 
   })
 
   assert.deepEqual(imageData.records, [
-    { level: 'MA', role: '代理 MA / Agent MA', code: 'MAGOLD', name: 'Gold Agent' },
-    { level: 'A', role: '营运商 A / Operator A', code: 'GFA1', name: '—' },
+    { level: 'MA', role: '代理 MA / Agent MA', code: 'MAGOLD' },
+    { level: 'A', role: '营运商 A / Operator A', code: 'GFA1' },
   ])
   assert.equal(JSON.stringify(imageData).includes('secret-password'), false)
   assert.equal(JSON.stringify(imageData).includes('203.0.113.10'), false)
@@ -120,38 +120,36 @@ test('confirmation image markup includes bilingual title and the application num
     referenceNo: 'GF-MA-123456',
     submittedAt: '2026/09/15 14:30',
     records: [
-      { level: 'MA', role: '代理 MA / Agent MA', code: 'MAGOLD', name: 'Gold Agent' },
-      { level: 'A', role: '营运商 A / Operator A', code: 'GFA1', name: 'Demo' },
+      { level: 'MA', role: '代理 MA / Agent MA', code: 'MAGOLD' },
+      { level: 'A', role: '营运商 A / Operator A', code: 'GFA1' },
     ],
   })
 
   assert.match(svg, /开线确认单/)
   assert.match(svg, /Application Confirmation/)
+  assert.match(svg, /组合摘要 \/ Application Summary/)
   assert.match(svg, /GF-MA-123456/)
-  assert.match(svg, /MAGOLD/)
-  assert.match(svg, /└─ 营运商 A/)
+  assert.match(svg, /代理 MA \/ Agent MA — \(MAGOLD\)/)
+  assert.match(svg, /└─ 营运商 A \/ Operator A — \(GFA1\)/)
 })
 
 test('confirmation image markup escapes user-provided text', () => {
   const svg = createConfirmationSvg({
     referenceNo: '<script>alert(1)</script>',
     submittedAt: '2026/09/15',
-    records: [{ level: 'A', role: '营运商 A / Operator A', code: 'A&B', name: '<Demo>' }],
+    records: [{ level: 'A', role: '营运商 A / Operator A', code: 'A&B' }],
   })
 
   assert.equal(svg.includes('<script>'), false)
   assert.match(svg, /&lt;script&gt;/)
   assert.match(svg, /A&amp;B/)
-  assert.match(svg, /&lt;Demo&gt;/)
 })
 
 test('stored confirmation parser accepts the safe summary and rejects malformed data', () => {
   const valid = JSON.stringify({
     referenceNo: 'GF-A-123456',
     submittedAt: '2026/09/15 14:30',
-    records: [
-      { level: 'A', role: '营运商 A / Operator A', code: 'GFA1', name: 'Demo' },
-    ],
+    records: [{ level: 'A', role: '营运商 A / Operator A', code: 'GFA1' }],
   })
 
   assert.equal(parseConfirmationImageData(valid)?.referenceNo, 'GF-A-123456')

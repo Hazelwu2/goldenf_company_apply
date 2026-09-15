@@ -164,7 +164,7 @@ Group fields by company level. Show all non-empty values that will be submitted.
 
 ### Successful submission
 
-Use one core result card. The application number is the strongest visual element, with its copy action beside or immediately below it. Place the image-saving action in the same card as the only primary button; do not split the number, download prompt, and application summary into separate nested cards. Put submission time, application hierarchy, and the leave-page reminder below a divider as secondary information. The saved confirmation image includes only the application number, submission time, application levels, codes, and names. It excludes passwords, admin accounts, email addresses, and IP allowlists.
+Use one core result card. The application number is the strongest visual element, with its copy action beside or immediately below it. Place the image-saving action in the same card as the only primary button; do not split the number, download prompt, and application summary into separate nested cards. Put submission time, application hierarchy, and the leave-page reminder below a divider as secondary information. The saved confirmation image includes only the application number, submission time, application roles, and codes. Render its hierarchy in one unboxed tree using the same `角色 — (CODE)` pattern as the success page. It excludes names, passwords, admin accounts, email addresses, and IP allowlists.
 
 ## Good and bad examples
 
