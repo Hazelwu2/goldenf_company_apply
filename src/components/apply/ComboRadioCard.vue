@@ -61,6 +61,7 @@ const emit = defineEmits<{ (e: 'select'): void }>()
   cursor: pointer;
   transition:
     background-color 0.18s ease,
+    border-color 0.18s ease,
     box-shadow 0.18s ease,
     transform 0.18s ease;
   box-shadow:
@@ -74,7 +75,8 @@ const emit = defineEmits<{ (e: 'select'): void }>()
 
 .combo-card:hover {
   background: var(--color-surface-hover);
-  transform: translate(-1px, -1px);
+  border-color: var(--color-border-strong);
+  transform: translateY(-1px);
   box-shadow:
     0 2px 0 rgba(37, 42, 39, 0.04),
     var(--shadow-card-hover);

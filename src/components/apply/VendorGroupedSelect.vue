@@ -2,6 +2,8 @@
 import { computed, h } from 'vue'
 import { NSelect, NTag } from 'naive-ui'
 import { VENDORS } from '@/utils/mockData'
+import FieldHint from './FieldHint.vue'
+import { getVendorSelectionHint } from '@/utils/vendorSelectionHint'
 
 const props = defineProps<{
   modelValue: string[]
@@ -10,32 +12,40 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
 
-function renderOptionLabel(vendor: (typeof VENDORS)[number]) {
+const selectionHint = computed(() => getVendorSelectionHint(props.currency))
+
+function renderOptionLabel(vendor: (typeof VENDORS)[number], unavailable: boolean) {
   const hasTranslatedName = vendor.nameZh !== vendor.nameEn
 
   return () =>
-    h('div', { class: 'vendor-option' }, [
+    h('div', { class: ['vendor-option', { 'is-unavailable': unavailable }] }, [
       h('span', { class: 'vendor-option__name' }, [
         h('span', { class: 'vendor-option__name-zh' }, vendor.nameZh),
         ...(hasTranslatedName
           ? [h('span', { class: 'vendor-option__name-en' }, vendor.nameEn)]
           : []),
       ]),
-      h(
-        NTag,
-        {
-          size: 'tiny',
-          round: true,
-          bordered: false,
-          type: vendor.env === 'official_test' ? 'success' : 'default',
-        },
-        {
-          default: () =>
-            vendor.env === 'official_test'
-              ? '正式＋测试 / Prod. + Test'
-              : '仅正式 / Production',
-        },
-      ),
+      unavailable
+        ? h(
+            'span',
+            { class: 'vendor-option__unavailable' },
+            `不支持 ${props.currency} / Unavailable`,
+          )
+        : h(
+            NTag,
+            {
+              size: 'tiny',
+              round: true,
+              bordered: false,
+              type: vendor.env === 'official_test' ? 'success' : 'default',
+            },
+            {
+              default: () =>
+                vendor.env === 'official_test'
+                  ? '正式＋测试 / Prod. + Test'
+                  : '仅正式 / Production',
+            },
+          ),
     ])
 }
 
@@ -71,7 +81,7 @@ const options = computed(() => {
       code: v.code,
       nameZh: v.nameZh,
       nameEn: v.nameEn,
-      label: renderOptionLabel(v),
+      label: renderOptionLabel(v, disabledFor(v)),
       disabled: disabledFor(v),
     }))
 
@@ -102,20 +112,23 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
 </script>
 
 <template>
-  <NSelect
-    :value="modelValue"
-    multiple
-    filterable
-    :filter="filterVendor"
-    :render-tag="renderSelectedTag"
-    max-tag-count="responsive"
-    :options="options"
-    :disabled="!props.currency"
-    :placeholder="
-      props.currency ? '选择产品商（可多选） / Select vendors' : '请先选择币别 / Select currency first'
-    "
-    @update:value="(v: string[]) => emit('update:modelValue', v)"
-  />
+  <div class="vendor-grouped-select" :class="{ 'is-disabled': !props.currency }">
+    <NSelect
+      :value="modelValue"
+      multiple
+      filterable
+      :filter="filterVendor"
+      :render-tag="renderSelectedTag"
+      max-tag-count="responsive"
+      :options="options"
+      :disabled="!props.currency"
+      :placeholder="
+        props.currency ? '选择产品商（可多选） / Select vendors' : '请先选择币别 / Select currency first'
+      "
+      @update:value="(v: string[]) => emit('update:modelValue', v)"
+    />
+    <FieldHint :zh="selectionHint.zh" :en="selectionHint.en" />
+  </div>
 </template>
 
 <style>
@@ -155,6 +168,31 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
   font-size: 12px;
 }
 
+.vendor-option.is-unavailable {
+  margin-inline: -8px;
+  padding: 6px 8px;
+  border-left: 3px solid var(--color-warning-border);
+  background: var(--color-warning-soft);
+}
+
+.vendor-option.is-unavailable .vendor-option__name,
+.vendor-option.is-unavailable .vendor-option__name-en {
+  color: var(--color-text-secondary);
+}
+
+.vendor-option__unavailable {
+  flex: none;
+  color: var(--color-warning);
+  font-size: 12px;
+  font-weight: 700;
+  text-align: right;
+}
+
+.n-base-select-option.n-base-select-option--disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .vendor-option__name-zh,
 .vendor-option__name-en {
   overflow: hidden;
@@ -171,5 +209,16 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.vendor-grouped-select.is-disabled .n-base-selection {
+  border-style: dashed;
+  background: var(--color-surface-muted);
+  cursor: not-allowed;
+}
+
+.vendor-grouped-select.is-disabled .n-base-selection .n-base-selection-label,
+.vendor-grouped-select.is-disabled .n-base-selection .n-base-selection-placeholder {
+  color: var(--color-text-disabled);
 }
 </style>

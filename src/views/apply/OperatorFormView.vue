@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { h } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NAlert,
@@ -10,11 +10,11 @@ import {
   NRadio,
   NRadioGroup,
   NSelect,
-  useDialog,
 } from 'naive-ui'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
-import { CURRENCIES, OPERATING_MARKETS, VENDORS } from '@/utils/mockData'
+import { CURRENCIES, OPERATING_MARKETS } from '@/utils/mockData'
+import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import WhitelistTextarea from '@/components/apply/WhitelistTextarea.vue'
 import VendorGroupedSelect from '@/components/apply/VendorGroupedSelect.vue'
@@ -22,11 +22,17 @@ import BilingualHint from '@/components/apply/BilingualHint.vue'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
 import FieldHint from '@/components/apply/FieldHint.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
+import CurrencyChangeDialog from '@/components/apply/CurrencyChangeDialog.vue'
 
 const store = useApplyStore()
 const router = useRouter()
-const dialog = useDialog()
 const { steps } = useApplySteps()
+const pendingCurrency = ref<string | null>(null)
+const currencyChangeImpact = computed(() =>
+  pendingCurrency.value
+    ? getCurrencyChangeImpact(store.operator.vendorCodes, pendingCurrency.value)
+    : { remove: [], keep: [] },
+)
 
 const marketOptions = OPERATING_MARKETS.map((m) => ({ label: m, value: m }))
 
@@ -38,37 +44,25 @@ function handleCurrencyUpdate(newCurrency: string) {
     return
   }
 
-  const incompatible = store.operator.vendorCodes
-    .map((code) => VENDORS.find((v) => v.code === code))
-    .filter((v): v is (typeof VENDORS)[number] => !!v && !v.currencies.includes(newCurrency))
+  const impact = getCurrencyChangeImpact(store.operator.vendorCodes, newCurrency)
 
-  if (incompatible.length === 0) {
+  if (impact.remove.length === 0) {
     store.operator.currency = newCurrency
     return
   }
 
-  const names = incompatible.map((v) => `${v.nameZh}／${v.nameEn}`).join('、')
-  dialog.warning({
-    title: '切换币别将移除不相容的产品商',
-    content: () =>
-      h('div', [
-        h('p', { style: 'margin:0 0 6px' }, `以下已选产品商不支援新币别 ${newCurrency}：`),
-        h('p', { style: 'margin:0;color:var(--color-error);font-weight:600' }, names),
-        h(
-          'p',
-          { style: 'margin:6px 0 0;color:var(--color-text-muted);font-size:14px' },
-          `The following selected vendors do not support ${newCurrency} and will be deselected.`,
-        ),
-      ]),
-    positiveText: '确认切换并取消勾选',
-    negativeText: '取消，维持原币别',
-    onPositiveClick: () => {
-      store.operator.currency = newCurrency
-      store.operator.vendorCodes = store.operator.vendorCodes.filter(
-        (c) => !incompatible.some((v) => v.code === c),
-      )
-    },
-  })
+  pendingCurrency.value = newCurrency
+}
+
+function cancelCurrencyChange() {
+  pendingCurrency.value = null
+}
+
+function confirmCurrencyChange() {
+  if (!pendingCurrency.value) return
+  store.operator.currency = pendingCurrency.value
+  store.operator.vendorCodes = currencyChangeImpact.value.keep.map((vendor) => vendor.code)
+  pendingCurrency.value = null
 }
 
 function goBack() {
@@ -84,6 +78,15 @@ function goNext() {
 
 <template>
   <section class="screen">
+    <CurrencyChangeDialog
+      :show="pendingCurrency !== null"
+      :previous-currency="store.operator.currency ?? ''"
+      :next-currency="pendingCurrency ?? ''"
+      :remove="currencyChangeImpact.remove"
+      :keep="currencyChangeImpact.keep"
+      @cancel="cancelCurrencyChange"
+      @confirm="confirmCurrencyChange"
+    />
     <NCard size="large" class="screen__card">
       <template #header>
         <span class="screen__title">营运商 A</span>
@@ -102,6 +105,10 @@ function goNext() {
               :options="CURRENCIES"
               placeholder="请选择币别"
               @update:value="handleCurrencyUpdate"
+            />
+            <FieldHint
+              zh="先选择币别，再选择产品商。"
+              en="Choose a currency first, then select vendors."
             />
           </div>
         </NFormItem>
