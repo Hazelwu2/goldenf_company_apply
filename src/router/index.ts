@@ -3,13 +3,13 @@ import { useApplyStore } from '@/stores/applyStore'
 
 declare module 'vue-router' {
   interface RouteMeta {
-    /** 對應 Wireframe 的畫面編號，純標示用 */
+    /** 对应 Wireframe 的画面编号，纯标示用 */
     screenId?: string
-    /** Stepper 顯示文字；不需要進 Stepper 的頁面（C09/C10/preview）留空 */
+    /** Stepper 显示文字；不需要进 Stepper 的页面（C09/C10/preview）留空 */
     stepLabel?: string
-    /** 需要先選好組合才能進入 */
+    /** 需要先选好组合才能进入 */
     requiresCombo?: true
-    /** 需要組合裡包含此 level 才能進入（C03 / C07） */
+    /** 需要组合里包含此 level 才能进入（C03 / C07） */
     requiresLevel?: 'A' | 'MA' | 'SMA'
   }
 }
@@ -31,13 +31,13 @@ const router = createRouter({
       path: '/apply',
       name: 'select-combo',
       component: () => import('@/views/apply/SelectComboView.vue'),
-      meta: { screenId: 'C01', stepLabel: '選擇申請組合' },
+      meta: { screenId: 'C01', stepLabel: '选择申请组合' },
     },
     {
       path: '/apply/operator',
       name: 'operator-form',
       component: () => import('@/views/apply/OperatorFormView.vue'),
-      meta: { screenId: 'C03', stepLabel: '營運商 A', requiresCombo: true, requiresLevel: 'A' },
+      meta: { screenId: 'C03', stepLabel: '营运商 A', requiresCombo: true, requiresLevel: 'A' },
     },
     {
       path: '/apply/agent/ma',
@@ -51,13 +51,13 @@ const router = createRouter({
       name: 'agent-sma-form',
       component: () => import('@/views/apply/AgentFormView.vue'),
       props: { level: 'SMA' },
-      meta: { screenId: 'C07', stepLabel: '總代理 SMA', requiresCombo: true, requiresLevel: 'SMA' },
+      meta: { screenId: 'C07', stepLabel: '总代理 SMA', requiresCombo: true, requiresLevel: 'SMA' },
     },
     {
       path: '/apply/confirm',
       name: 'confirm',
       component: () => import('@/views/apply/ConfirmView.vue'),
-      meta: { screenId: 'C08', stepLabel: '確認送出', requiresCombo: true },
+      meta: { screenId: 'C08', stepLabel: '确认送出', requiresCombo: true },
     },
     {
       path: '/apply/rejected',

@@ -8,11 +8,11 @@ const props = withDefaults(
     modelValue: string
     placeholder?: string
     inputId?: string
-    /** 最大長度，預設 4（營運商代碼規則）。代理代碼請傳 12。 */
+    /** 最大长度，预设 4（营运商代码规则）。代理代码请传 12。 */
     maxLength?: number
-    /** 最小長度，僅用於字數提示與過短警示，預設 2。 */
+    /** 最小长度，仅用于字数提示与过短警示，预设 2。 */
     minLength?: number
-    /** 是否允許數字，預設 true（營運商代碼為英數）；代理代碼請傳 false（僅英文）。 */
+    /** 是否允许数字，预设 true（营运商代码为英数）；代理代码请传 false（仅英文）。 */
     allowDigits?: boolean
   }>(),
   {
@@ -37,9 +37,9 @@ const length = computed(() => props.modelValue.length)
 const isTooShort = computed(() => length.value > 0 && length.value < props.minLength)
 
 const hintZh = computed(() => {
-  const charset = props.allowDigits ? '英數' : '英文'
-  const zeroNote = props.allowDigits ? '．不可含數字 0' : ''
-  return `${charset} ${props.minLength}–${props.maxLength} 碼．自動轉大寫${zeroNote}`
+  const charset = props.allowDigits ? '英数' : '英文'
+  const zeroNote = props.allowDigits ? '．不可含数字 0' : ''
+  return `${charset} ${props.minLength}–${props.maxLength} 码．自动转大写${zeroNote}`
 })
 
 const hintEn = computed(() => {

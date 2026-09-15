@@ -26,19 +26,19 @@ const invalidEntries = computed(() =>
       type="textarea"
       :disabled="disabled"
       :placeholder="
-        placeholder ?? '可多筆，以逗號、空白或換行分隔，例如：\n203.0.113.10\n198.51.100.0/24'
+        placeholder ?? '可多笔，以逗号、空白或换行分隔，例如：\n203.0.113.10\n198.51.100.0/24'
       "
       :autosize="{ minRows: 2, maxRows: 5 }"
       class="whitelist__field"
       @update:value="(v: string) => emit('update:modelValue', v)"
     />
     <FieldHint
-      zh="可輸入一筆或多筆 IP，請使用逗號、空白或換行分隔。"
+      zh="可输入一笔或多笔 IP，请使用逗号、空白或换行分隔。"
       en="Enter one or multiple IP addresses, separated by commas, spaces, or line breaks."
     />
     <div v-if="invalidEntries.length" class="whitelist__error" role="alert">
       <div class="whitelist__error-message">
-        <span class="whitelist__error-zh">IP 格式錯誤</span>
+        <span class="whitelist__error-zh">IP 格式错误</span>
         <span class="whitelist__error-en">Invalid IP format</span>
       </div>
       <div class="whitelist__tags">

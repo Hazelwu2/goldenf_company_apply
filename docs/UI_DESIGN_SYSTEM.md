@@ -77,17 +77,17 @@ Chinese is the primary line and English is the companion line. English must rema
 
 ## Bilingual content
 
-Every user-facing label, instruction, validation message, button, navigation item, dialog, and result message must be understandable in both Traditional Chinese and English.
+Every user-facing label, instruction, validation message, button, navigation item, dialog, and result message must be understandable in both Simplified Chinese and English.
 
 Preferred patterns:
 
 ```text
-後台白名單
+后台白名单
 Admin Whitelist
 ```
 
 ```text
-確認送出  Confirm & Submit
+确认送出  Confirm & Submit
 ```
 
 Use stacked text for form labels and longer descriptions. Use same-line text for short buttons and compact status labels. When a proper name is identical in both languages, such as `Pragmatic Play`, render it once.
@@ -137,7 +137,7 @@ Each screen has one visually dominant action. Use a primary filled button for th
 Button labels start with a verb and are bilingual. Example:
 
 ```text
-儲存開線確認單
+储存开线确认单
 Save Confirmation
 ```
 

@@ -8,11 +8,11 @@ export interface ApplyStep extends ApplyStepMeta {
 }
 
 /**
- * 依目前選定的組合，動態產生 Stepper 步驟（步驟數＝實際頁數）。
- * 填寫順序固定 A → MA → SMA；狀態只看「目前路由落在第幾步」——
- * 還沒走到的步驟一律 locked，已經走過的步驟一律 done（可點回去修改），
- * 這與「A 未通過前 MA LOCKED」的循序鎖定語意一致：因為每一步的「下一步」
- * 按鈕本身就擋掉了未通過的表單，使用者不可能在沒通過 A 的狀況下站到 MA 那一步。
+ * 依目前选定的组合，动态产生 Stepper 步骤（步骤数＝实际页数）。
+ * 填写顺序固定 A → MA → SMA；状态只看「目前路由落在第几步」——
+ * 还没走到的步骤一律 locked，已经走过的步骤一律 done（可点回去修改），
+ * 这与「A 未通过前 MA LOCKED」的循序锁定语意一致：因为每一步的「下一步」
+ * 按钮本身就挡掉了未通过的表单，使用者不可能在没通过 A 的状况下站到 MA 那一步。
  */
 export function useApplySteps() {
   const store = useApplyStore()
@@ -22,7 +22,7 @@ export function useApplySteps() {
     const list: ApplyStep[] = [
       {
         key: 'select',
-        label: '選組合',
+        label: '选组合',
         labelEn: 'Select Type',
         path: '/apply',
         status: 'upcoming',
@@ -33,7 +33,7 @@ export function useApplySteps() {
       if (level === 'A') {
         list.push({
           key: 'operator',
-          label: '營運商 A',
+          label: '营运商 A',
           labelEn: 'Operator A',
           path: '/apply/operator',
           status: 'upcoming',
@@ -49,7 +49,7 @@ export function useApplySteps() {
       } else if (level === 'SMA') {
         list.push({
           key: 'agent-sma',
-          label: '總代理 SMA',
+          label: '总代理 SMA',
           labelEn: 'Super Agent SMA',
           path: '/apply/agent/sma',
           status: 'upcoming',
@@ -59,7 +59,7 @@ export function useApplySteps() {
 
     list.push({
       key: 'confirm',
-      label: '確認送出',
+      label: '确认送出',
       labelEn: 'Review & Submit',
       path: '/apply/confirm',
       status: 'upcoming',

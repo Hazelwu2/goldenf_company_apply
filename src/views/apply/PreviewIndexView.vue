@@ -16,8 +16,8 @@ interface PreviewItem {
 const items: PreviewItem[] = [
   {
     id: 'C01',
-    title: '選擇申請組合',
-    desc: '4 個申請組合選項，未選前下一步 disabled；按下一步後以燈箱確認選擇。',
+    title: '选择申请组合',
+    desc: '4 个申请组合选项，未选前下一步 disabled；按下一步后以灯箱确认选择。',
     go: () => {
       store.resetAll()
       router.push('/apply')
@@ -25,8 +25,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C03',
-    title: '營運商 A 表單',
-    desc: '幣別 → 產品商 → 代碼 → 帳號 → 白名單 → API 白名單 → Email → 運營市場。',
+    title: '营运商 A 表单',
+    desc: '币别 → 产品商 → 代码 → 账号 → 白名单 → API 白名单 → Email → 运营市场。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
       router.push('/apply/operator')
@@ -34,8 +34,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C04',
-    title: '產品商分組多選',
-    desc: '（位於 C03 內）依支援環境分兩組；不支援目前幣別者 disabled。',
+    title: '产品商分组多选',
+    desc: '（位于 C03 内）依支援环境分两组；不支援目前币别者 disabled。',
     go: () => {
       store.seedDemoData('A')
       router.push({ path: '/apply/operator', hash: '#field-operator-vendor' })
@@ -43,8 +43,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C05',
-    title: '換幣別不相容確認',
-    desc: '（位於 C03 內）已選 CNY + 產品商後，切換幣別試試看會跳出的確認 dialog。',
+    title: '换币别不相容确认',
+    desc: '（位于 C03 内）已选 CNY + 产品商后，切换币别试试看会跳出的确认 dialog。',
     go: () => {
       store.seedDemoData('A')
       router.push({ path: '/apply/operator', hash: '#field-operator-currency' })
@@ -52,8 +52,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C06',
-    title: '站台狀態（尚在開發中）',
-    desc: '（位於 C03 底部）選「尚在開發中」→ 測試帳密 disabled ＋提醒文案。',
+    title: '站台状态（尚在开发中）',
+    desc: '（位于 C03 底部）选「尚在开发中」→ 测试账密 disabled ＋提醒文案。',
     go: () => {
       store.seedDemoData('A', { websiteStatus: 'in_progress' })
       router.push({ path: '/apply/operator', hash: '#field-operator-website-status' })
@@ -61,8 +61,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C07',
-    title: '代理 MA 表單',
-    desc: '含「與 A 相同」勾選（組合含 A 時才出現）。',
+    title: '代理 MA 表单',
+    desc: '含「与 A 相同」勾选（组合含 A 时才出现）。',
     go: () => {
       store.seedDemoData('MA_A')
       router.push('/apply/agent/ma')
@@ -70,8 +70,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C07',
-    title: '總代理 SMA 表單',
-    desc: '三層組合下的最後一個角色表單。',
+    title: '总代理 SMA 表单',
+    desc: '三层组合下的最后一个角色表单。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
       router.push('/apply/agent/sma')
@@ -79,8 +79,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C08',
-    title: '確認送出',
-    desc: '摘要＋宣告 checkbox＋安全驗證（自建圖形碼，可測試三態：未輸入／錯誤／正確）。',
+    title: '确认送出',
+    desc: '摘要＋宣告 checkbox＋安全验证（自建图形码，可测试三态：未输入／错误／正确）。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
       router.push('/apply/confirm')
@@ -88,8 +88,8 @@ const items: PreviewItem[] = [
   },
   {
     id: 'C09',
-    title: '整包拒絕',
-    desc: '不建立任何資料、不產編號；錯誤摘要含「前往此欄位」錨點跳轉。',
+    title: '整包拒绝',
+    desc: '不建立任何资料、不产编号；错误摘要含「前往此栏位」锚点跳转。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
       router.push('/apply/rejected')
@@ -98,7 +98,7 @@ const items: PreviewItem[] = [
   {
     id: 'C10',
     title: '送出成功',
-    desc: '大字開線編號＋複製、提交時間、組合摘要，以及 PNG 開線確認單。',
+    desc: '大字开线编号＋复制、提交时间、组合摘要，以及 PNG 开线确认单。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
       store.submitApplication()
@@ -111,10 +111,10 @@ const items: PreviewItem[] = [
 <template>
   <section class="screen">
     <header class="screen__header">
-      <h1 class="screen__title">畫面總覽</h1>
+      <h1 class="screen__title">画面总览</h1>
       <p class="screen__desc">
-        點一下直接跳到對應畫面（會先灌入示範資料，方便檢視已填寫／已通過驗證的狀態）。
-        這頁純粹是給視覺檢視用的捷徑，不是規格裡的正式畫面。
+        点一下直接跳到对应画面（会先灌入示范资料，方便检视已填写／已通过验证的状态）。
+        这页纯粹是给视觉检视用的捷径，不是规格里的正式画面。
       </p>
     </header>
 
@@ -125,7 +125,7 @@ const items: PreviewItem[] = [
           <h2 class="preview-card__title">{{ item.title }}</h2>
         </div>
         <p class="preview-card__desc">{{ item.desc }}</p>
-        <NButton size="small" secondary block @click="item.go">前往這個畫面</NButton>
+        <NButton size="small" secondary block @click="item.go">前往这个画面</NButton>
       </NCard>
     </div>
   </section>

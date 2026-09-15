@@ -28,7 +28,7 @@ const emit = defineEmits<{ (e: 'select'): void }>()
           <h3 class="combo-card__title">{{ props.option.title }}</h3>
           <p class="combo-card__title-en">{{ props.option.titleEn }}</p>
         </div>
-        <div class="combo-card__levels" aria-label="建立層級">
+        <div class="combo-card__levels" aria-label="建立层级">
           <span v-for="level in props.option.levels" :key="level" class="combo-card__level">
             {{ level }}
           </span>

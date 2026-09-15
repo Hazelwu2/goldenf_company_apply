@@ -30,7 +30,7 @@ const { steps } = useApplySteps()
 
 const marketOptions = OPERATING_MARKETS.map((m) => ({ label: m, value: m }))
 
-/** C05：換幣別時，若已選的產品商不支援新幣別，跳確認 dialog，確認後才真正切換並自動取消勾選。 */
+/** C05：换币别时，若已选的产品商不支援新币别，跳确认 dialog，确认后才真正切换并自动取消勾选。 */
 function handleCurrencyUpdate(newCurrency: string) {
   const prevCurrency = store.operator.currency
   if (prevCurrency === null || prevCurrency === newCurrency) {
@@ -49,10 +49,10 @@ function handleCurrencyUpdate(newCurrency: string) {
 
   const names = incompatible.map((v) => `${v.nameZh}／${v.nameEn}`).join('、')
   dialog.warning({
-    title: '切換幣別將移除不相容的產品商',
+    title: '切换币别将移除不相容的产品商',
     content: () =>
       h('div', [
-        h('p', { style: 'margin:0 0 6px' }, `以下已選產品商不支援新幣別 ${newCurrency}：`),
+        h('p', { style: 'margin:0 0 6px' }, `以下已选产品商不支援新币别 ${newCurrency}：`),
         h('p', { style: 'margin:0;color:var(--color-error);font-weight:600' }, names),
         h(
           'p',
@@ -60,8 +60,8 @@ function handleCurrencyUpdate(newCurrency: string) {
           `The following selected vendors do not support ${newCurrency} and will be deselected.`,
         ),
       ]),
-    positiveText: '確認切換並取消勾選',
-    negativeText: '取消，維持原幣別',
+    positiveText: '确认切换并取消勾选',
+    negativeText: '取消，维持原币别',
     onPositiveClick: () => {
       store.operator.currency = newCurrency
       store.operator.vendorCodes = store.operator.vendorCodes.filter(
@@ -86,7 +86,7 @@ function goNext() {
   <section class="screen">
     <NCard size="large" class="screen__card">
       <template #header>
-        <span class="screen__title">營運商 A</span>
+        <span class="screen__title">营运商 A</span>
         <span class="screen__title-en">Operator A</span>
       </template>
       <template #header-extra>
@@ -95,19 +95,19 @@ function goNext() {
 
       <NForm label-placement="left" label-width="150" require-mark-placement="right-hanging">
         <NFormItem required>
-          <template #label><FieldLabel zh="幣別" en="Currency" /></template>
+          <template #label><FieldLabel zh="币别" en="Currency" /></template>
           <div id="field-operator-currency" class="anchor-target field">
             <NSelect
               :value="store.operator.currency"
               :options="CURRENCIES"
-              placeholder="請選擇幣別"
+              placeholder="请选择币别"
               @update:value="handleCurrencyUpdate"
             />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="產品商" en="Vendors" /></template>
+          <template #label><FieldLabel zh="产品商" en="Vendors" /></template>
           <div id="field-operator-vendor" class="anchor-target field">
             <VendorGroupedSelect
               v-model="store.operator.vendorCodes"
@@ -117,25 +117,25 @@ function goNext() {
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="營運商代碼" en="Operator Code" /></template>
+          <template #label><FieldLabel zh="营运商代码" en="Operator Code" /></template>
           <div id="field-operator-code" class="anchor-target field">
             <CodeInput v-model="store.operator.code" input-id="operator-code" />
           </div>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="營運商名稱" en="Operator Name" /></template>
+          <template #label><FieldLabel zh="营运商名称" en="Operator Name" /></template>
           <div class="field">
-            <NInput v-model:value="store.operator.name" placeholder="選填" />
+            <NInput v-model:value="store.operator.name" placeholder="选填" />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="後台帳號" en="Admin Account" /></template>
+          <template #label><FieldLabel zh="后台账号" en="Admin Account" /></template>
           <div id="field-operator-admin-account" class="anchor-target field">
             <NInput
               :value="store.operator.adminAccount"
-              placeholder="6–10 碼小寫英數"
+              placeholder="6–10 码小写英数"
               @update:value="
                 (v: string) =>
                   (store.operator.adminAccount = v
@@ -144,58 +144,58 @@ function goNext() {
                     .slice(0, 10))
               "
             />
-            <FieldHint zh="6–10 碼小寫英數" en="6–10 lowercase alphanumeric characters" />
+            <FieldHint zh="6–10 码小写英数" en="6–10 lowercase alphanumeric characters" />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="後台白名單" en="Admin Whitelist" /></template>
+          <template #label><FieldLabel zh="后台白名单" en="Admin Whitelist" /></template>
           <div id="field-operator-bo-whitelist" class="anchor-target field">
             <WhitelistTextarea v-model="store.operator.boWhitelist" />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="API 白名單" en="API Whitelist" /></template>
+          <template #label><FieldLabel zh="API 白名单" en="API Whitelist" /></template>
           <div id="field-operator-api-whitelist" class="anchor-target field">
             <WhitelistTextarea v-model="store.operator.apiWhitelist" />
             <BilingualHint
-              zh="限制區域：美國 IP 不得加入 API 白名單。"
+              zh="限制区域：美国 IP 不得加入 API 白名单。"
               en="Restricted region: IP addresses from the United States must not be added to the API whitelist."
             />
           </div>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="聯絡 Email" en="Contact Email" /></template>
+          <template #label><FieldLabel zh="联络 Email" en="Contact Email" /></template>
           <div id="field-operator-email" class="anchor-target field">
-            <NInput v-model:value="store.operator.email" placeholder="選填" />
+            <NInput v-model:value="store.operator.email" placeholder="选填" />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="運營市場" en="Operating Markets" /></template>
+          <template #label><FieldLabel zh="运营市场" en="Operating Markets" /></template>
           <div id="field-operator-markets" class="anchor-target field">
             <NSelect
               v-model:value="store.operator.operatingMarkets"
               multiple
               :options="marketOptions"
-              placeholder="選擇本次營運會涉及的市場（可多選）"
+              placeholder="选择本次营运会涉及的市场（可多选）"
             />
           </div>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="備註" en="Remarks" /></template>
+          <template #label><FieldLabel zh="备注" en="Remarks" /></template>
           <div class="field">
             <NInput
               v-model:value="store.operator.remark"
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 4 }"
-              placeholder="選填，如有額外需求可在此說明"
+              placeholder="选填，如有额外需求可在此说明"
             />
             <FieldHint
-              zh="可自由填寫額外需求，非必填。"
+              zh="可自由填写额外需求，非必填。"
               en="Optional — describe any extra requirements here."
             />
           </div>
@@ -203,25 +203,25 @@ function goNext() {
       </NForm>
 
       <div class="section-divider">
-        <span class="section-divider__zh">站台狀態</span>
+        <span class="section-divider__zh">站台状态</span>
         <span class="section-divider__en">Website Status</span>
       </div>
 
       <NForm label-placement="left" label-width="150">
         <NFormItem required>
-          <template #label><FieldLabel zh="站台狀態" en="Website Status" /></template>
+          <template #label><FieldLabel zh="站台状态" en="Website Status" /></template>
           <div id="field-operator-website-status" class="anchor-target">
             <NRadioGroup v-model:value="store.operator.websiteStatus">
-              <NRadio value="live">已有網站 <span class="radio-en">Website Live</span></NRadio>
+              <NRadio value="live">已有网站 <span class="radio-en">Website Live</span></NRadio>
               <NRadio value="in_progress">
-                尚在開發中 <span class="radio-en">In Development</span>
+                尚在开发中 <span class="radio-en">In Development</span>
               </NRadio>
             </NRadioGroup>
           </div>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="站台網址" en="Website URL" /></template>
+          <template #label><FieldLabel zh="站台网址" en="Website URL" /></template>
           <div id="field-operator-website" class="anchor-target field">
             <NInput
               v-model:value="store.operator.website"
@@ -232,25 +232,25 @@ function goNext() {
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="測試帳號" en="Test Account" /></template>
+          <template #label><FieldLabel zh="测试账号" en="Test Account" /></template>
           <div id="field-operator-test-account" class="anchor-target field">
             <NInput
               v-model:value="store.operator.testAccount"
               :disabled="store.operator.websiteStatus !== 'live'"
-              placeholder="測試環境登入帳號"
+              placeholder="测试环境登入账号"
             />
           </div>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="測試密碼" en="Test Password" /></template>
+          <template #label><FieldLabel zh="测试密码" en="Test Password" /></template>
           <div class="field">
             <NInput
               v-model:value="store.operator.testPassword"
               type="password"
               show-password-on="click"
               :disabled="store.operator.websiteStatus !== 'live'"
-              placeholder="測試環境登入密碼"
+              placeholder="测试环境登入密码"
             />
           </div>
         </NFormItem>
@@ -263,7 +263,7 @@ function goNext() {
         class="website-alert"
       >
         <p class="website-alert__zh">
-          待網站完成後，請務必向窗口提供站台網址及測試帳密，以利快速開通。
+          待网站完成后，请务必向窗口提供站台网址及测试账密，以利快速开通。
         </p>
         <p class="website-alert__en">
           Once the website is ready, please be sure to provide the site URL and test credentials to
@@ -274,7 +274,7 @@ function goNext() {
 
     <StepFooterActions
       :next-disabled="!store.isOperatorValid"
-      hint="請完整填寫必填欄位，並確認格式正確"
+      hint="请完整填写必填栏位，并确认格式正确"
       hint-en="Please complete all required fields with valid formats"
       @back="goBack"
       @next="goNext"

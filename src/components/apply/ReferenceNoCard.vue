@@ -14,23 +14,23 @@ async function copy() {
   try {
     await navigator.clipboard.writeText(props.referenceNo)
     emit('copied')
-    message.success('已複製開線編號 / Application number copied')
+    message.success('已复制开线编号 / Application number copied')
   } catch {
-    message.warning('複製失敗，請手動選取文字 / Copy failed; please select the text manually')
+    message.warning('复制失败，请手动选取文字 / Copy failed; please select the text manually')
   }
 }
 </script>
 
 <template>
   <div class="reference-card">
-    <span class="reference-card__label">開線編號 Application Reference No.</span>
+    <span class="reference-card__label">开线编号 Application Reference No.</span>
     <div class="reference-card__row">
       <span class="reference-card__value">{{ referenceNo }}</span>
       <NButton size="small" secondary @click="copy">
         <template #icon>
           <NIcon :component="CopyOutline" />
         </template>
-        複製 Copy
+        复制 Copy
       </NButton>
     </div>
   </div>

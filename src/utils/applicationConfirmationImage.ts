@@ -14,6 +14,7 @@ export function parseConfirmationImageData(value: string | null): ConfirmationIm
       (record) =>
         record &&
         typeof record === 'object' &&
+        (record.level === 'A' || record.level === 'MA' || record.level === 'SMA') &&
         typeof record.role === 'string' &&
         typeof record.code === 'string' &&
         typeof record.name === 'string',
@@ -44,16 +45,17 @@ export function createConfirmationSvg(data: ConfirmationImageData): string {
   const records = data.records
     .map((record, index) => {
       const y = 386 + index * rowHeight
+      const branch = index === 0 ? '' : `${'　'.repeat(index - 1)}└─ `
       return `
         <rect x="72" y="${y}" width="1056" height="72" rx="12" fill="#F3F2ED" stroke="#D2D5CD"/>
-        <text x="96" y="${y + 28}" class="role">${escapeXml(record.role)}</text>
+        <text x="96" y="${y + 28}" class="role">${escapeXml(`${branch}${record.role}`)}</text>
         <text x="96" y="${y + 53}" class="record">${escapeXml(record.code)} · ${escapeXml(record.name)}</text>`
     })
     .join('')
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
     <style>
-      text { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; fill: #252A27; }
+      text { font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #252A27; }
       .eyebrow { font-size: 20px; letter-spacing: 2px; fill: #65716B; }
       .title { font-size: 38px; font-weight: 700; }
       .label { font-size: 20px; fill: #4B5650; }
@@ -66,12 +68,12 @@ export function createConfirmationSvg(data: ConfirmationImageData): string {
     <rect x="40" y="40" width="1120" height="${height - 80}" rx="20" fill="#FCFBF8" stroke="#D2D5CD"/>
     <rect x="72" y="40" width="84" height="5" rx="2.5" fill="#9CAFA4"/>
     <text x="72" y="102" class="eyebrow">GOLDENF · COMPANY APPLY</text>
-    <text x="72" y="158" class="title">開線確認單 · Application Confirmation</text>
-    <text x="72" y="218" class="label">開線編號 / Application Reference No.</text>
+    <text x="72" y="158" class="title">开线确认单 · Application Confirmation</text>
+    <text x="72" y="218" class="label">开线编号 / Application Reference No.</text>
     <text x="72" y="278" class="reference">${escapeXml(data.referenceNo)}</text>
-    <text x="72" y="326" class="label">提交時間 / Submitted At　${escapeXml(data.submittedAt)}</text>
+    <text x="72" y="326" class="label">提交时间 / Submitted At　${escapeXml(data.submittedAt)}</text>
     ${records}
-    <text x="72" y="${height - 88}" class="footer">請妥善保存此確認單，查詢時請提供開線編號。</text>
+    <text x="72" y="${height - 88}" class="footer">请妥善保存此确认单，查询时请提供开线编号。</text>
     <text x="72" y="${height - 58}" class="footer">Keep this confirmation and provide the application number for future enquiries.</text>
   </svg>`
 }

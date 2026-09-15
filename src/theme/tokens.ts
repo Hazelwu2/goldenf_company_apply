@@ -1,28 +1,28 @@
 /**
- * 設計 Token — 單一事實來源
+ * 设计 Token — 单一事实来源
  *
- * 視覺方向：霧森林綠＋暖灰，降低長時間閱讀的白光與高彩度刺激。
- * 這裡先定義「原始色票」，theme-overrides.ts 再把它們映射進 Naive UI 的語意色。
+ * 视觉方向：雾森林绿＋暖灰，降低长时间阅读的白光与高彩度刺激。
+ * 这里先定义「原始色票」，theme-overrides.ts 再把它们映射进 Naive UI 的语意色。
  */
 
 export const fontFamily = {
-  base: `"Noto Sans SC", "PingFang SC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`,
+  base: `"Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif`,
   mono: `ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace`,
   /**
-   * 選配：只用在標題／C10 成功頁，帶一點溫度。以動態 <link> 分包載入，
-   * 避免拖慢 first paint（見 src/utils/loadOptionalFont.ts）。
+   * 选配：只用在标题／C10 成功页，带一点温度。以动态 <link> 分包载入，
+   * 避免拖慢 first paint（见 src/utils/loadOptionalFont.ts）。
    */
   display: `"LXGW WenKai GB", "Noto Sans SC", system-ui, sans-serif`,
 }
 
 export const palette = {
-  // 主色：低彩度森林綠；白字對比 7.48:1
+  // 主色：低彩度森林绿；白字对比 7.48:1
   primary: '#3E5B4C',
   primaryHover: '#334B41',
   primaryPressed: '#293D35',
   primarySuppl: '#9CAFA4',
 
-  // 語意色
+  // 语意色
   success: '#47715A',
   successHover: '#3B624C',
   successPressed: '#304F3E',
@@ -57,8 +57,8 @@ export const palette = {
 } as const
 
 /**
- * 夜森林深色票：保留品牌的霧綠辨識度，但把主色提亮、彩度壓低。
- * 深色介面不能只是反相，因此背景、邊框與文字都有獨立的明度階層。
+ * 夜森林深色票：保留品牌的雾绿辨识度，但把主色提亮、彩度压低。
+ * 深色介面不能只是反相，因此背景、边框与文字都有独立的明度阶层。
  */
 export const darkPalette = {
   primary: '#9BB8A6',

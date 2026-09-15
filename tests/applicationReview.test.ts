@@ -18,7 +18,7 @@ const operator = {
   boWhitelist: '203.0.113.10, 198.51.100.0/24',
   apiWhitelist: '203.0.113.20',
   email: 'ops@example.com',
-  operatingMarkets: ['中國大陸', '越南'],
+  operatingMarkets: ['中国大陆', '越南'],
   websiteStatus: 'live' as const,
   website: 'https://example.com',
   testAccount: 'test-user',
@@ -107,8 +107,8 @@ test('download image data contains the reference summary but excludes sensitive 
   })
 
   assert.deepEqual(imageData.records, [
-    { role: '營運商 A / Operator A', code: 'GFA1', name: '—' },
-    { role: '代理 MA / Agent MA', code: 'MAGOLD', name: 'Gold Agent' },
+    { level: 'MA', role: '代理 MA / Agent MA', code: 'MAGOLD', name: 'Gold Agent' },
+    { level: 'A', role: '营运商 A / Operator A', code: 'GFA1', name: '—' },
   ])
   assert.equal(JSON.stringify(imageData).includes('secret-password'), false)
   assert.equal(JSON.stringify(imageData).includes('203.0.113.10'), false)
@@ -119,20 +119,24 @@ test('confirmation image markup includes bilingual title and the application num
   const svg = createConfirmationSvg({
     referenceNo: 'GF-MA-123456',
     submittedAt: '2026/09/15 14:30',
-    records: [{ role: '代理 MA / Agent MA', code: 'MAGOLD', name: 'Gold Agent' }],
+    records: [
+      { level: 'MA', role: '代理 MA / Agent MA', code: 'MAGOLD', name: 'Gold Agent' },
+      { level: 'A', role: '营运商 A / Operator A', code: 'GFA1', name: 'Demo' },
+    ],
   })
 
-  assert.match(svg, /開線確認單/)
+  assert.match(svg, /开线确认单/)
   assert.match(svg, /Application Confirmation/)
   assert.match(svg, /GF-MA-123456/)
   assert.match(svg, /MAGOLD/)
+  assert.match(svg, /└─ 营运商 A/)
 })
 
 test('confirmation image markup escapes user-provided text', () => {
   const svg = createConfirmationSvg({
     referenceNo: '<script>alert(1)</script>',
     submittedAt: '2026/09/15',
-    records: [{ role: '營運商 A / Operator A', code: 'A&B', name: '<Demo>' }],
+    records: [{ level: 'A', role: '营运商 A / Operator A', code: 'A&B', name: '<Demo>' }],
   })
 
   assert.equal(svg.includes('<script>'), false)
@@ -145,7 +149,9 @@ test('stored confirmation parser accepts the safe summary and rejects malformed 
   const valid = JSON.stringify({
     referenceNo: 'GF-A-123456',
     submittedAt: '2026/09/15 14:30',
-    records: [{ role: '營運商 A / Operator A', code: 'GFA1', name: 'Demo' }],
+    records: [
+      { level: 'A', role: '营运商 A / Operator A', code: 'GFA1', name: 'Demo' },
+    ],
   })
 
   assert.equal(parseConfirmationImageData(valid)?.referenceNo, 'GF-A-123456')

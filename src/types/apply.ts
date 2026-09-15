@@ -1,9 +1,9 @@
-/** 四種允許的申請組合（USER 僅能選這四種） */
+/** 四种允许的申请组合（USER 仅能选这四种） */
 export type ComboKey = 'A' | 'MA' | 'MA_A' | 'SMA_MA_A'
 
 export type CompanyLevel = 'A' | 'MA' | 'SMA'
 
-/** 每個組合實際包含哪些 level；陣列排列供表單流程建立步驟使用。 */
+/** 每个组合实际包含哪些 level；阵列排列供表单流程建立步骤使用。 */
 export const COMBO_LEVELS: Record<ComboKey, CompanyLevel[]> = {
   A: ['A'],
   MA: ['MA'],
@@ -13,14 +13,14 @@ export const COMBO_LEVELS: Record<ComboKey, CompanyLevel[]> = {
 
 export interface ComboOption {
   key: ComboKey
-  /** 卡片標題（中） */
+  /** 卡片标题（中） */
   title: string
-  /** 卡片標題（英） */
+  /** 卡片标题（英） */
   titleEn: string
   levels: CompanyLevel[]
-  /** 卡片說明（中） */
+  /** 卡片说明（中） */
   description: string
-  /** 卡片說明（英） */
+  /** 卡片说明（英） */
   descriptionEn: string
 }
 
@@ -40,7 +40,7 @@ export interface OperatorFormState {
   website: string
   testAccount: string
   testPassword: string
-  /** 客戶可自行填寫的額外需求說明，選填。 */
+  /** 客户可自行填写的额外需求说明，选填。 */
   remark: string
 }
 
@@ -51,7 +51,7 @@ export interface AgentFormState {
   boWhitelist: string
   email: string
   sameAsA: boolean
-  /** 客戶可自行填寫的額外需求說明，選填。 */
+  /** 客户可自行填写的额外需求说明，选填。 */
   remark: string
 }
 

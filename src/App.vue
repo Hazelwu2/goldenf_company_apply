@@ -9,8 +9,8 @@ import {
   NDialogProvider,
   NIcon,
   NMessageProvider,
-  zhTW,
-  dateZhTW,
+  zhCN,
+  dateZhCN,
 } from 'naive-ui'
 import { DesktopOutline, MoonOutline, SunnyOutline } from '@vicons/ionicons5'
 import { darkThemeOverrides, themeOverrides } from '@/theme/theme-overrides'
@@ -73,8 +73,8 @@ function navigateStep(path: string) {
   <NConfigProvider
     :theme="isDarkTheme ? darkTheme : null"
     :theme-overrides="isDarkTheme ? darkThemeOverrides : themeOverrides"
-    :locale="zhTW"
-    :date-locale="dateZhTW"
+    :locale="zhCN"
+    :date-locale="dateZhCN"
   >
     <NMessageProvider>
       <NDialogProvider>
@@ -86,16 +86,16 @@ function navigateStep(path: string) {
             <div class="app-shell__brand">
               <span class="app-shell__logo" aria-hidden="true">GF</span>
               <div class="app-shell__title-group">
-                <span class="app-shell__title">開線申請</span>
+                <span class="app-shell__title">开线申请</span>
                 <span class="app-shell__subtitle">Company Apply</span>
               </div>
             </div>
             <div class="app-shell__actions">
-              <NButtonGroup class="theme-switcher" aria-label="顯示模式 Display mode">
+              <NButtonGroup class="theme-switcher" aria-label="显示模式 Display mode">
                 <NButton
                   v-for="item in [
-                    { value: 'system' as const, label: '系統', labelEn: 'System', icon: DesktopOutline },
-                    { value: 'light' as const, label: '淺色', labelEn: 'Light', icon: SunnyOutline },
+                    { value: 'system' as const, label: '系统', labelEn: 'System', icon: DesktopOutline },
+                    { value: 'light' as const, label: '浅色', labelEn: 'Light', icon: SunnyOutline },
                     { value: 'dark' as const, label: '深色', labelEn: 'Dark', icon: MoonOutline },
                   ]"
                   :key="item.value"
@@ -115,7 +115,7 @@ function navigateStep(path: string) {
                 </NButton>
               </NButtonGroup>
               <RouterLink to="/apply/preview" class="app-shell__preview-link">
-                畫面總覽 <small>Preview</small>
+                画面总览 <small>Preview</small>
               </RouterLink>
             </div>
           </header>

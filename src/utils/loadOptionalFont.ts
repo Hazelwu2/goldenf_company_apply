@@ -1,8 +1,8 @@
 /**
- * LXGW WenKai GB 為選配字型，只用在標題／C10 成功頁帶一點溫度。
- * 以動態注入 <link> 的方式延後載入，避免整檔字重拖慢 first paint。
- * 找不到 CDN 或載入失敗時，靠 fontFamily.display 的 fallback chain
- * （退回 Noto Sans SC / system-ui）— 版面不會壞。
+ * LXGW WenKai GB 为选配字型，只用在标题／C10 成功页带一点温度。
+ * 以动态注入 <link> 的方式延后载入，避免整档字重拖慢 first paint。
+ * 找不到 CDN 或载入失败时，靠 fontFamily.display 的 fallback chain
+ * （退回 Noto Sans SC / system-ui）— 版面不会坏。
  */
 let loaded = false
 

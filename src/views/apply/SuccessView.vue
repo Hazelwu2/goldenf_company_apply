@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NIcon, NTag, useDialog, useMessage } from 'naive-ui'
+import { NButton, NCard, NIcon, useDialog, useMessage } from 'naive-ui'
 import { CheckmarkCircle, DownloadOutline, ImageOutline } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
 import ReferenceNoCard from '@/components/apply/ReferenceNoCard.vue'
+import ApplicationHierarchySummary from '@/components/apply/ApplicationHierarchySummary.vue'
 import { buildConfirmationImageData } from '@/utils/applicationReview'
 import {
   createConfirmationSvg,
@@ -22,7 +23,7 @@ const isDownloading = ref(false)
 const confirmationData = ref<ConfirmationImageData | null>(null)
 const SUCCESS_STORAGE_KEY = 'goldenf-company-apply-last-confirmation'
 
-// 直接進入這頁做畫面預覽時（例如透過「畫面總覽」），補一組示範資料，避免空畫面。
+// 直接进入这页做画面预览时（例如透过「画面总览」），补一组示范资料，避免空画面。
 onMounted(() => {
   const storedConfirmation = parseConfirmationImageData(
     window.sessionStorage.getItem(SUCCESS_STORAGE_KEY),
@@ -67,11 +68,11 @@ function backToStart() {
   }
 
   dialog.warning({
-    title: '尚未保存開線編號 / Application number not saved',
+    title: '尚未保存开线编号 / Application number not saved',
     content:
-      '建議先複製編號或儲存開線確認單，離開後將無法返回此頁。 / Copy the number or save the application confirmation before leaving. You cannot return to this page later.',
-    positiveText: '留在此頁 / Stay',
-    negativeText: '仍要離開 / Leave anyway',
+      '建议先复制编号或储存开线确认单，离开后将无法返回此页。 / Copy the number or save the application confirmation before leaving. You cannot return to this page later.',
+    positiveText: '留在此页 / Stay',
+    negativeText: '仍要离开 / Leave anyway',
     onNegativeClick: resetAndReturnHome,
   })
 }
@@ -116,9 +117,9 @@ async function downloadConfirmationImage() {
     link.click()
     URL.revokeObjectURL(downloadUrl)
     hasSavedReference.value = true
-    message.success('開線確認單已儲存 / Application confirmation saved')
+    message.success('开线确认单已储存 / Application confirmation saved')
   } catch {
-    message.error('圖片儲存失敗，請先複製開線編號 / Could not save image; please copy the number')
+    message.error('图片储存失败，请先复制开线编号 / Could not save image; please copy the number')
   } finally {
     isDownloading.value = false
   }
@@ -134,7 +135,7 @@ async function downloadConfirmationImage() {
         </span>
         <h1 class="success-head__title">送出成功</h1>
         <p class="success-head__title-en">Submitted Successfully</p>
-        <p class="success-head__desc">您的申請已收件，請妥善保存以下開線編號。</p>
+        <p class="success-head__desc">您的申请已收件，请妥善保存以下开线编号。</p>
         <p class="success-head__desc-en">
           Your application has been received. Please keep the application reference number below.
         </p>
@@ -147,10 +148,10 @@ async function downloadConfirmationImage() {
           <NIcon :component="ImageOutline" size="25" />
         </span>
         <div class="save-confirmation__content">
-          <h2 id="save-confirmation-title">離開前，請先保存開線編號</h2>
+          <h2 id="save-confirmation-title">离开前，请先保存开线编号</h2>
           <p class="save-confirmation__title-en">Save your application number before leaving</p>
           <p>
-            儲存為 PNG 圖片，內含開線編號、提交時間與申請摘要，方便日後查詢。
+            储存为 PNG 图片，内含开线编号、提交时间与申请摘要，方便日后查询。
           </p>
           <p class="save-confirmation__desc-en">
             Save a PNG with the application number, submission time, and summary for future
@@ -166,7 +167,7 @@ async function downloadConfirmationImage() {
         >
           <template #icon><NIcon :component="DownloadOutline" /></template>
           <span>
-            儲存開線確認單
+            储存开线确认单
             <small>Save Confirmation</small>
           </span>
         </NButton>
@@ -175,29 +176,23 @@ async function downloadConfirmationImage() {
       <dl class="meta-list">
         <div class="meta-list__row">
           <dt>
-            提交時間
+            提交时间
             <span class="meta-list__dt-en">Submitted At</span>
           </dt>
           <dd>{{ submittedAtText }}</dd>
         </div>
-        <div class="meta-list__row">
+        <div class="meta-list__row meta-list__row--hierarchy">
           <dt>
-            組合摘要
+            组合摘要
             <span class="meta-list__dt-en">Application Type</span>
           </dt>
-          <dd>
-            <span v-for="record in confirmationRecords" :key="record.role" class="meta-list__tag">
-              <NTag size="small" :bordered="false" round>
-                {{ record.role }}
-              </NTag>
-            </span>
-          </dd>
+          <dd><ApplicationHierarchySummary :records="confirmationRecords" /></dd>
         </div>
       </dl>
 
       <div class="reminder">
         <p class="reminder__zh">
-          送出後無法自行修改。如需查詢或修改申請內容，請提供上方開線編號並聯絡客服。
+          送出后无法自行修改。如需查询或修改申请内容，请提供上方开线编号并联络客服。
         </p>
         <p class="reminder__en">
           This application cannot be edited after submission. To check or modify it, please contact
@@ -207,7 +202,7 @@ async function downloadConfirmationImage() {
     </NCard>
 
     <div class="success-actions">
-      <NButton quaternary @click="backToStart">返回首頁，開始新的申請 Back to start</NButton>
+      <NButton quaternary @click="backToStart">返回首页，开始新的申请 Back to start</NButton>
     </div>
   </section>
 </template>
@@ -361,20 +356,11 @@ async function downloadConfirmationImage() {
 }
 
 .meta-list__row dd {
+  flex: 1;
+  min-width: 0;
   margin: 0;
   color: var(--color-text-secondary);
   font-family: ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
-}
-
-.meta-list__tag {
-  margin-right: 6px;
-  font-family: inherit;
-}
-
-.meta-list__tag-en {
-  font-size: 13px;
-  opacity: 0.75;
-  margin-left: 3px;
 }
 
 .reminder {
@@ -413,6 +399,16 @@ async function downloadConfirmationImage() {
   .save-confirmation__button {
     grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .meta-list__row--hierarchy {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .meta-list__row--hierarchy dt {
+    width: auto;
   }
 }
 </style>

@@ -2,8 +2,8 @@ import type { GlobalThemeOverrides } from 'naive-ui'
 import { darkPalette, fontFamily, palette, radius } from './tokens'
 
 /**
- * Naive UI GlobalThemeOverrides — 統一圓角 / 主色 / 字型。
- * 只放「跨元件共用」的 token；單一元件的特殊樣式留在各元件的 <style> 內。
+ * Naive UI GlobalThemeOverrides — 统一圆角 / 主色 / 字型。
+ * 只放「跨元件共用」的 token；单一元件的特殊样式留在各元件的 <style> 内。
  */
 export const themeOverrides: GlobalThemeOverrides = {
   common: {
@@ -81,7 +81,7 @@ export const themeOverrides: GlobalThemeOverrides = {
   },
 
   Steps: {
-    // Stepper 的 done / current / locked 狀態顏色由 ApplyStepper.vue 的 CSS 變數補齊
+    // Stepper 的 done / current / locked 状态颜色由 ApplyStepper.vue 的 CSS 变数补齐
   },
 
   Alert: {
@@ -93,11 +93,11 @@ export const themeOverrides: GlobalThemeOverrides = {
   },
 
   Result: {
-    // C10 成功頁使用預設，字級/間距在 view 內客製
+    // C10 成功页使用预设，字级/间距在 view 内客制
   },
 }
 
-/** 夜森林深色模式：與 App.vue 的深色語意 CSS 變數同步。 */
+/** 夜森林深色模式：与 App.vue 的深色语意 CSS 变数同步。 */
 export const darkThemeOverrides: GlobalThemeOverrides = {
   common: {
     fontFamily: fontFamily.base,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** 欄位下方的中英雙語格式提示（比 BilingualHint 更輕量、無邊框，用於一般規則說明）。 */
+/** 栏位下方的中英双语格式提示（比 BilingualHint 更轻量、无边框，用于一般规则说明）。 */
 defineProps<{
   zh: string
   en: string

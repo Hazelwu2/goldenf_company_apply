@@ -52,8 +52,8 @@ export const COMBO_OPTIONS: ComboOption[] = [
   },
 ]
 /**
- * 內部業務邏輯：沒有上層代理時，一律掛在系統預設的根代理底下。
- * 這是後端 parent_code 的推導依據，純內部代號，不對外顯示（畫面上不出現這個字串）。
+ * 内部业务逻辑：没有上层代理时，一律挂在系统预设的根代理底下。
+ * 这是后端 parent_code 的推导依据，纯内部代号，不对外显示（画面上不出现这个字串）。
  */
 const ROOT_PARENT_CODE = 'GF_MA'
 
@@ -89,7 +89,7 @@ function emptyAgentForm(): AgentFormState {
 }
 
 export const useApplyStore = defineStore('apply', () => {
-  // ---- 申請組合 ----
+  // ---- 申请组合 ----
   const combo = ref<ComboKey | null>(null)
 
   const levels = computed<CompanyLevel[]>(() => (combo.value ? COMBO_LEVELS[combo.value] : []))
@@ -100,7 +100,7 @@ export const useApplyStore = defineStore('apply', () => {
     combo.value = key
   }
 
-  // ---- 各角色表單 ----
+  // ---- 各角色表单 ----
   const operator = reactive<OperatorFormState>(emptyOperatorForm())
   const agentMA = reactive<AgentFormState>(emptyAgentForm())
   const agentSMA = reactive<AgentFormState>(emptyAgentForm())
@@ -109,7 +109,7 @@ export const useApplyStore = defineStore('apply', () => {
     return level === 'MA' ? agentMA : agentSMA
   }
 
-  /** 「與 A 相同」勾選時，同步 A 的 bo_whitelist / email 到該角色，並鎖住手動輸入。 */
+  /** 「与 A 相同」勾选时，同步 A 的 bo_whitelist / email 到该角色，并锁住手动输入。 */
   function applySameAsA(level: 'MA' | 'SMA', checked: boolean) {
     const form = agentForm(level)
     form.sameAsA = checked
@@ -119,7 +119,7 @@ export const useApplyStore = defineStore('apply', () => {
     }
   }
 
-  // 若 A 的白名單 / Email 之後又修改，且 MA／SMA 仍勾選「與 A 相同」，保持同步
+  // 若 A 的白名单 / Email 之后又修改，且 MA／SMA 仍勾选「与 A 相同」，保持同步
   function syncSameAsA() {
     for (const level of ['MA', 'SMA'] as const) {
       const form = agentForm(level)
@@ -132,7 +132,7 @@ export const useApplyStore = defineStore('apply', () => {
 
   watch(() => [operator.boWhitelist, operator.email], syncSameAsA)
 
-  // ---- 驗證（僅格式，對應規格 §3） ----
+  // ---- 验证（仅格式，对应规格 §3） ----
   const isOperatorValid = computed(() => {
     const f = operator
     if (!f.currency) return false
@@ -157,7 +157,7 @@ export const useApplyStore = defineStore('apply', () => {
     return true
   }
 
-  // ---- parent_code 推導（§5，內部欄位，畫面不顯示、不對使用者提及） ----
+  // ---- parent_code 推导（§5，内部栏位，画面不显示、不对使用者提及） ----
   const parentCodeMap = computed<Partial<Record<CompanyLevel, string>>>(() => {
     const map: Partial<Record<CompanyLevel, string>> = {}
     switch (combo.value) {
@@ -180,7 +180,7 @@ export const useApplyStore = defineStore('apply', () => {
     return map
   })
 
-  // ---- 宣告 + 安全驗證（C08，前端 state，不進 payload） ----
+  // ---- 宣告 + 安全验证（C08，前端 state，不进 payload） ----
   const declarationChecked = ref(false)
   const captchaInput = ref('')
   const captchaCode = ref('')
@@ -202,7 +202,7 @@ export const useApplyStore = defineStore('apply', () => {
 
   const canSubmit = computed(() => declarationChecked.value && captchaStatus.value === 'ok')
 
-  // ---- 送出結果 ----
+  // ---- 送出结果 ----
   const referenceNo = ref<string | null>(null)
   const submittedAt = ref<string | null>(null)
 
@@ -234,8 +234,8 @@ export const useApplyStore = defineStore('apply', () => {
   }
 
   /**
-   * 僅供「畫面總覽」預覽使用：灌入一組合理的示範資料，方便檢視已填寫／已通過驗證的狀態。
-   * 不會呼叫任何 API，純粹是前端假資料。
+   * 仅供「画面总览」预览使用：灌入一组合理的示范资料，方便检视已填写／已通过验证的状态。
+   * 不会呼叫任何 API，纯粹是前端假资料。
    */
   function seedDemoData(
     key: ComboKey,
@@ -255,7 +255,7 @@ export const useApplyStore = defineStore('apply', () => {
         boWhitelist: '203.0.113.10, 198.51.100.0/24',
         apiWhitelist: '203.0.113.10',
         email: 'ops@goldenf-demo.example',
-        operatingMarkets: ['中國大陸', '越南'],
+        operatingMarkets: ['中国大陆', '越南'],
         websiteStatus: options?.websiteStatus ?? 'live',
         website: 'https://a.gfdemo-example.com',
         testAccount: 'testuser01',

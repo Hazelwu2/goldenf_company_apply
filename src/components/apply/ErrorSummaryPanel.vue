@@ -19,9 +19,9 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'goto', item: SubmitErrorItem): void }>()
 
 const levelLabel: Record<SubmitErrorItem['level'], string> = {
-  A: '營運商 A',
+  A: '营运商 A',
   MA: '代理 MA',
-  SMA: '總代理 SMA',
+  SMA: '总代理 SMA',
 }
 const levelLabelEn: Record<SubmitErrorItem['level'], string> = {
   A: 'Operator A',
@@ -49,7 +49,7 @@ const levelLabelEn: Record<SubmitErrorItem['level'], string> = {
         <p class="error-summary__message-en">{{ item.messageEn }}</p>
       </div>
       <NButton text type="error" size="small" @click="emit('goto', item)">
-        前往此欄位 Go to field
+        前往此栏位 Go to field
         <template #icon>
           <NIcon :component="ArrowForwardOutline" />
         </template>

@@ -44,7 +44,7 @@ function draw() {
   ctx.fillStyle = backgroundColor
   ctx.fillRect(0, 0, w, h)
 
-  // 干擾線
+  // 干扰线
   for (let i = 0; i < 4; i++) {
     ctx.strokeStyle = noiseColor
     ctx.globalAlpha = 0.25 + Math.random() * 0.2
@@ -56,7 +56,7 @@ function draw() {
   }
   ctx.globalAlpha = 1
 
-  // 字元（各自微旋轉，模擬自建圖形碼）
+  // 字元（各自微旋转，模拟自建图形码）
   const chars = props.code.split('')
   const cellW = w / chars.length
   chars.forEach((ch, i) => {
@@ -74,7 +74,7 @@ function draw() {
     ctx.restore()
   })
 
-  // 干擾點
+  // 干扰点
   for (let i = 0; i < 40; i++) {
     ctx.fillStyle = noiseColor
     ctx.globalAlpha = Math.random() * 0.3
@@ -107,7 +107,7 @@ onBeforeUnmount(() => themeObserver?.disconnect())
           <NButton
             quaternary
             circle
-            aria-label="換一張驗證碼 Refresh verification code"
+            aria-label="换一张验证码 Refresh verification code"
             @click="emit('refresh')"
           >
             <template #icon>
@@ -115,12 +115,12 @@ onBeforeUnmount(() => themeObserver?.disconnect())
             </template>
           </NButton>
         </template>
-        換一張 / Refresh
+        换一张 / Refresh
       </NTooltip>
 
       <NInput
         :value="modelValue"
-        placeholder="請輸入圖形碼 / Enter code"
+        placeholder="请输入图形码 / Enter code"
         class="captcha__input"
         :maxlength="code.length"
         :status="status === 'error' ? 'error' : undefined"
@@ -132,18 +132,18 @@ onBeforeUnmount(() => themeObserver?.disconnect())
     <p class="captcha__feedback" :class="`is-${status}`">
       <template v-if="status === 'ok'">
         <NIcon :component="CheckmarkCircleOutline" size="14" />
-        <span>驗證碼正確 <span class="captcha__feedback-en">Verification passed</span></span>
+        <span>验证码正确 <span class="captcha__feedback-en">Verification passed</span></span>
       </template>
       <template v-else-if="status === 'error'">
         <NIcon :component="CloseCircleOutline" size="14" />
         <span>
-          驗證碼錯誤，請重新輸入
+          验证码错误，请重新输入
           <span class="captcha__feedback-en">Incorrect code, please try again</span>
         </span>
       </template>
       <template v-else>
         <span>
-          請依圖片輸入驗證碼（不分大小寫）
+          请依图片输入验证码（不分大小写）
           <span class="captcha__feedback-en">Enter the code shown above (not case-sensitive)</span>
         </span>
       </template>

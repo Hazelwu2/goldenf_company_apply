@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import type { CompanyLevel } from '@/types/apply'
 
 /**
- * 組織階層示意圖：讓使用者理解 SMA / MA / A 三個角色的上下關係，
- * 純說明用途，不含任何內部代號（GF_MA 等）。
+ * 组织阶层示意图：让使用者理解 SMA / MA / A 三个角色的上下关系，
+ * 纯说明用途，不含任何内部代号（GF_MA 等）。
  */
 const props = withDefaults(
   defineProps<{
@@ -19,9 +19,9 @@ const props = withDefaults(
 
 const hierarchyOrder: CompanyLevel[] = ['SMA', 'MA', 'A']
 const levelLabel: Record<CompanyLevel, string> = {
-  SMA: '總代理 SMA',
+  SMA: '总代理 SMA',
   MA: '代理 MA',
-  A: '營運商 A',
+  A: '营运商 A',
 }
 
 const visibleLevels = computed(() => hierarchyOrder.filter((level) => props.levels.includes(level)))
@@ -30,7 +30,7 @@ const treeText = computed(() =>
     .map((level, index) => `${index === 0 ? '' : `${'   '.repeat(index - 1)}└─ `}${levelLabel[level]}`)
     .join('\n'),
 )
-const hierarchyLabel = computed(() => `申請階層：${visibleLevels.value.map((level) => levelLabel[level]).join('，')}`)
+const hierarchyLabel = computed(() => `申请阶层：${visibleLevels.value.map((level) => levelLabel[level]).join('，')}`)
 </script>
 
 <template>
@@ -39,14 +39,14 @@ const hierarchyLabel = computed(() => `申請階層：${visibleLevels.value.map(
 
     <div v-if="!compact" class="org-hierarchy__text">
       <p class="org-hierarchy__zh">
-        SMA、MA 是用來管理下層帳號的代理階層；A 是實際串接產品商及營運站台的營運商。
+        SMA、MA 是用来管理下层帐号的代理阶层；A 是实际串接产品商及营运站台的营运商。
       </p>
       <p class="org-hierarchy__en">
         SMA and MA are agent levels used to manage subordinate accounts. A is the operator that
         integrates vendors and operates the website.
       </p>
       <p class="org-hierarchy__zh">
-        請依照本次需要建立的完整階層選擇申請組合。每次申請最多建立一組資料。
+        请依照本次需要建立的完整阶层选择申请组合。每次申请最多建立一组资料。
       </p>
       <p class="org-hierarchy__en">
         Select the application type based on the complete hierarchy you need to create. Each

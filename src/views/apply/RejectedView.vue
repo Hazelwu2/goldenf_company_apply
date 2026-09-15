@@ -9,7 +9,7 @@ import ErrorSummaryPanel, { type SubmitErrorItem } from '@/components/apply/Erro
 const store = useApplyStore()
 const router = useRouter()
 
-const levelLabel: Record<string, string> = { A: '營運商 A', MA: '代理 MA', SMA: '總代理 SMA' }
+const levelLabel: Record<string, string> = { A: '营运商 A', MA: '代理 MA', SMA: '总代理 SMA' }
 const levelLabelEn: Record<string, string> = {
   A: 'Operator A',
   MA: 'Agent MA',
@@ -17,26 +17,26 @@ const levelLabelEn: Record<string, string> = {
 }
 
 /**
- * 示範用錯誤摘要：實際串接後，這裡會改成 Create API 回傳的逐筆錯誤。
- * 目前先依已選組合帶出對應角色的代表性錯誤，方便檢視「角色．欄位．訊息＋前往此欄位」的版型。
+ * 示范用错误摘要：实际串接后，这里会改成 Create API 回传的逐笔错误。
+ * 目前先依已选组合带出对应角色的代表性错误，方便检视「角色．栏位．讯息＋前往此栏位」的版型。
  */
 const errors = computed<SubmitErrorItem[]>(() => {
   const list: SubmitErrorItem[] = []
   if (store.hasLevel('A')) {
     list.push({
       level: 'A',
-      fieldLabel: '營運商代碼',
+      fieldLabel: '营运商代码',
       fieldLabelEn: 'Operator Code',
-      message: '代碼「' + (store.operator.code || 'GF0') + '」格式不符，不得包含數字 0',
+      message: '代码「' + (store.operator.code || 'GF0') + '」格式不符，不得包含数字 0',
       messageEn: `Code "${store.operator.code || 'GF0'}" is invalid — digit 0 is not allowed.`,
       routePath: '/apply/operator',
       anchorId: 'field-operator-code',
     })
     list.push({
       level: 'A',
-      fieldLabel: '後台帳號',
+      fieldLabel: '后台账号',
       fieldLabelEn: 'Admin Account',
-      message: '帳號需為 6–10 碼小寫英數字元',
+      message: '账号需为 6–10 码小写英数字元',
       messageEn: 'Account must be 6–10 lowercase alphanumeric characters.',
       routePath: '/apply/operator',
       anchorId: 'field-operator-admin-account',
@@ -45,9 +45,9 @@ const errors = computed<SubmitErrorItem[]>(() => {
   if (store.hasLevel('MA')) {
     list.push({
       level: 'MA',
-      fieldLabel: '後台 IP 白名單',
+      fieldLabel: '后台 IP 白名单',
       fieldLabelEn: 'Admin IP Whitelist',
-      message: '存在無法辨識的 IP 格式，請確認每一筆皆為合法 IP',
+      message: '存在无法辨识的 IP 格式，请确认每一笔皆为合法 IP',
       messageEn: 'One or more entries are not valid IP addresses. Please check each entry.',
       routePath: '/apply/agent/ma',
       anchorId: 'field-agent-ma-bo-whitelist',
@@ -56,9 +56,9 @@ const errors = computed<SubmitErrorItem[]>(() => {
   if (store.hasLevel('SMA')) {
     list.push({
       level: 'SMA',
-      fieldLabel: '總代理代碼',
+      fieldLabel: '总代理代码',
       fieldLabelEn: 'Super Agent Code',
-      message: '代碼重複，已被其他總代理使用',
+      message: '代码重复，已被其他总代理使用',
       messageEn: 'This code is already used by another super agent.',
       routePath: '/apply/agent/sma',
       anchorId: 'field-agent-sma-code',
@@ -89,11 +89,11 @@ function resubmit() {
           <NIcon :component="CloseCircleOutline" size="28" />
         </span>
         <div>
-          <h1 class="reject-head__title">送出失敗，整包未建立</h1>
+          <h1 class="reject-head__title">送出失败，整包未建立</h1>
           <p class="reject-head__title-en">Submission Failed — No Records Were Created</p>
           <p class="reject-head__desc">
-            本次申請採「全有全無」：只要任一筆資料有誤，就不會建立任何資料、也不會產生開線編號。
-            您先前填寫的所有內容都已保留，修正後可直接重新送出。
+            本次申请采「全有全无」：只要任一笔资料有误，就不会建立任何资料、也不会产生开线编号。
+            您先前填写的所有内容都已保留，修正后可直接重新送出。
           </p>
           <p class="reject-head__desc-en">
             This application is all-or-nothing: if any record has an error, nothing is created and
@@ -117,7 +117,7 @@ function resubmit() {
         </NTag>
       </div>
 
-      <h2 class="section-title">錯誤摘要<span class="section-title__en">Error Summary</span></h2>
+      <h2 class="section-title">错误摘要<span class="section-title__en">Error Summary</span></h2>
       <ErrorSummaryPanel :errors="errors" @goto="goto" />
     </NCard>
 

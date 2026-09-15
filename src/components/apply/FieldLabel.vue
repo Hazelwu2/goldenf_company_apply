@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/** NFormItem #label 插槽用的中英雙語標籤（中文為主、英文為輔助小字）。 */
+/** NFormItem #label 插槽用的中英双语标签（中文为主、英文为辅助小字）。 */
 defineProps<{
   zh: string
   en: string

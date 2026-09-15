@@ -69,7 +69,7 @@ function previewRejection() {
   <section class="screen">
     <NCard size="large">
       <template #header>
-        <span class="screen__title">確認送出</span>
+        <span class="screen__title">确认送出</span>
         <span class="screen__title-en">Confirm & Submit</span>
       </template>
       <template #header-extra>
@@ -77,8 +77,8 @@ function previewRejection() {
       </template>
 
       <p class="screen__lead">
-        本次將建立 <strong>{{ reviewSections.length }}</strong> 筆資料，送出後系統會產生
-        <strong>1 個開線編號</strong>，請再次確認以下內容：
+        本次将建立 <strong>{{ reviewSections.length }}</strong> 笔资料，送出后系统会产生
+        <strong>1 个开线编号</strong>，请再次确认以下内容：
       </p>
       <p class="screen__lead-en">
         This submission will create <strong>{{ reviewSections.length }}</strong> record(s). One
@@ -125,8 +125,8 @@ function previewRejection() {
                     size="small"
                     :aria-label="
                       isSecretVisible(section.level, field.key)
-                        ? '隱藏測試密碼 Hide test password'
-                        : '顯示測試密碼 Show test password'
+                        ? '隐藏测试密码 Hide test password'
+                        : '显示测试密码 Show test password'
                     "
                     @click="toggleSecret(section.level, field.key)"
                   >
@@ -137,7 +137,7 @@ function previewRejection() {
                         "
                       />
                     </template>
-                    {{ isSecretVisible(section.level, field.key) ? '隱藏 Hide' : '顯示 Show' }}
+                    {{ isSecretVisible(section.level, field.key) ? '隐藏 Hide' : '显示 Show' }}
                   </NButton>
                 </div>
                 <a
@@ -162,7 +162,7 @@ function previewRejection() {
           :checked="store.declarationChecked"
           @update:checked="(v: boolean) => (store.declarationChecked = v)"
         >
-          我已確認以上資料正確無誤，送出後將無法自行修改，如需異動須聯絡客服並提供開線編號。
+          我已确认以上资料正确无误，送出后将无法自行修改，如需异动须联络客服并提供开线编号。
           <br />
           <span class="declaration__en">
             I confirm the information above is correct. Once submitted, it cannot be self-edited —
@@ -176,7 +176,7 @@ function previewRejection() {
         <div class="captcha-block__label">
           <NIcon :component="ShieldCheckmarkOutline" size="15" />
           <span>
-            安全驗證
+            安全验证
             <span class="captcha-block__label-en">Security Verification</span>
           </span>
         </div>
@@ -192,10 +192,10 @@ function previewRejection() {
     </NCard>
 
     <StepFooterActions
-      next-label="確認送出"
+      next-label="确认送出"
       next-label-en="Confirm & Submit"
       :next-disabled="!store.canSubmit"
-      hint="請勾選宣告並通過安全驗證後才能送出"
+      hint="请勾选宣告并通过安全验证后才能送出"
       hint-en="Please check the declaration and pass the security verification to submit"
       @back="goBack"
       @next="handleSubmit"
@@ -203,7 +203,7 @@ function previewRejection() {
 
     <button type="button" class="preview-link" @click="previewRejection">
       <NIcon :component="AlertCircleOutline" size="13" />
-      預覽：整包拒絕畫面（僅供畫面檢視，非實際送出結果）
+      预览：整包拒绝画面（仅供画面检视，非实际送出结果）
     </button>
   </section>
 </template>

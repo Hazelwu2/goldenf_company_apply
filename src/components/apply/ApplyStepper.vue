@@ -17,7 +17,7 @@ function onStepClick(step: ApplyStep) {
 </script>
 
 <template>
-  <ol class="stepper" role="list" aria-label="申請進度 Application progress">
+  <ol class="stepper" role="list" aria-label="申请进度 Application progress">
     <li
       v-for="(step, i) in props.steps"
       :key="step.key"

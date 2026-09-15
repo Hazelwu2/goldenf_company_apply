@@ -18,7 +18,7 @@ const router = useRouter()
 const { steps } = useApplySteps()
 
 const form = computed(() => store.agentForm(props.level))
-const title = computed(() => (props.level === 'MA' ? '代理 MA' : '總代理 SMA'))
+const title = computed(() => (props.level === 'MA' ? '代理 MA' : '总代理 SMA'))
 const titleEn = computed(() => (props.level === 'MA' ? 'Agent MA' : 'Super Agent SMA'))
 const stepKey = computed(() => (props.level === 'MA' ? 'agent-ma' : 'agent-sma'))
 const showSameAsA = computed(() => store.hasLevel('A'))
@@ -54,7 +54,7 @@ function goNext() {
 
       <NForm label-placement="left" label-width="150" require-mark-placement="right-hanging">
         <NFormItem required>
-          <template #label><FieldLabel :zh="`${title}代碼`" :en="`${titleEn} Code`" /></template>
+          <template #label><FieldLabel :zh="`${title}代码`" :en="`${titleEn} Code`" /></template>
           <div :id="`${idPrefix}-code`" class="anchor-target field">
             <CodeInput
               v-model="form.code"
@@ -68,18 +68,18 @@ function goNext() {
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel :zh="`${title}名稱`" :en="`${titleEn} Name`" /></template>
+          <template #label><FieldLabel :zh="`${title}名称`" :en="`${titleEn} Name`" /></template>
           <div class="field">
-            <NInput v-model:value="form.name" placeholder="選填" />
+            <NInput v-model:value="form.name" placeholder="选填" />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="後台帳號" en="Admin Account" /></template>
+          <template #label><FieldLabel zh="后台账号" en="Admin Account" /></template>
           <div :id="`${idPrefix}-admin-account`" class="anchor-target field">
             <NInput
               :value="form.adminAccount"
-              placeholder="6–10 碼小寫英數"
+              placeholder="6–10 码小写英数"
               @update:value="
                 (v: string) =>
                   (form.adminAccount = v
@@ -88,12 +88,12 @@ function goNext() {
                     .slice(0, 10))
               "
             />
-            <FieldHint zh="6–10 碼小寫英數" en="6–10 lowercase alphanumeric characters" />
+            <FieldHint zh="6–10 码小写英数" en="6–10 lowercase alphanumeric characters" />
           </div>
         </NFormItem>
 
         <NFormItem required>
-          <template #label><FieldLabel zh="後台 IP 白名單" en="Admin IP Whitelist" /></template>
+          <template #label><FieldLabel zh="后台 IP 白名单" en="Admin IP Whitelist" /></template>
           <div :id="`${idPrefix}-bo-whitelist`" class="anchor-target field">
             <WhitelistTextarea v-model="form.boWhitelist" :disabled="form.sameAsA" />
           </div>
@@ -101,32 +101,32 @@ function goNext() {
 
         <NFormItem v-if="showSameAsA" label=" ">
           <NCheckbox :checked="form.sameAsA" @update:checked="handleSameAsAChange">
-            與 A 相同 Same as A
+            与 A 相同 Same as A
             <span class="same-as-a__hint">
-              （同步後台白名單與聯絡 Email，欄位鎖定為唯讀／Syncs the admin whitelist and contact
+              （同步后台白名单与联络 Email，栏位锁定为唯读／Syncs the admin whitelist and contact
               email from A; fields become read-only）
             </span>
           </NCheckbox>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="聯絡 Email" en="Contact Email" /></template>
+          <template #label><FieldLabel zh="联络 Email" en="Contact Email" /></template>
           <div :id="`${idPrefix}-email`" class="anchor-target field">
-            <NInput v-model:value="form.email" placeholder="選填" :disabled="form.sameAsA" />
+            <NInput v-model:value="form.email" placeholder="选填" :disabled="form.sameAsA" />
           </div>
         </NFormItem>
 
         <NFormItem>
-          <template #label><FieldLabel zh="備註" en="Remarks" /></template>
+          <template #label><FieldLabel zh="备注" en="Remarks" /></template>
           <div class="field">
             <NInput
               v-model:value="form.remark"
               type="textarea"
               :autosize="{ minRows: 2, maxRows: 4 }"
-              placeholder="選填，如有額外需求可在此說明"
+              placeholder="选填，如有额外需求可在此说明"
             />
             <FieldHint
-              zh="可自由填寫額外需求，非必填。"
+              zh="可自由填写额外需求，非必填。"
               en="Optional — describe any extra requirements here."
             />
           </div>
@@ -136,7 +136,7 @@ function goNext() {
       <div v-if="form.sameAsA" class="same-as-a__banner">
         <NIcon :component="InformationCircleOutline" size="15" />
         <span>
-          已與營運商 A 同步後台白名單與聯絡 Email，取消勾選即可自行填寫。
+          已与营运商 A 同步后台白名单与联络 Email，取消勾选即可自行填写。
           <br />
           <span class="same-as-a__banner-en">
             Synced with Operator A's admin whitelist and contact email — uncheck to edit manually.
@@ -147,7 +147,7 @@ function goNext() {
 
     <StepFooterActions
       :next-disabled="!store.isAgentValid(props.level)"
-      hint="請完整填寫必填欄位，並確認格式正確"
+      hint="请完整填写必填栏位，并确认格式正确"
       hint-en="Please complete all required fields with valid formats"
       @back="goBack"
       @next="goNext"

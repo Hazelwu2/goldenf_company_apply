@@ -18,7 +18,7 @@ function goNext() {
 }
 
 function confirmNext() {
-  // steps[0] 是「選組合」本身，steps[1] 就是這個組合的第一個表單頁
+  // steps[0] 是「选组合」本身，steps[1] 就是这个组合的第一个表单页
   const next = steps.value[1]
   if (next) {
     showConfirmation.value = false
@@ -31,13 +31,13 @@ function confirmNext() {
   <section class="screen">
     <header class="screen__header">
       <div class="screen__heading-block">
-        <p class="screen__eyebrow">申請設定 · APPLICATION SETUP</p>
-        <h1 class="screen__title">選擇申請組合</h1>
+        <p class="screen__eyebrow">申请设定 · APPLICATION SETUP</p>
+        <h1 class="screen__title">选择申请组合</h1>
         <p class="screen__title-en">Select Application Type</p>
       </div>
       <div class="screen__intro">
         <p class="screen__desc">
-          請選擇本次要開線的組合。只能選以下四種固定組合，選定後即決定後續需要填寫的表單內容。
+          请选择本次要开线的组合。只能选以下四种固定组合，选定后即决定后续需要填写的表单内容。
         </p>
         <p class="screen__desc-en">
           Select the combination to open this time. Only the four fixed combinations below are
@@ -48,7 +48,7 @@ function confirmNext() {
 
     <OrgHierarchyDiagram />
 
-    <div class="combo-grid" role="radiogroup" aria-label="申請組合">
+    <div class="combo-grid" role="radiogroup" aria-label="申请组合">
       <ComboRadioCard
         v-for="option in COMBO_OPTIONS"
         :key="option.key"
@@ -61,7 +61,7 @@ function confirmNext() {
     <StepFooterActions
       :show-back="false"
       :next-disabled="!store.combo"
-      hint="請先選擇一種申請組合"
+      hint="请先选择一种申请组合"
       hint-en="Please select an application type first"
       @next="goNext"
     />
@@ -79,13 +79,13 @@ function confirmNext() {
     >
       <template #header>
         <div class="combo-confirm__header">
-          <span>確認申請組合</span>
+          <span>确认申请组合</span>
           <span class="combo-confirm__header-en">Confirm Application Type</span>
         </div>
       </template>
 
       <template v-if="store.comboOption">
-        <p class="combo-confirm__lead">你選擇的是</p>
+        <p class="combo-confirm__lead">你选择的是</p>
         <p class="combo-confirm__lead-en">You have selected</p>
 
         <div class="combo-confirm__selection">
@@ -95,7 +95,7 @@ function confirmNext() {
 
         <OrgHierarchyDiagram :levels="store.comboOption.levels" compact />
 
-        <p class="combo-confirm__hint">請確認以上申請組合是否正確。</p>
+        <p class="combo-confirm__hint">请确认以上申请组合是否正确。</p>
         <p class="combo-confirm__hint-en">Please confirm that the application type above is correct.</p>
       </template>
 
@@ -105,7 +105,7 @@ function confirmNext() {
             返回修改&nbsp; Back
           </NButton>
           <NButton type="primary" size="large" @click="confirmNext">
-            確認並繼續&nbsp; Confirm & Continue
+            确认并继续&nbsp; Confirm & Continue
           </NButton>
         </div>
       </template>

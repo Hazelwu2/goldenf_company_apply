@@ -32,8 +32,8 @@ function renderOptionLabel(vendor: (typeof VENDORS)[number]) {
         {
           default: () =>
             vendor.env === 'official_test'
-              ? '正式＋測試 / Prod. + Test'
-              : '僅正式 / Production',
+              ? '正式＋测试 / Prod. + Test'
+              : '仅正式 / Production',
         },
       ),
     ])
@@ -79,19 +79,19 @@ const options = computed(() => {
     {
       type: 'group' as const,
       key: 'official_test',
-      label: '正式與測試環境 / Production & Test',
+      label: '正式与测试环境 / Production & Test',
       children: build('official_test'),
     },
     {
       type: 'group' as const,
       key: 'official_only',
-      label: '僅正式環境 / Production Only',
+      label: '仅正式环境 / Production Only',
       children: build('official_only'),
     },
   ]
 })
 
-/** 搜尋比對中文名稱／英文名稱／內部代碼（代碼不顯示，但仍可用來搜尋）。 */
+/** 搜寻比对中文名称／英文名称／内部代码（代码不显示，但仍可用来搜寻）。 */
 function filterVendor(pattern: string, option: Record<string, unknown>) {
   const needle = pattern.trim().toLowerCase()
   if (!needle) return true
@@ -112,15 +112,15 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
     :options="options"
     :disabled="!props.currency"
     :placeholder="
-      props.currency ? '選擇產品商（可多選） / Select vendors' : '請先選擇幣別 / Select currency first'
+      props.currency ? '选择产品商（可多选） / Select vendors' : '请先选择币别 / Select currency first'
     "
     @update:value="(v: string[]) => emit('update:modelValue', v)"
   />
 </template>
 
 <style>
-/* 下拉選項由 render function 產生、會被 teleport 到 body，
-   scoped style 的 data-v 屬性套不到，這裡改用全域 class。 */
+/* 下拉选项由 render function 产生、会被 teleport 到 body，
+   scoped style 的 data-v 属性套不到，这里改用全域 class。 */
 .vendor-option {
   display: flex;
   align-items: center;

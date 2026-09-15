@@ -55,7 +55,14 @@ interface ApplicationReviewSource {
 export interface ConfirmationImageData {
   referenceNo: string
   submittedAt: string
-  records: Array<{ role: string; code: string; name: string }>
+  records: ConfirmationRecord[]
+}
+
+export interface ConfirmationRecord {
+  level: 'A' | 'MA' | 'SMA'
+  role: string
+  code: string
+  name: string
 }
 
 interface ConfirmationImageSource {
@@ -68,10 +75,12 @@ interface ConfirmationImageSource {
 }
 
 const levelMeta = {
-  A: { titleZh: '營運商 A', titleEn: 'Operator A', editPath: '/apply/operator' },
+  A: { titleZh: '营运商 A', titleEn: 'Operator A', editPath: '/apply/operator' },
   MA: { titleZh: '代理 MA', titleEn: 'Agent MA', editPath: '/apply/agent/ma' },
-  SMA: { titleZh: '總代理 SMA', titleEn: 'Super Agent SMA', editPath: '/apply/agent/sma' },
+  SMA: { titleZh: '总代理 SMA', titleEn: 'Super Agent SMA', editPath: '/apply/agent/sma' },
 } as const
+
+const hierarchyOrder = ['SMA', 'MA', 'A'] as const
 
 function splitValues(value: string): string[] {
   return value
@@ -92,91 +101,91 @@ function buildOperatorFields(
   const fields: ReviewField[] = []
   addField(fields, {
     key: 'currency',
-    labelZh: '幣別',
+    labelZh: '币别',
     labelEn: 'Currency',
     value: operator.currency ?? '',
   })
   addField(fields, {
     key: 'vendors',
-    labelZh: '產品商',
+    labelZh: '产品商',
     labelEn: 'Vendors',
     value: operator.vendorCodes.map((code) => vendorNames[code] ?? code),
     kind: 'tags',
   })
   addField(fields, {
     key: 'code',
-    labelZh: '營運商代碼',
+    labelZh: '营运商代码',
     labelEn: 'Operator Code',
     value: operator.code,
   })
   addField(fields, {
     key: 'name',
-    labelZh: '營運商名稱',
+    labelZh: '营运商名称',
     labelEn: 'Operator Name',
     value: operator.name,
   })
   addField(fields, {
     key: 'adminAccount',
-    labelZh: '後台帳號',
+    labelZh: '后台账号',
     labelEn: 'Admin Account',
     value: operator.adminAccount,
   })
   addField(fields, {
     key: 'boWhitelist',
-    labelZh: '後台白名單',
+    labelZh: '后台白名单',
     labelEn: 'Admin Whitelist',
     value: splitValues(operator.boWhitelist),
     kind: 'tags',
   })
   addField(fields, {
     key: 'apiWhitelist',
-    labelZh: 'API 白名單',
+    labelZh: 'API 白名单',
     labelEn: 'API Whitelist',
     value: splitValues(operator.apiWhitelist),
     kind: 'tags',
   })
   addField(fields, {
     key: 'email',
-    labelZh: '聯絡 Email',
+    labelZh: '联络 Email',
     labelEn: 'Contact Email',
     value: operator.email,
   })
   addField(fields, {
     key: 'operatingMarkets',
-    labelZh: '運營市場',
+    labelZh: '运营市场',
     labelEn: 'Operating Markets',
     value: operator.operatingMarkets,
     kind: 'tags',
   })
   addField(fields, {
     key: 'websiteStatus',
-    labelZh: '站台狀態',
+    labelZh: '站台状态',
     labelEn: 'Website Status',
     value:
       operator.websiteStatus === 'live'
-        ? '已有網站 / Website Live'
+        ? '已有网站 / Website Live'
         : operator.websiteStatus === 'in_progress'
-          ? '尚在開發中 / In Development'
+          ? '尚在开发中 / In Development'
           : '',
   })
 
   if (operator.websiteStatus === 'live') {
     addField(fields, {
       key: 'website',
-      labelZh: '站台網址',
+      labelZh: '站台网址',
       labelEn: 'Website URL',
       value: operator.website,
       kind: 'link',
     })
     addField(fields, {
       key: 'testAccount',
-      labelZh: '測試帳號',
+      labelZh: '测试账号',
       labelEn: 'Test Account',
       value: operator.testAccount,
     })
     addField(fields, {
       key: 'testPassword',
-      labelZh: '測試密碼',
+      labelZh: '测试密码',
       labelEn: 'Test Password',
       value: operator.testPassword ? '••••••••' : '',
       kind: 'secret',
@@ -186,7 +195,7 @@ function buildOperatorFields(
 
   addField(fields, {
     key: 'remark',
-    labelZh: '備註',
+    labelZh: '备注',
     labelEn: 'Remarks',
     value: operator.remark,
   })
@@ -198,38 +207,38 @@ function buildAgentFields(level: 'MA' | 'SMA', agent: AgentReviewSource): Review
   const fields: ReviewField[] = []
   addField(fields, {
     key: 'code',
-    labelZh: `${meta.titleZh}代碼`,
+    labelZh: `${meta.titleZh}代码`,
     labelEn: `${meta.titleEn} Code`,
     value: agent.code,
   })
   addField(fields, {
     key: 'name',
-    labelZh: `${meta.titleZh}名稱`,
+    labelZh: `${meta.titleZh}名称`,
     labelEn: `${meta.titleEn} Name`,
     value: agent.name,
   })
   addField(fields, {
     key: 'adminAccount',
-    labelZh: '後台帳號',
+    labelZh: '后台账号',
     labelEn: 'Admin Account',
     value: agent.adminAccount,
   })
   addField(fields, {
     key: 'boWhitelist',
-    labelZh: '後台 IP 白名單',
+    labelZh: '后台 IP 白名单',
     labelEn: 'Admin IP Whitelist',
     value: splitValues(agent.boWhitelist),
     kind: 'tags',
   })
   addField(fields, {
     key: 'email',
-    labelZh: '聯絡 Email',
+    labelZh: '联络 Email',
     labelEn: 'Contact Email',
     value: agent.email,
   })
   addField(fields, {
     key: 'remark',
-    labelZh: '備註',
+    labelZh: '备注',
     labelEn: 'Remarks',
     value: agent.remark,
   })
@@ -254,9 +263,10 @@ export function buildConfirmationImageData(source: ConfirmationImageSource): Con
   return {
     referenceNo: source.referenceNo,
     submittedAt: source.submittedAt,
-    records: source.levels.map((level) => {
+    records: hierarchyOrder.filter((level) => source.levels.includes(level)).map((level) => {
       const data = level === 'A' ? source.operator : level === 'MA' ? source.agentMA : source.agentSMA
       return {
+        level,
         role: `${levelMeta[level].titleZh} / ${levelMeta[level].titleEn}`,
         code: data.code || '—',
         name: data.name || '—',

@@ -1,6 +1,6 @@
 /**
- * 畫面示範用假資料。之後串接後台 API 時，這個檔案可以整份被 API 回應取代，
- * 元件端不需要跟著改（都是走 currency / vendor code 對照）。
+ * 画面示范用假资料。之后串接后台 API 时，这个档案可以整份被 API 回应取代，
+ * 元件端不需要跟着改（都是走 currency / vendor code 对照）。
  */
 
 import type { SelectOption } from 'naive-ui'
@@ -11,9 +11,9 @@ export interface CurrencyOption extends SelectOption {
 }
 
 export const CURRENCIES: CurrencyOption[] = [
-  { value: 'CNY', label: 'CNY 人民幣' },
+  { value: 'CNY', label: 'CNY 人民币' },
   { value: 'USD', label: 'USD 美金' },
-  { value: 'THB', label: 'THB 泰銖' },
+  { value: 'THB', label: 'THB 泰铢' },
   { value: 'VND', label: 'VND 越南盾' },
   { value: 'IDR', label: 'IDR 印尼盾' },
 ]
@@ -21,11 +21,11 @@ export const CURRENCIES: CurrencyOption[] = [
 export type VendorEnv = 'official_test' | 'official_only'
 
 export interface VendorOption {
-  /** 內部代碼，對應送出時的 vendor_codes，畫面上不顯示。 */
+  /** 内部代码，对应送出时的 vendor_codes，画面上不显示。 */
   code: string
-  /** 中文名稱。多數產品商是國際品牌，中文站台慣例仍顯示原文，故常與 nameEn 相同。 */
+  /** 中文名称。多数产品商是国际品牌，中文站台惯例仍显示原文，故常与 nameEn 相同。 */
   nameZh: string
-  /** 英文名稱。 */
+  /** 英文名称。 */
   nameEn: string
   env: VendorEnv
   currencies: string[]
@@ -91,12 +91,12 @@ export const VENDORS: VendorOption[] = [
 ]
 
 export const OPERATING_MARKETS: string[] = [
-  '中國大陸',
-  '台灣',
+  '中国大陆',
+  '台湾',
   '越南',
-  '泰國',
+  '泰国',
   '印尼',
-  '菲律賓',
-  '馬來西亞',
+  '菲律宾',
+  '马来西亚',
   '柬埔寨',
 ]
