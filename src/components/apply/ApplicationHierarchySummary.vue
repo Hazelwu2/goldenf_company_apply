@@ -33,18 +33,13 @@ const hierarchyLabel = computed(
 <style scoped>
 .application-hierarchy {
   width: 100%;
-  padding: 16px 18px;
   box-sizing: border-box;
-  border: 1px solid var(--color-border-strong);
-  border-radius: 7px;
-  background: var(--color-surface);
-  box-shadow: var(--shadow-card);
 }
 
 .application-hierarchy__tree {
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
-  margin: 0 auto;
+  margin: 0;
   color: var(--color-text);
   font-family: ui-monospace, 'SF Mono', monospace;
   font-size: 15px;

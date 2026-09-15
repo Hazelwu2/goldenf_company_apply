@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NIcon, useDialog, useMessage } from 'naive-ui'
-import { CheckmarkCircle, DownloadOutline, ImageOutline } from '@vicons/ionicons5'
+import { CheckmarkCircle, DownloadOutline } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
 import ReferenceNoCard from '@/components/apply/ReferenceNoCard.vue'
 import ApplicationHierarchySummary from '@/components/apply/ApplicationHierarchySummary.vue'
@@ -128,67 +128,71 @@ async function downloadConfirmationImage() {
 
 <template>
   <section class="screen">
-    <NCard size="large">
+    <NCard size="large" class="result-card">
       <div class="success-head">
-        <span class="success-head__icon">
-          <NIcon :component="CheckmarkCircle" size="34" />
+        <span class="success-head__icon" aria-hidden="true">
+          <NIcon :component="CheckmarkCircle" size="30" />
         </span>
-        <h1 class="success-head__title">送出成功</h1>
-        <p class="success-head__title-en">Submitted Successfully</p>
-        <p class="success-head__desc">您的申请已收件，请妥善保存以下开线编号。</p>
-        <p class="success-head__desc-en">
-          Your application has been received. Please keep the application reference number below.
-        </p>
+        <div>
+          <h1 class="success-head__title">送出成功</h1>
+          <p class="success-head__title-en">Submitted Successfully</p>
+        </div>
       </div>
 
-      <ReferenceNoCard :reference-no="referenceNo" @copied="markReferenceSaved" />
-
-      <section class="save-confirmation" aria-labelledby="save-confirmation-title">
-        <span class="save-confirmation__icon" aria-hidden="true">
-          <NIcon :component="ImageOutline" size="25" />
-        </span>
-        <div class="save-confirmation__content">
-          <h2 id="save-confirmation-title">离开前，请先保存开线编号</h2>
-          <p class="save-confirmation__title-en">Save your application number before leaving</p>
-          <p>
-            储存为 PNG 图片，内含开线编号、提交时间与申请摘要，方便日后查询。
-          </p>
-          <p class="save-confirmation__desc-en">
-            Save a PNG with the application number, submission time, and summary for future
-            enquiries.
-          </p>
+      <section class="preservation" aria-labelledby="save-confirmation-title">
+        <div class="preservation__intro">
+          <h2 id="save-confirmation-title">请保存您的开线资料</h2>
+          <p>Keep your application details</p>
         </div>
+
+        <ReferenceNoCard :reference-no="referenceNo" @copied="markReferenceSaved" />
+
         <NButton
           type="primary"
           size="large"
           :loading="isDownloading"
-          class="save-confirmation__button"
+          class="preservation__button"
           @click="downloadConfirmationImage"
         >
-          <template #icon><NIcon :component="DownloadOutline" /></template>
+          <template #icon><NIcon :component="DownloadOutline" aria-hidden="true" /></template>
           <span>
             储存开线确认单
             <small>Save Confirmation</small>
           </span>
         </NButton>
+
+        <p class="preservation__hint">
+          PNG 图片包含开线编号、提交时间与申请摘要，方便日后查询。
+          <span>
+            The PNG includes your application number, submission time, and summary for future
+            enquiries.
+          </span>
+        </p>
       </section>
 
-      <dl class="meta-list">
-        <div class="meta-list__row">
-          <dt>
-            提交时间
-            <span class="meta-list__dt-en">Submitted At</span>
-          </dt>
-          <dd>{{ submittedAtText }}</dd>
-        </div>
-        <div class="meta-list__row meta-list__row--hierarchy">
-          <dt>
-            组合摘要
-            <span class="meta-list__dt-en">Application Type</span>
-          </dt>
-          <dd><ApplicationHierarchySummary :records="confirmationRecords" /></dd>
-        </div>
-      </dl>
+      <section class="application-details" aria-labelledby="application-details-title">
+        <h2 id="application-details-title">
+          本次申请
+          <span>Application Details</span>
+        </h2>
+
+        <dl class="meta-list">
+          <div class="meta-list__row">
+            <dt>
+              提交时间
+              <span class="meta-list__dt-en">Submitted At</span>
+            </dt>
+            <dd>{{ submittedAtText }}</dd>
+          </div>
+          <div class="meta-list__row meta-list__row--hierarchy">
+            <dt>
+              组合摘要
+              <span class="meta-list__dt-en">Application Type</span>
+            </dt>
+            <dd><ApplicationHierarchySummary :records="confirmationRecords" /></dd>
+          </div>
+        </dl>
+      </section>
 
       <div class="reminder">
         <p class="reminder__zh">
@@ -209,19 +213,54 @@ async function downloadConfirmationImage() {
 
 <style scoped>
 .screen {
+  width: 100%;
   max-width: 600px;
+  min-width: 0;
   margin: 0 auto;
+  box-sizing: border-box;
+}
+
+.result-card {
+  position: relative;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.result-card :deep(.n-card__content) {
+  min-width: 0;
+}
+
+.result-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto auto 24px;
+  width: 68px;
+  height: 4px;
+  border-radius: 0 0 4px 4px;
+  background: var(--color-success);
+  z-index: 1;
 }
 
 .success-head {
-  text-align: center;
-  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 24px;
 }
 
 .success-head__icon {
-  display: inline-flex;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
   color: var(--color-success);
-  margin-bottom: 8px;
+  border: 1px solid var(--color-success-border);
+  border-radius: 50%;
+  background: var(--color-success-soft);
 }
 
 .success-head__title {
@@ -232,107 +271,93 @@ async function downloadConfirmationImage() {
 }
 
 .success-head__title-en {
-  margin: 0 0 10px;
+  margin: 1px 0 0;
   font-size: 14px;
   color: var(--color-text-muted);
 }
 
-.success-head__desc {
+.preservation {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.preservation__intro {
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.preservation__intro h2 {
   margin: 0;
-  font-size: 15px;
-  color: var(--color-text-secondary);
-}
-
-.success-head__desc-en {
-  margin: 4px 0 0;
-  font-size: 14px;
-  color: var(--color-text-muted);
-}
-
-.meta-list {
-  margin: 20px 0 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.save-confirmation {
-  position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 14px;
-  margin-top: 18px;
-  padding: 16px;
-  border: 1px solid var(--color-success-border);
-  border-radius: 9px;
-  background: var(--color-success-soft);
-  box-shadow: var(--shadow-selected);
-}
-
-.save-confirmation::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 20px;
-  width: 54px;
-  height: 3px;
-  border-radius: 0 0 3px 3px;
-  background: var(--color-success);
-}
-
-.save-confirmation__icon {
-  width: 44px;
-  height: 44px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  color: var(--color-success);
-  background: var(--color-surface);
-  border: 1px solid var(--color-success-border);
-}
-
-.save-confirmation h2 {
-  margin: 0;
-  font-size: 16px;
   color: var(--color-text);
+  font-size: 18px;
+  line-height: 1.4;
 }
 
-.save-confirmation p {
-  margin: 6px 0 0;
+.preservation__intro p {
+  margin: 2px 0 0;
   font-size: 14px;
-  line-height: 1.55;
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 
-.save-confirmation__title-en {
-  margin-top: 1px !important;
-  font-size: 13px !important;
-  color: var(--color-text-muted) !important;
-}
-
-.save-confirmation__desc-en {
-  margin-top: 2px !important;
-  font-size: 13px !important;
-  color: var(--color-text-muted) !important;
-}
-
-.save-confirmation__button {
-  min-height: 48px;
+.preservation__button {
+  width: 100%;
+  min-height: 54px;
+  margin-top: 18px;
   color: var(--color-on-primary);
 }
 
-.save-confirmation__button :deep(.n-button__content),
-.save-confirmation__button :deep(.n-button__icon) {
+.preservation__button :deep(.n-button__content),
+.preservation__button :deep(.n-button__icon) {
   color: var(--color-on-primary);
 }
 
-.save-confirmation__button small {
+.preservation__button small {
   display: block;
   margin-top: 1px;
   font-size: 12px;
   font-weight: 400;
+}
+
+.preservation__hint {
+  margin: 12px 0 0;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  line-height: 1.55;
+  text-align: center;
+}
+
+.preservation__hint span {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-muted);
+}
+
+.application-details {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.application-details h2 {
+  margin: 0 0 14px;
+  color: var(--color-text);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.application-details h2 span {
+  display: block;
+  margin-top: 1px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.meta-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .meta-list__row {
@@ -365,10 +390,8 @@ async function downloadConfirmationImage() {
 
 .reminder {
   margin-top: 20px;
-  padding: 12px 14px;
-  background: var(--color-surface-muted);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border);
 }
 
 .reminder__zh {
@@ -392,23 +415,22 @@ async function downloadConfirmationImage() {
 }
 
 @media (max-width: 680px) {
-  .save-confirmation {
-    grid-template-columns: auto minmax(0, 1fr);
+  .meta-list__row {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 6px;
   }
 
-  .save-confirmation__button {
-    grid-column: 1 / -1;
-    width: 100%;
+  .meta-list__row dt {
+    width: auto;
   }
 
   .meta-list__row--hierarchy {
-    align-items: stretch;
-    flex-direction: column;
     gap: 8px;
   }
 
-  .meta-list__row--hierarchy dt {
-    width: auto;
+  .success-head {
+    justify-content: flex-start;
   }
 }
 </style>

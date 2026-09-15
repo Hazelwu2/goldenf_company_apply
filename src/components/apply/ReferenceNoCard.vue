@@ -28,7 +28,7 @@ async function copy() {
       <span class="reference-card__value">{{ referenceNo }}</span>
       <NButton size="small" secondary @click="copy">
         <template #icon>
-          <NIcon :component="CopyOutline" />
+          <NIcon :component="CopyOutline" aria-hidden="true" />
         </template>
         复制 Copy
       </NButton>
@@ -41,16 +41,12 @@ async function copy() {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 20px 24px;
-  border-radius: 8px;
-  background: var(--color-success-soft);
-  border: 1px solid var(--color-success-border);
-  box-shadow: var(--shadow-card);
+  min-width: 0;
 }
 
 .reference-card__label {
   font-size: 14px;
-  color: var(--color-success);
+  color: var(--color-text-secondary);
   letter-spacing: 0.02em;
 }
 
@@ -60,14 +56,33 @@ async function copy() {
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .reference-card__value {
+  min-width: 0;
+  max-width: 100%;
   font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
   font-size: clamp(22px, 5vw, 30px);
   font-weight: 700;
   color: var(--color-primary-pressed);
   letter-spacing: 0.03em;
-  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.reference-card :deep(.n-button) {
+  min-height: 44px;
+  padding-inline: 16px;
+}
+
+@media (max-width: 480px) {
+  .reference-card__row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .reference-card :deep(.n-button) {
+    width: 100%;
+  }
 }
 </style>
