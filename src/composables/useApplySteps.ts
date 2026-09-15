@@ -20,7 +20,13 @@ export function useApplySteps() {
 
   const steps = computed<ApplyStep[]>(() => {
     const list: ApplyStep[] = [
-      { key: 'select', label: '選組合', path: '/apply', status: 'upcoming' },
+      {
+        key: 'select',
+        label: '選組合',
+        labelEn: 'Select Type',
+        path: '/apply',
+        status: 'upcoming',
+      },
     ]
 
     for (const level of store.levels) {
@@ -28,6 +34,7 @@ export function useApplySteps() {
         list.push({
           key: 'operator',
           label: '營運商 A',
+          labelEn: 'Operator A',
           path: '/apply/operator',
           status: 'upcoming',
         })
@@ -35,6 +42,7 @@ export function useApplySteps() {
         list.push({
           key: 'agent-ma',
           label: '代理 MA',
+          labelEn: 'Agent MA',
           path: '/apply/agent/ma',
           status: 'upcoming',
         })
@@ -42,13 +50,20 @@ export function useApplySteps() {
         list.push({
           key: 'agent-sma',
           label: '總代理 SMA',
+          labelEn: 'Super Agent SMA',
           path: '/apply/agent/sma',
           status: 'upcoming',
         })
       }
     }
 
-    list.push({ key: 'confirm', label: '確認送出', path: '/apply/confirm', status: 'upcoming' })
+    list.push({
+      key: 'confirm',
+      label: '確認送出',
+      labelEn: 'Review & Submit',
+      path: '/apply/confirm',
+      status: 'upcoming',
+    })
 
     const currentIndex = list.findIndex((s) => s.path === route.path)
 

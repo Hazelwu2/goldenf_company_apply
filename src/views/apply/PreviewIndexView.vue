@@ -98,7 +98,7 @@ const items: PreviewItem[] = [
   {
     id: 'C10',
     title: '送出成功',
-    desc: '大字開線編號＋複製、提交時間、組合摘要，無列印／下載按鈕。',
+    desc: '大字開線編號＋複製、提交時間、組合摘要，以及 PNG 開線確認單。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
       store.submitApplication()

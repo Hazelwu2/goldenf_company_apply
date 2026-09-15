@@ -13,8 +13,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>()
 
-const entries = computed(() =>
-  splitWhitelist(props.modelValue).map((ip) => ({ ip, valid: isValidWhitelistEntry(ip) })),
+const invalidEntries = computed(() =>
+  splitWhitelist(props.modelValue).filter((ip) => !isValidWhitelistEntry(ip)),
 )
 </script>
 
@@ -36,17 +36,22 @@ const entries = computed(() =>
       zh="可輸入一筆或多筆 IP，請使用逗號、空白或換行分隔。"
       en="Enter one or multiple IP addresses, separated by commas, spaces, or line breaks."
     />
-    <div v-if="entries.length" class="whitelist__tags">
-      <NTag
-        v-for="(entry, i) in entries"
-        :key="`${entry.ip}-${i}`"
-        size="small"
-        :type="entry.valid ? 'default' : 'error'"
-        round
-      >
-        {{ entry.ip }}
-      </NTag>
-      <span class="whitelist__count">共 {{ entries.length }} 筆</span>
+    <div v-if="invalidEntries.length" class="whitelist__error" role="alert">
+      <div class="whitelist__error-message">
+        <span class="whitelist__error-zh">IP 格式錯誤</span>
+        <span class="whitelist__error-en">Invalid IP format</span>
+      </div>
+      <div class="whitelist__tags">
+        <NTag
+          v-for="(ip, i) in invalidEntries"
+          :key="`${ip}-${i}`"
+          size="small"
+          type="error"
+          round
+        >
+          {{ ip }}
+        </NTag>
+      </div>
     </div>
   </div>
 </template>
@@ -57,8 +62,33 @@ const entries = computed(() =>
   font-size: 15px;
 }
 
-.whitelist__tags {
+.whitelist__error {
   margin-top: 8px;
+  padding: 9px 11px;
+  border: 1px solid var(--color-error-border);
+  border-radius: 7px;
+  background: var(--color-error-soft);
+}
+
+.whitelist__error-message {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin-bottom: 7px;
+  color: var(--color-error-strong);
+}
+
+.whitelist__error-zh {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.whitelist__error-en {
+  font-size: 13px;
+}
+
+.whitelist__tags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -68,11 +98,5 @@ const entries = computed(() =>
 .whitelist__tags :deep(.n-tag__content) {
   font-family: ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono', Menlo, Consolas, monospace;
   font-size: 13px;
-}
-
-.whitelist__count {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin-left: 2px;
 }
 </style>

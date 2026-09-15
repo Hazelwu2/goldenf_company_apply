@@ -94,26 +94,28 @@ function navigateStep(path: string) {
               <NButtonGroup class="theme-switcher" aria-label="顯示模式 Display mode">
                 <NButton
                   v-for="item in [
-                    { value: 'system' as const, label: '系統', icon: DesktopOutline },
-                    { value: 'light' as const, label: '淺色', icon: SunnyOutline },
-                    { value: 'dark' as const, label: '深色', icon: MoonOutline },
+                    { value: 'system' as const, label: '系統', labelEn: 'System', icon: DesktopOutline },
+                    { value: 'light' as const, label: '淺色', labelEn: 'Light', icon: SunnyOutline },
+                    { value: 'dark' as const, label: '深色', labelEn: 'Dark', icon: MoonOutline },
                   ]"
                   :key="item.value"
                   :type="themePreference === item.value ? 'primary' : 'default'"
                   :secondary="themePreference === item.value"
                   :aria-pressed="themePreference === item.value"
-                  :aria-label="`${item.label}模式`"
+                  :aria-label="`${item.label}模式 ${item.labelEn} mode`"
                   size="small"
                   @click="setThemePreference(item.value)"
                 >
                   <template #icon>
                     <NIcon :component="item.icon" aria-hidden="true" />
                   </template>
-                  <span class="theme-switcher__label">{{ item.label }}</span>
+                  <span class="theme-switcher__label">
+                    {{ item.label }} <small>{{ item.labelEn }}</small>
+                  </span>
                 </NButton>
               </NButtonGroup>
               <RouterLink to="/apply/preview" class="app-shell__preview-link">
-                畫面總覽
+                畫面總覽 <small>Preview</small>
               </RouterLink>
             </div>
           </header>
@@ -142,6 +144,7 @@ function navigateStep(path: string) {
 <style>
 :root {
   color-scheme: light;
+  --app-stepper-height: 73px;
   --color-primary: #3e5b4c;
   --color-primary-hover: #334b41;
   --color-primary-pressed: #293d35;
@@ -272,7 +275,7 @@ body {
 }
 
 .app-shell.has-stepper {
-  padding-top: 67px;
+  padding-top: var(--app-stepper-height);
 }
 
 .app-shell__header {
@@ -314,6 +317,14 @@ body {
 .theme-switcher :deep(.n-button) {
   min-height: 40px;
   padding-inline: 12px;
+}
+
+.theme-switcher__label small,
+.app-shell__preview-link small {
+  margin-left: 3px;
+  font-size: 0.82em;
+  font-weight: 400;
+  color: inherit;
 }
 
 .theme-switcher :deep(.n-button:focus-visible) {
@@ -364,7 +375,10 @@ body {
   z-index: 20;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-divider);
-  padding: 16px clamp(16px, 4vw, 40px);
+  height: var(--app-stepper-height);
+  padding: 10px clamp(16px, 4vw, 40px);
+  display: flex;
+  align-items: center;
   box-shadow: 0 4px 12px rgba(4, 8, 6, 0.04);
 }
 
@@ -373,6 +387,7 @@ body {
 }
 
 .app-shell__stepper-inner {
+  width: 100%;
   max-width: 720px;
   margin: 0 auto;
 }
@@ -413,6 +428,9 @@ body {
 }
 
 @media (max-width: 620px) {
+  :global(:root) {
+    --app-stepper-height: 59px;
+  }
   .app-shell__header {
     align-items: flex-start;
   }

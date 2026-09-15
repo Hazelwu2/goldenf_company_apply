@@ -6,14 +6,17 @@ const props = defineProps<{
   referenceNo: string
 }>()
 
+const emit = defineEmits<{ (event: 'copied'): void }>()
+
 const message = useMessage()
 
 async function copy() {
   try {
     await navigator.clipboard.writeText(props.referenceNo)
-    message.success('已複製開線編號')
+    emit('copied')
+    message.success('已複製開線編號 / Application number copied')
   } catch {
-    message.warning('複製失敗，請手動選取文字')
+    message.warning('複製失敗，請手動選取文字 / Copy failed; please select the text manually')
   }
 }
 </script>

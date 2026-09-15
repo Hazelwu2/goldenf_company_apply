@@ -11,12 +11,15 @@ const props = defineProps<{
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
 
 function renderOptionLabel(vendor: (typeof VENDORS)[number]) {
+  const hasTranslatedName = vendor.nameZh !== vendor.nameEn
+
   return () =>
     h('div', { class: 'vendor-option' }, [
       h('span', { class: 'vendor-option__name' }, [
         h('span', { class: 'vendor-option__name-zh' }, vendor.nameZh),
-        h('span', { class: 'vendor-option__name-sep' }, '／'),
-        h('span', { class: 'vendor-option__name-en' }, vendor.nameEn),
+        ...(hasTranslatedName
+          ? [h('span', { class: 'vendor-option__name-en' }, vendor.nameEn)]
+          : []),
       ]),
       h(
         NTag,
@@ -26,7 +29,12 @@ function renderOptionLabel(vendor: (typeof VENDORS)[number]) {
           bordered: false,
           type: vendor.env === 'official_test' ? 'success' : 'default',
         },
-        { default: () => (vendor.env === 'official_test' ? '正式＋測試' : '僅正式環境') },
+        {
+          default: () =>
+            vendor.env === 'official_test'
+              ? '正式＋測試 / Prod. + Test'
+              : '僅正式 / Production',
+        },
       ),
     ])
 }
@@ -71,13 +79,13 @@ const options = computed(() => {
     {
       type: 'group' as const,
       key: 'official_test',
-      label: '支援正式環境＋測試環境',
+      label: '正式與測試環境 / Production & Test',
       children: build('official_test'),
     },
     {
       type: 'group' as const,
       key: 'official_only',
-      label: '僅支援正式環境',
+      label: '僅正式環境 / Production Only',
       children: build('official_only'),
     },
   ]
@@ -103,7 +111,9 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
     max-tag-count="responsive"
     :options="options"
     :disabled="!props.currency"
-    :placeholder="props.currency ? '選擇產品商（可多選）' : '請先選擇幣別'"
+    :placeholder="
+      props.currency ? '選擇產品商（可多選） / Select vendors' : '請先選擇幣別 / Select currency first'
+    "
     @update:value="(v: string[]) => emit('update:modelValue', v)"
   />
 </template>
@@ -114,25 +124,35 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
 .vendor-option {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  padding-block: 2px;
 }
 .vendor-option__name {
   color: var(--color-text);
   font-size: 15px;
   flex: 1;
   display: flex;
-  align-items: baseline;
-  gap: 4px;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.3;
   min-width: 0;
 }
 .vendor-option__name-zh {
   font-weight: 500;
 }
-.vendor-option__name-sep {
-  color: var(--color-border);
-}
 .vendor-option__name-en {
+  font-size: 13px;
   color: var(--color-text-muted);
+}
+
+.vendor-option > .n-tag {
+  flex: none;
+}
+
+.vendor-option > .n-tag .n-tag__content {
+  font-size: 12px;
 }
 
 .vendor-option__name-zh,

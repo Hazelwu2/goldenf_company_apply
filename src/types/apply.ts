@@ -58,5 +58,6 @@ export interface AgentFormState {
 export interface ApplyStepMeta {
   key: string
   label: string
+  labelEn: string
   status: 'done' | 'current' | 'upcoming' | 'locked'
 }

@@ -12,11 +12,17 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void
   (e: 'refresh'): void
-  (e: 'verify'): void
+  (e: 'verify', value: string): void
 }>()
 
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let themeObserver: MutationObserver | null = null
+
+function handleInput(value: string) {
+  const limitedValue = value.slice(0, props.code.length)
+  emit('update:modelValue', limitedValue)
+  emit('verify', limitedValue)
+}
 
 function themeColor(variable: string, fallback: string) {
   return getComputedStyle(document.documentElement).getPropertyValue(variable).trim() || fallback
@@ -98,22 +104,28 @@ onBeforeUnmount(() => themeObserver?.disconnect())
       <canvas ref="canvasRef" width="140" height="44" class="captcha__canvas" aria-hidden="true" />
       <NTooltip trigger="hover">
         <template #trigger>
-          <NButton quaternary circle aria-label="換一張驗證碼" @click="emit('refresh')">
+          <NButton
+            quaternary
+            circle
+            aria-label="換一張驗證碼 Refresh verification code"
+            @click="emit('refresh')"
+          >
             <template #icon>
               <NIcon :component="RefreshOutline" />
             </template>
           </NButton>
         </template>
-        換一張
+        換一張 / Refresh
       </NTooltip>
 
       <NInput
         :value="modelValue"
-        placeholder="請輸入圖形碼"
+        placeholder="請輸入圖形碼 / Enter code"
         class="captcha__input"
+        :maxlength="code.length"
         :status="status === 'error' ? 'error' : undefined"
-        @update:value="(v: string) => emit('update:modelValue', v)"
-        @blur="emit('verify')"
+        @update:value="handleInput"
+        @blur="emit('verify', modelValue)"
       />
     </div>
 

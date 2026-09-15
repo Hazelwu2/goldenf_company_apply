@@ -15,22 +15,23 @@ import {
   isValidOperatorCode,
   isValidWhitelist,
 } from '@/utils/validators'
+import { getCaptchaStatus } from '@/utils/captcha'
 
 export const COMBO_OPTIONS: ComboOption[] = [
   {
     key: 'SMA_MA_A',
-    title: '建立總代理、代理及營運商',
+    title: '建立总代理、代理及营运商',
     titleEn: 'Create SMA + MA + A',
     levels: ['A', 'MA', 'SMA'],
-    description: '建立一個完整代理階層，包含 1 個總代理 SMA、1 個代理 MA 及 1 個營運商 A。',
+    description: '建立一个完整代理阶层，包含 1 个总代理 SMA、1 个代理 MA 及 1 个营运商 A。 ',
     descriptionEn: 'Create a complete hierarchy with one SMA, one MA, and one operator A.',
   },
   {
     key: 'MA_A',
-    title: '建立代理及營運商',
+    title: '建立代理及营运商',
     titleEn: 'Create MA + A',
     levels: ['A', 'MA'],
-    description: '建立 1 個代理 MA，以及由此 MA 管理的 1 個營運商 A。',
+    description: '建立 1 个代理 MA，以及由此 MA 管理的 1 个营运商 A。 ',
     descriptionEn: 'Create one MA and one operator A managed by this MA.',
   },
   {
@@ -38,19 +39,18 @@ export const COMBO_OPTIONS: ComboOption[] = [
     title: '只建立代理',
     titleEn: 'Create MA only',
     levels: ['MA'],
-    description: '本次只建立 1 個代理 MA，不建立營運商 A。',
+    description: '本次只建立 1 个代理 MA，不建立营运商 A。 ',
     descriptionEn: 'Create one MA only, without creating an operator A.',
   },
   {
     key: 'A',
-    title: '只建立營運商',
+    title: '只建立营运商',
     titleEn: 'Create A only',
     levels: ['A'],
-    description: '本次只建立 1 個營運商 A，不建立新的 SMA 或 MA。',
+    description: '本次只建立 1 个营运商 A，不建立新的 SMA 或 MA。 ',
     descriptionEn: 'Create one operator A only, without creating a new SMA or MA.',
   },
 ]
-
 /**
  * 內部業務邏輯：沒有上層代理時，一律掛在系統預設的根代理底下。
  * 這是後端 parent_code 的推導依據，純內部代號，不對外顯示（畫面上不出現這個字串）。
@@ -196,13 +196,8 @@ export const useApplyStore = defineStore('apply', () => {
     captchaStatus.value = 'idle'
   }
 
-  function verifyCaptcha() {
-    if (!captchaInput.value.trim()) {
-      captchaStatus.value = 'idle'
-      return
-    }
-    captchaStatus.value =
-      captchaInput.value.trim().toUpperCase() === captchaCode.value ? 'ok' : 'error'
+  function verifyCaptcha(input = captchaInput.value) {
+    captchaStatus.value = getCaptchaStatus(input, captchaCode.value)
   }
 
   const canSubmit = computed(() => declarationChecked.value && captchaStatus.value === 'ok')

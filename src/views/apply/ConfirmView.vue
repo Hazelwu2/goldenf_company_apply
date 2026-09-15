@@ -1,10 +1,18 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NCard, NCheckbox, NIcon, NTag } from 'naive-ui'
-import { AlertCircleOutline, ShieldCheckmarkOutline } from '@vicons/ionicons5'
+import { NButton, NCard, NCheckbox, NIcon, NTag } from 'naive-ui'
+import {
+  AlertCircleOutline,
+  EyeOffOutline,
+  EyeOutline,
+  PencilOutline,
+  ShieldCheckmarkOutline,
+} from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
+import { VENDORS } from '@/utils/mockData'
+import { buildApplicationReview } from '@/utils/applicationReview'
 import CaptchaField from '@/components/apply/CaptchaField.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
 
@@ -12,30 +20,29 @@ const store = useApplyStore()
 const router = useRouter()
 const { steps } = useApplySteps()
 
-const levelLabel: Record<string, string> = { A: '營運商 A', MA: '代理 MA', SMA: '總代理 SMA' }
-const levelLabelEn: Record<string, string> = {
-  A: 'Operator A',
-  MA: 'Agent MA',
-  SMA: 'Super Agent SMA',
-}
-
-const records = computed(() =>
-  store.levels.map((level) => {
-    const codeName =
-      level === 'A' ? store.operator.code : store.agentForm(level as 'MA' | 'SMA').code
-    const displayName =
-      level === 'A'
-        ? store.operator.name || store.operator.code
-        : store.agentForm(level as 'MA' | 'SMA').name || store.agentForm(level as 'MA' | 'SMA').code
-    return {
-      level,
-      roleLabel: levelLabel[level],
-      roleLabelEn: levelLabelEn[level],
-      code: codeName || '—',
-      name: displayName || '—',
-    }
+const vendorNames = Object.fromEntries(VENDORS.map((vendor) => [vendor.code, vendor.nameZh]))
+const reviewSections = computed(() =>
+  buildApplicationReview({
+    levels: store.levels,
+    operator: store.operator,
+    agentMA: store.agentMA,
+    agentSMA: store.agentSMA,
+    vendorNames,
   }),
 )
+const revealedSecrets = ref(new Set<string>())
+
+function toggleSecret(sectionLevel: string, fieldKey: string) {
+  const key = `${sectionLevel}-${fieldKey}`
+  const next = new Set(revealedSecrets.value)
+  if (next.has(key)) next.delete(key)
+  else next.add(key)
+  revealedSecrets.value = next
+}
+
+function isSecretVisible(sectionLevel: string, fieldKey: string) {
+  return revealedSecrets.value.has(`${sectionLevel}-${fieldKey}`)
+}
 
 onMounted(() => {
   if (!store.captchaCode) store.regenerateCaptcha()
@@ -70,24 +77,85 @@ function previewRejection() {
       </template>
 
       <p class="screen__lead">
-        本次將建立 <strong>{{ records.length }}</strong> 筆資料，送出後系統會產生
+        本次將建立 <strong>{{ reviewSections.length }}</strong> 筆資料，送出後系統會產生
         <strong>1 個開線編號</strong>，請再次確認以下內容：
       </p>
       <p class="screen__lead-en">
-        This submission will create <strong>{{ records.length }}</strong> record(s). One application
-        reference number will be generated after submission. Please review the details below:
+        This submission will create <strong>{{ reviewSections.length }}</strong> record(s). One
+        application reference number will be generated after submission. Please review every field
+        below:
       </p>
 
-      <ul class="record-list">
-        <li v-for="r in records" :key="r.level" class="record-list__item">
-          <NTag size="small" :bordered="false" round>
-            {{ r.roleLabel }}
-            <span class="record-list__role-en">{{ r.roleLabelEn }}</span>
-          </NTag>
-          <span class="record-list__code">{{ r.code }}</span>
-          <span class="record-list__name">{{ r.name }}</span>
-        </li>
-      </ul>
+      <div class="review-sections">
+        <section
+          v-for="section in reviewSections"
+          :key="section.level"
+          class="review-section"
+          :aria-labelledby="`review-${section.level}`"
+        >
+          <header class="review-section__header">
+            <div>
+              <h2 :id="`review-${section.level}`" class="review-section__title">
+                {{ section.titleZh }}
+              </h2>
+              <span class="review-section__title-en">{{ section.titleEn }}</span>
+            </div>
+            <NButton text type="primary" @click="router.push(section.editPath)">
+              <template #icon><NIcon :component="PencilOutline" /></template>
+              返回修改 <span class="review-section__edit-en">Edit</span>
+            </NButton>
+          </header>
+
+          <dl class="review-fields">
+            <div v-for="field in section.fields" :key="field.key" class="review-field">
+              <dt>
+                <span>{{ field.labelZh }}</span>
+                <span class="review-field__label-en">{{ field.labelEn }}</span>
+              </dt>
+              <dd>
+                <div v-if="Array.isArray(field.value)" class="review-field__tags">
+                  <NTag v-for="item in field.value" :key="item" size="small" round>
+                    {{ item }}
+                  </NTag>
+                </div>
+                <div v-else-if="field.kind === 'secret'" class="review-field__secret">
+                  <code>{{ isSecretVisible(section.level, field.key) ? field.secretValue : field.value }}</code>
+                  <NButton
+                    text
+                    size="small"
+                    :aria-label="
+                      isSecretVisible(section.level, field.key)
+                        ? '隱藏測試密碼 Hide test password'
+                        : '顯示測試密碼 Show test password'
+                    "
+                    @click="toggleSecret(section.level, field.key)"
+                  >
+                    <template #icon>
+                      <NIcon
+                        :component="
+                          isSecretVisible(section.level, field.key) ? EyeOffOutline : EyeOutline
+                        "
+                      />
+                    </template>
+                    {{ isSecretVisible(section.level, field.key) ? '隱藏 Hide' : '顯示 Show' }}
+                  </NButton>
+                </div>
+                <a
+                  v-else-if="field.kind === 'link'"
+                  :href="field.value"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {{ field.value }}
+                </a>
+                <span v-else :class="{ 'review-field__mono': ['code', 'adminAccount'].includes(field.key) }">
+                  {{ field.value }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </section>
+      </div>
 
       <div class="declaration">
         <NCheckbox
@@ -181,42 +249,105 @@ function previewRejection() {
   line-height: 1.6;
 }
 
-.record-list {
-  list-style: none;
+.review-sections {
   margin: 0 0 20px;
-  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 14px;
 }
 
-.record-list__item {
+.review-section {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 9px;
+  background: var(--color-surface-muted);
+}
+
+.review-section__header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding: 10px 12px;
-  background: var(--color-surface-muted);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 15px;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-divider);
+  background: var(--color-surface-hover);
 }
 
-.record-list__role-en {
-  font-size: 13px;
-  opacity: 0.75;
-  margin-left: 4px;
-}
-
-.record-list__code {
-  font-family: ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
-  font-weight: 700;
+.review-section__title {
+  display: inline;
+  margin: 0;
+  font-size: 16px;
   color: var(--color-text);
 }
 
-.record-list__name {
+.review-section__title-en,
+.review-section__edit-en {
+  margin-left: 5px;
+  font-size: 13px;
   color: var(--color-text-muted);
-  flex: 1;
+}
+
+.review-fields {
+  margin: 0;
+  padding: 4px 14px;
+}
+
+.review-field {
+  display: grid;
+  grid-template-columns: minmax(118px, 0.38fr) minmax(0, 1fr);
+  gap: 18px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-divider);
+  font-size: 15px;
+}
+
+.review-field:last-child {
+  border-bottom: 0;
+}
+
+.review-field dt {
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.review-field__label-en {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.review-field dd {
+  min-width: 0;
+  margin: 0;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.review-field dd a {
+  color: var(--color-primary);
+  text-underline-offset: 3px;
+}
+
+.review-field dd a:hover {
+  color: var(--color-primary-hover);
+}
+
+.review-field__mono,
+.review-field__secret code {
+  font-family: ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
+}
+
+.review-field__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.review-field__secret {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .declaration {
@@ -272,5 +403,18 @@ function previewRejection() {
 
 .preview-link:hover {
   color: var(--color-error);
+}
+
+@media (max-width: 560px) {
+  .review-field {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .review-field dt {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+  }
 }
 </style>

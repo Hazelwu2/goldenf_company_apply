@@ -17,7 +17,7 @@ function onStepClick(step: ApplyStep) {
 </script>
 
 <template>
-  <ol class="stepper" role="list" aria-label="申請進度">
+  <ol class="stepper" role="list" aria-label="申請進度 Application progress">
     <li
       v-for="(step, i) in props.steps"
       :key="step.key"
@@ -36,7 +36,10 @@ function onStepClick(step: ApplyStep) {
           <NIcon v-else-if="step.status === 'locked'" size="13" :component="LockClosedOutline" />
           <span v-else>{{ i + 1 }}</span>
         </span>
-        <span class="stepper__label">{{ step.label }}</span>
+        <span class="stepper__label">
+          <span class="stepper__label-zh">{{ step.label }}</span>
+          <span class="stepper__label-en">{{ step.labelEn }}</span>
+        </span>
       </button>
       <span v-if="i < props.steps.length - 1" class="stepper__connector" aria-hidden="true" />
     </li>
@@ -98,10 +101,23 @@ function onStepClick(step: ApplyStep) {
 }
 
 .stepper__label {
-  font-size: 15px;
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
   white-space: nowrap;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
+}
+
+.stepper__label-zh {
+  font-size: 15px;
+}
+
+.stepper__label-en {
+  margin-top: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-text-muted);
 }
 
 /* done */
@@ -123,6 +139,10 @@ function onStepClick(step: ApplyStep) {
 .is-current .stepper__label {
   color: var(--color-text);
   font-weight: 600;
+}
+
+.is-current .stepper__label-en {
+  color: var(--color-text-secondary);
 }
 
 /* locked */
