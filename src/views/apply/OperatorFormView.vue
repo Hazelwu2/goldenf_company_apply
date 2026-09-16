@@ -219,6 +219,34 @@ function goNext() {
         </NFormItem>
 
         <NFormItem required>
+          <template #label><FieldLabel zh="通讯软体" en="Chat Software" /></template>
+          <div id="field-operator-chat-software" class="anchor-target field">
+            <NRadioGroup v-model:value="store.operator.chatSoftware">
+              <NRadio value="Teams">Teams</NRadio>
+              <NRadio value="telegram">Telegram</NRadio>
+            </NRadioGroup>
+            <FieldHint
+              zh="请选择后续开线联系使用的通讯软体。"
+              en="Choose the chat app used for follow-up communication."
+            />
+          </div>
+        </NFormItem>
+
+        <NFormItem required>
+          <template #label><FieldLabel zh="通讯群组" en="Chat Group" /></template>
+          <div id="field-operator-chat-group" class="anchor-target field">
+            <NInput
+              v-model:value="store.operator.chatGroup"
+              placeholder="请输入 Telegram 或 Teams 的群组名称"
+            />
+            <FieldHint
+              zh="填写上方通讯软体中，用于开线联系的群组名称。"
+              en="Enter the group name in the selected chat app used for this application."
+            />
+          </div>
+        </NFormItem>
+
+        <NFormItem required>
           <template #label><FieldLabel zh="运营市场" en="Operating Markets" /></template>
           <div id="field-operator-markets" class="anchor-target field">
             <NSelect

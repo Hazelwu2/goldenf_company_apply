@@ -113,3 +113,22 @@ export function isValidWebsiteSection(
   const isFilled = Boolean(website.trim())
   return status === 'live' ? isFilled : !isFilled
 }
+
+/**
+ * 通讯软体允许值，直接送出至 Create API 的 chat_software。
+ * 大小写依 API 规格：`Teams` 首字大写、`telegram` 全小写。
+ */
+export const CHAT_SOFTWARE_OPTIONS = ['Teams', 'telegram'] as const
+
+export type ChatSoftware = (typeof CHAT_SOFTWARE_OPTIONS)[number]
+
+/** 通讯软体：必填，且只接受规格允许的两个值（区分大小写）。 */
+export function isValidChatSoftware(value: string | null): boolean {
+  if (value === null) return false
+  return (CHAT_SOFTWARE_OPTIONS as readonly string[]).includes(value)
+}
+
+/** 通讯群组：必填，去除前后空白後不可为空。 */
+export function isValidChatGroup(raw: string): boolean {
+  return raw.trim().length > 0
+}

@@ -23,6 +23,8 @@ const operator = {
   website: 'https://example.com',
   testAccount: 'test-user',
   testPassword: 'secret-password',
+  chatSoftware: 'telegram',
+  chatGroup: 'GoldenF 开线群组',
   remark: '',
 }
 
@@ -71,11 +73,14 @@ test('review includes every submitted non-empty field and masks the password', (
       'website',
       'testAccount',
       'testPassword',
+      'chatSoftware',
+      'chatGroup',
     ],
   )
   assert.deepEqual(sections[0]?.fields[1]?.value, ['Pragmatic Play', 'JILI Games'])
-  assert.equal(sections[0]?.fields.at(-1)?.value, '••••••••')
-  assert.equal(sections[0]?.fields.at(-1)?.secretValue, 'secret-password')
+  const password = sections[0]?.fields.find((field) => field.key === 'testPassword')
+  assert.equal(password?.value, '••••••••')
+  assert.equal(password?.secretValue, 'secret-password')
   assert.equal(sections[1]?.titleEn, 'Agent MA')
   assert.equal(sections[1]?.fields.some((field) => field.key === 'email'), false)
   assert.equal(sections[1]?.fields.some((field) => field.key === 'remark'), true)
@@ -205,6 +210,28 @@ test('review omits the contact email row when it is left empty', () => {
 
   assert.equal(
     sections[0]?.fields.some((field) => field.key === 'email'),
+    false,
+  )
+})
+
+test('review shows the chat contact fields for A and renders telegram capitalised', () => {
+  const sections = buildApplicationReview({
+    levels: ['A', 'MA'],
+    operator,
+    agentMA,
+    agentSMA,
+    vendorNames: {},
+  })
+
+  const software = sections[0]?.fields.find((field) => field.key === 'chatSoftware')
+  const group = sections[0]?.fields.find((field) => field.key === 'chatGroup')
+
+  assert.equal(software?.value, 'Telegram')
+  assert.equal(group?.value, 'GoldenF 开线群组')
+
+  // 通讯栏位只属于 A，MA 区段不应出现。
+  assert.equal(
+    sections[1]?.fields.some((field) => field.key === 'chatSoftware'),
     false,
   )
 })

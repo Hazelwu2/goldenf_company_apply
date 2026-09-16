@@ -33,6 +33,8 @@ interface OperatorReviewSource {
   website: string
   testAccount: string
   testPassword: string
+  chatSoftware: string | null
+  chatGroup: string
   remark: string
 }
 
@@ -188,6 +190,18 @@ function buildOperatorFields(
     })
   }
 
+  addField(fields, {
+    key: 'chatSoftware',
+    labelZh: '通讯软体',
+    labelEn: 'Chat Software',
+    value: operator.chatSoftware === 'telegram' ? 'Telegram' : (operator.chatSoftware ?? ''),
+  })
+  addField(fields, {
+    key: 'chatGroup',
+    labelZh: '通讯群组',
+    labelEn: 'Chat Group',
+    value: operator.chatGroup,
+  })
   addField(fields, {
     key: 'remark',
     labelZh: '备注',

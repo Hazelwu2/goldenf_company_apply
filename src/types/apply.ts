@@ -1,3 +1,5 @@
+import type { ChatSoftware } from '@/utils/validators'
+
 /** 四种允许的申请组合（USER 仅能选这四种） */
 export type ComboKey = 'A' | 'MA' | 'MA_A' | 'SMA_MA_A'
 
@@ -40,6 +42,10 @@ export interface OperatorFormState {
   website: string
   testAccount: string
   testPassword: string
+  /** 通讯软体，仅 A 使用；送出值为 'Teams' 或 'telegram'。 */
+  chatSoftware: ChatSoftware | null
+  /** 通讯群组名称，仅 A 使用。 */
+  chatGroup: string
   /** 客户可自行填写的额外需求说明，选填。 */
   remark: string
 }

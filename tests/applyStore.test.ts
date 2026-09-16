@@ -23,6 +23,8 @@ function fillValidOperator(store: ReturnType<typeof useApplyStore>) {
     website: 'https://example.com',
     testAccount: 'tester01',
     testPassword: 'secret',
+    chatSoftware: 'telegram',
+    chatGroup: 'GoldenF 开线群组',
   })
 }
 
@@ -124,4 +126,29 @@ test('示范资料的营运市场使用 ISO alpha-2 代码', () => {
 
   assert.deepEqual(store.operator.operatingMarkets, ['CN', 'VN'])
   assert.equal(store.isOperatorValid, true)
+})
+
+test('通讯软体与通讯群组为 A 的必填栏位', () => {
+  const store = freshStore()
+  fillValidOperator(store)
+  assert.equal(store.isOperatorValid, true)
+
+  store.operator.chatSoftware = null
+  assert.equal(store.isOperatorValid, false)
+
+  store.operator.chatSoftware = 'Teams'
+  assert.equal(store.isOperatorValid, true)
+
+  store.operator.chatGroup = '   '
+  assert.equal(store.isOperatorValid, false)
+})
+
+test('MA／SMA 不受通讯栏位影响（仅 A 需要填写）', () => {
+  const store = freshStore()
+  store.seedDemoData('MA_A')
+
+  // A 有通讯栏位，MA 没有，两者都应该有效。
+  assert.equal(store.operator.chatSoftware, 'telegram')
+  assert.equal(store.isAgentValid('MA'), true)
+  assert.equal('chatSoftware' in store.agentMA, false)
 })

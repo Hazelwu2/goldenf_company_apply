@@ -15,6 +15,8 @@ import {
   isValidOperatorCode,
   areValidWhitelist,
   isValidWebsiteSection,
+  isValidChatSoftware,
+  isValidChatGroup,
 } from '@/utils/validators'
 import { getCaptchaStatus } from '@/utils/captcha'
 
@@ -73,6 +75,8 @@ function emptyOperatorForm(): OperatorFormState {
     website: '',
     testAccount: '',
     testPassword: '',
+    chatSoftware: null,
+    chatGroup: '',
     remark: '',
   }
 }
@@ -146,6 +150,8 @@ export const useApplyStore = defineStore('apply', () => {
     if (f.operatingMarkets.length === 0) return false
     if (!isValidWebsiteSection(f.websiteStatus, f.website, f.testAccount, f.testPassword))
       return false
+    if (!isValidChatSoftware(f.chatSoftware)) return false
+    if (!isValidChatGroup(f.chatGroup)) return false
     return true
   })
 
@@ -265,6 +271,8 @@ export const useApplyStore = defineStore('apply', () => {
         website: isLive ? 'https://a.gfdemo-example.com' : '',
         testAccount: isLive ? 'testuser01' : '',
         testPassword: isLive ? 'Tt123456' : '',
+        chatSoftware: 'telegram',
+        chatGroup: 'GoldenF 开线群组',
         remark: '',
       } satisfies OperatorFormState)
     }
