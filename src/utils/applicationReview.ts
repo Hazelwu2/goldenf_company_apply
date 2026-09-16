@@ -1,3 +1,5 @@
+import { operatingMarketDisplayLabel } from './operatingMarkets.ts'
+
 export type ReviewFieldKind = 'text' | 'tags' | 'secret' | 'link'
 
 export interface ReviewField {
@@ -153,7 +155,7 @@ function buildOperatorFields(
     key: 'operatingMarkets',
     labelZh: '运营市场',
     labelEn: 'Operating Markets',
-    value: operator.operatingMarkets,
+    value: operator.operatingMarkets.map(operatingMarketDisplayLabel),
     kind: 'tags',
   })
   addField(fields, {

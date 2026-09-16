@@ -74,6 +74,7 @@ GoldenF Company Apply 是一套以 Vue 3 製作的「開線申請」前端網站
 | Pinia | 整份申請表的前端狀態 |
 | Naive UI | 表單、按鈕、卡片、對話框等基礎元件 |
 | Ionicons | 介面圖示 |
+| world-countries | ISO 3166-1 國家／地區代碼與中英文名稱資料 |
 | Node Test Runner | 工具函式與資料轉換測試 |
 | ESLint、Oxlint | 程式碼品質檢查 |
 
@@ -93,6 +94,8 @@ GoldenF Company Apply 是一套以 Vue 3 製作的「開線申請」前端網站
 node --version
 yarn --version
 ```
+
+`world-countries` 的國家／地區資料來自 [mledoze/countries](https://github.com/mledoze/countries)，依其 ODbL-1.0 授權使用。
 
 ### 2. 安裝套件
 
@@ -236,7 +239,9 @@ SuccessView 顯示階層與產生 PNG 確認單
 - `applicationConfirmationImage.ts`：檢查暫存摘要並建立 SVG，再由頁面轉成 PNG。
 - `captcha.ts`：判斷驗證碼的 idle、正確、錯誤狀態。
 - `dateTime.ts`：依瀏覽器時區格式化提交時間。
-- `mockData.ts`：幣別、產品商與營運市場的示範選項。
+- `mockData.ts`：幣別與產品商的示範選項。
+- `operatingMarkets.ts`：ISO 3166-1 alpha-2 營運市場選項與顯示名稱。
+- `operatingMarkets.generated.ts`：由 `yarn generate:markets` 依 world-countries（mledoze/countries）產生，請勿手動編輯。
 
 ## 路由與頁面
 
@@ -271,7 +276,7 @@ SuccessView 顯示階層與產生 PNG 確認單
 | 白名單 | 至少一筆合法 IPv4 或 IPv6，可附 CIDR |
 | Email | 選填；有填寫時必須符合一般 Email 格式 |
 | 營運商產品商 | 至少選一個，且必須支援目前幣別 |
-| 營運市場 | 至少選一個 |
+| 營運市場 | 至少選一個；送出值為 ISO 3166-1 alpha-2 代碼 |
 | 站台狀態 | 必選；若為已有網站，站台網址必填 |
 | 驗證碼 | 五碼，不分大小寫；輸入完整時立即驗證 |
 

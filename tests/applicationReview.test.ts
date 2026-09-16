@@ -18,7 +18,7 @@ const operator = {
   boWhitelist: '203.0.113.10, 198.51.100.0/24',
   apiWhitelist: '203.0.113.20',
   email: 'ops@example.com',
-  operatingMarkets: ['中国大陆', '越南'],
+  operatingMarkets: ['CN', 'VN'],
   websiteStatus: 'live' as const,
   website: 'https://example.com',
   testAccount: 'test-user',
@@ -155,4 +155,19 @@ test('stored confirmation parser accepts the safe summary and rejects malformed 
   assert.equal(parseConfirmationImageData(valid)?.referenceNo, 'GF-A-123456')
   assert.equal(parseConfirmationImageData('{bad json'), null)
   assert.equal(parseConfirmationImageData('{"referenceNo":"GF-A-1"}'), null)
+})
+
+test('review renders operating markets as readable bilingual tags, not bare ISO codes', () => {
+  const sections = buildApplicationReview({
+    levels: ['A'],
+    operator,
+    agentMA,
+    agentSMA,
+    vendorNames: {},
+  })
+
+  const markets = sections[0]?.fields.find((field) => field.key === 'operatingMarkets')
+
+  assert.equal(markets?.kind, 'tags')
+  assert.deepEqual(markets?.value, ['中国 / China · CN', '越南 / Vietnam · VN'])
 })

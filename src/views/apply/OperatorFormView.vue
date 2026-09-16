@@ -13,8 +13,9 @@ import {
 } from 'naive-ui'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
-import { CURRENCIES, OPERATING_MARKETS } from '@/utils/mockData'
+import { CURRENCIES } from '@/utils/mockData'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
+import { operatingMarketOptions } from '@/utils/operatingMarkets'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import WhitelistTextarea from '@/components/apply/WhitelistTextarea.vue'
 import VendorGroupedSelect from '@/components/apply/VendorGroupedSelect.vue'
@@ -34,7 +35,7 @@ const currencyChangeImpact = computed(() =>
     : { remove: [], keep: [] },
 )
 
-const marketOptions = OPERATING_MARKETS.map((m) => ({ label: m, value: m }))
+const marketOptions = operatingMarketOptions
 
 /** C05：换币别时，若已选的产品商不支援新币别，跳确认 dialog，确认后才真正切换并自动取消勾选。 */
 function handleCurrencyUpdate(newCurrency: string) {
@@ -186,8 +187,13 @@ function goNext() {
             <NSelect
               v-model:value="store.operator.operatingMarkets"
               multiple
+              filterable
               :options="marketOptions"
-              placeholder="选择本次营运会涉及的市场（可多选）"
+              placeholder="选择营运市场／ISO 国家地区代码（可多选）"
+            />
+            <FieldHint
+              zh="送出时使用 ISO 3166-1 alpha-2 国家／地区代码，例如 VN、TH、HK、MO。"
+              en="The submission uses ISO 3166-1 alpha-2 country or territory codes, such as VN, TH, HK, and MO."
             />
           </div>
         </NFormItem>

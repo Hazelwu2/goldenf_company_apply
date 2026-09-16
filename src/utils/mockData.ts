@@ -89,14 +89,3 @@ export const VENDORS: VendorOption[] = [
     currencies: ['THB', 'VND'],
   },
 ]
-
-export const OPERATING_MARKETS: string[] = [
-  '中国大陆',
-  '台湾',
-  '越南',
-  '泰国',
-  '印尼',
-  '菲律宾',
-  '马来西亚',
-  '柬埔寨',
-]

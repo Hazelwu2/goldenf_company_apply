@@ -255,7 +255,7 @@ export const useApplyStore = defineStore('apply', () => {
         boWhitelist: '203.0.113.10, 198.51.100.0/24',
         apiWhitelist: '203.0.113.10',
         email: 'ops@goldenf-demo.example',
-        operatingMarkets: ['中国大陆', '越南'],
+        operatingMarkets: ['CN', 'VN'],
         websiteStatus: options?.websiteStatus ?? 'live',
         website: 'https://a.gfdemo-example.com',
         testAccount: 'testuser01',
