@@ -39,3 +39,11 @@ test('market names use simplified chinese, overriding traditional upstream data'
   assert.equal(byValue.get('MK'), '北马其顿')
   assert.equal(byValue.get('BQ'), '荷兰加勒比区')
 })
+
+test('dominica and the dominican republic use the correct simplified chinese names', () => {
+  const byValue = new Map(operatingMarketOptions.map((option) => [option.value, option.labelZh]))
+
+  // 上游把「多米尼加」（多米尼加共和国）错给了 Dominica，会造成选错国家。
+  assert.equal(byValue.get('DM'), '多米尼克')
+  assert.equal(byValue.get('DO'), '多米尼加')
+})
