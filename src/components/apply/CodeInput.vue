@@ -12,7 +12,7 @@ const props = withDefaults(
     maxLength?: number
     /** 最小长度，仅用于字数提示与过短警示，预设 2。 */
     minLength?: number
-    /** 是否允许数字，预设 true（营运商代码为英数）；代理代码请传 false（仅英文）。 */
+    /** 是否允许数字，预设 true（营运商与代理代码皆为英数）。 */
     allowDigits?: boolean
   }>(),
   {
