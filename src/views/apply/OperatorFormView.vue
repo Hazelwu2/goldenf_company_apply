@@ -66,6 +66,15 @@ function confirmCurrencyChange() {
   pendingCurrency.value = null
 }
 
+/** 切离「已有网站」时清空站台三栏，避免留下已停用却无法清除的残值。 */
+function handleWebsiteStatusUpdate(status: 'live' | 'in_progress') {
+  store.operator.websiteStatus = status
+  if (status === 'live') return
+  store.operator.website = ''
+  store.operator.testAccount = ''
+  store.operator.testPassword = ''
+}
+
 function goBack() {
   router.push('/apply')
 }
@@ -224,7 +233,10 @@ function goNext() {
         <NFormItem required>
           <template #label><FieldLabel zh="站台状态" en="Website Status" /></template>
           <div id="field-operator-website-status" class="anchor-target">
-            <NRadioGroup v-model:value="store.operator.websiteStatus">
+            <NRadioGroup
+              :value="store.operator.websiteStatus"
+              @update:value="handleWebsiteStatusUpdate"
+            >
               <NRadio value="live">已有网站 <span class="radio-en">Website Live</span></NRadio>
               <NRadio value="in_progress">
                 尚在开发中 <span class="radio-en">In Development</span>
@@ -239,7 +251,11 @@ function goNext() {
             <NInput
               v-model:value="store.operator.website"
               placeholder="https://"
-              :disabled="!store.operator.websiteStatus"
+              :disabled="store.operator.websiteStatus !== 'live'"
+            />
+            <FieldHint
+              zh="选择「已有网站」时，站台网址、测试账号与测试密码三者必须一起填写。"
+              en="When the site is live, the website URL, test account, and test password must all be provided together."
             />
           </div>
         </NFormItem>

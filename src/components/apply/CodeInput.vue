@@ -14,6 +14,8 @@ const props = withDefaults(
     minLength?: number
     /** 是否允许数字，预设 true（营运商与代理代码皆为英数）。 */
     allowDigits?: boolean
+    /** 是否提示不可含数字 0，预设 true（营运商代码规则）。代理代码请传 false。 */
+    disallowZero?: boolean
   }>(),
   {
     placeholder: undefined,
@@ -21,6 +23,7 @@ const props = withDefaults(
     maxLength: 4,
     minLength: 2,
     allowDigits: true,
+    disallowZero: true,
   },
 )
 
@@ -38,13 +41,13 @@ const isTooShort = computed(() => length.value > 0 && length.value < props.minLe
 
 const hintZh = computed(() => {
   const charset = props.allowDigits ? '英数' : '英文'
-  const zeroNote = props.allowDigits ? '．不可含数字 0' : ''
+  const zeroNote = props.allowDigits && props.disallowZero ? '．不可含数字 0' : ''
   return `${charset} ${props.minLength}–${props.maxLength} 码．自动转大写${zeroNote}`
 })
 
 const hintEn = computed(() => {
   const charset = props.allowDigits ? 'alphanumeric characters' : 'letters'
-  const zeroNote = props.allowDigits ? ', digit 0 not allowed' : ''
+  const zeroNote = props.allowDigits && props.disallowZero ? ', digit 0 not allowed' : ''
   return `${props.minLength}–${props.maxLength} ${charset}, auto-uppercase${zeroNote}`
 })
 </script>

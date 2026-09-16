@@ -61,7 +61,8 @@ function goNext() {
               :input-id="`${idPrefix}-code-input`"
               :max-length="12"
               :min-length="2"
-              :allow-digits="false"
+              :allow-digits="true"
+              :disallow-zero="false"
               placeholder="例如 GFAGENT"
             />
           </div>

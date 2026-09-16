@@ -14,6 +14,7 @@ import {
   isValidEmail,
   isValidOperatorCode,
   isValidWhitelist,
+  isValidWebsiteSection,
 } from '@/utils/validators'
 import { getCaptchaStatus } from '@/utils/captcha'
 
@@ -143,8 +144,8 @@ export const useApplyStore = defineStore('apply', () => {
     if (!isValidWhitelist(f.apiWhitelist)) return false
     if (!isValidEmail(f.email)) return false
     if (f.operatingMarkets.length === 0) return false
-    if (!f.websiteStatus) return false
-    if (f.websiteStatus === 'live' && !f.website.trim()) return false
+    if (!isValidWebsiteSection(f.websiteStatus, f.website, f.testAccount, f.testPassword))
+      return false
     return true
   })
 
@@ -246,6 +247,10 @@ export const useApplyStore = defineStore('apply', () => {
     const levelsForCombo = COMBO_LEVELS[key]
 
     if (levelsForCombo.includes('A')) {
+      // 尚在开发中时，站台三栏必须留空（与表单规则一致），否则示范资料会卡在无法送出的状态。
+      const websiteStatus = options?.websiteStatus ?? 'live'
+      const isLive = websiteStatus === 'live'
+
       Object.assign(operator, {
         currency: 'CNY',
         vendorCodes: ['PP', 'JILI'],
@@ -256,10 +261,10 @@ export const useApplyStore = defineStore('apply', () => {
         apiWhitelist: '203.0.113.10',
         email: 'ops@goldenf-demo.example',
         operatingMarkets: ['CN', 'VN'],
-        websiteStatus: options?.websiteStatus ?? 'live',
-        website: 'https://a.gfdemo-example.com',
-        testAccount: 'testuser01',
-        testPassword: 'Tt123456',
+        websiteStatus,
+        website: isLive ? 'https://a.gfdemo-example.com' : '',
+        testAccount: isLive ? 'testuser01' : '',
+        testPassword: isLive ? 'Tt123456' : '',
         remark: '',
       } satisfies OperatorFormState)
     }
