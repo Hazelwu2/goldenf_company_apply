@@ -34,7 +34,6 @@ const agentMA = {
   adminAccount: 'gfma0001',
   boWhitelist: ['203.0.113.30'],
   emails: [],
-  sameAsA: false,
   remark: 'Priority setup',
 }
 
@@ -44,7 +43,6 @@ const agentSMA = {
   adminAccount: '',
   boWhitelist: [],
   emails: [],
-  sameAsA: false,
   remark: '',
 }
 

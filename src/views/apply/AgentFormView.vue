@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { NCard, NCheckbox, NForm, NFormItem, NIcon, NInput } from 'naive-ui'
 import { InformationCircleOutline } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
+import type { SameAsAField } from '@/types/apply'
 import { useApplySteps } from '@/composables/useApplySteps'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import MultiValueInput from '@/components/apply/MultiValueInput.vue'
@@ -25,8 +26,23 @@ const stepKey = computed(() => (props.level === 'MA' ? 'agent-ma' : 'agent-sma')
 const showSameAsA = computed(() => store.hasLevel('A'))
 const idPrefix = computed(() => `field-agent-${props.level.toLowerCase()}`)
 
-function handleSameAsAChange(checked: boolean) {
-  store.applySameAsA(props.level, checked)
+/** 横幅只描述真正勾选的栏位，避免宣称同步了其实没同步的资料。 */
+const syncedFieldsZh = computed(() => {
+  const parts: string[] = []
+  if (form.value.sameWhitelistAsA) parts.push('后台白名单')
+  if (form.value.sameEmailsAsA) parts.push('联络 Email')
+  return parts.join('与')
+})
+
+const syncedFieldsEn = computed(() => {
+  const parts: string[] = []
+  if (form.value.sameWhitelistAsA) parts.push('admin whitelist')
+  if (form.value.sameEmailsAsA) parts.push('contact email')
+  return parts.join(' and ')
+})
+
+function handleSameAsAChange(field: SameAsAField, checked: boolean) {
+  store.applySameAsA(props.level, field, checked)
 }
 
 function goBack() {
@@ -97,10 +113,18 @@ function goNext() {
         <NFormItem required>
           <template #label><FieldLabel zh="后台 IP 白名单" en="Admin IP Whitelist" /></template>
           <div :id="`${idPrefix}-bo-whitelist`" class="anchor-target field">
+            <NCheckbox
+              v-if="showSameAsA"
+              :checked="form.sameWhitelistAsA"
+              class="same-as-a__toggle"
+              @update:checked="(v: boolean) => handleSameAsAChange('whitelist', v)"
+            >
+              与 A 相同 <span class="same-as-a__en">Same as A</span>
+            </NCheckbox>
             <MultiValueInput
               v-model="form.boWhitelist"
               :validate="isValidWhitelistEntry"
-              :disabled="form.sameAsA"
+              :disabled="form.sameWhitelistAsA"
               mono
               placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
               hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
@@ -111,24 +135,22 @@ function goNext() {
           </div>
         </NFormItem>
 
-        <NFormItem v-if="showSameAsA" label=" ">
-          <NCheckbox :checked="form.sameAsA" @update:checked="handleSameAsAChange">
-            与 A 相同 Same as A
-            <span class="same-as-a__hint">
-              （同步后台白名单与联络 Email，栏位锁定为唯读／Syncs the admin whitelist and contact
-              email from A; fields become read-only）
-            </span>
-          </NCheckbox>
-        </NFormItem>
-
         <NFormItem>
           <template #label><FieldLabel zh="联络 Email" en="Contact Email" /></template>
           <div :id="`${idPrefix}-email`" class="anchor-target field">
+            <NCheckbox
+              v-if="showSameAsA"
+              :checked="form.sameEmailsAsA"
+              class="same-as-a__toggle"
+              @update:checked="(v: boolean) => handleSameAsAChange('emails', v)"
+            >
+              与 A 相同 <span class="same-as-a__en">Same as A</span>
+            </NCheckbox>
             <MultiValueInput
               v-model="form.emails"
               :validate="isValidEmailEntry"
               :input-id="`${idPrefix}-email-input`"
-              :disabled="form.sameAsA"
+              :disabled="form.sameEmailsAsA"
               placeholder="选填，输入 Email 后按 Enter，或以逗号、分号贴上多笔"
               hint-zh="选填。可输入一笔或多笔 Email，输入后会成为独立项目，可单独移除。"
               hint-en="Optional. Enter one or more email addresses; each becomes a separate item that can be removed individually."
@@ -155,13 +177,13 @@ function goNext() {
         </NFormItem>
       </NForm>
 
-      <div v-if="form.sameAsA" class="same-as-a__banner">
+      <div v-if="syncedFieldsZh" class="same-as-a__banner">
         <NIcon :component="InformationCircleOutline" size="15" />
         <span>
-          已与营运商 A 同步后台白名单与联络 Email，取消勾选即可自行填写。
+          已与营运商 A 同步{{ syncedFieldsZh }}，取消勾选即可自行填写。
           <br />
           <span class="same-as-a__banner-en">
-            Synced with Operator A's admin whitelist and contact email — uncheck to edit manually.
+            Synced with Operator A's {{ syncedFieldsEn }} — uncheck to edit manually.
           </span>
         </span>
       </div>
@@ -209,10 +231,16 @@ function goNext() {
   padding: 1px 6px;
 }
 
-.same-as-a__hint {
+.same-as-a__toggle {
+  margin-bottom: 8px;
+  /* 44px 最小触控目标 */
+  min-height: 44px;
+  align-items: center;
+}
+
+.same-as-a__en {
   color: var(--color-text-muted);
-  font-weight: 400;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .same-as-a__banner {

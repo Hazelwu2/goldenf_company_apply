@@ -28,45 +28,67 @@ function fillValidOperator(store: ReturnType<typeof useApplyStore>) {
   })
 }
 
-test('sameAsA copies A的阵列，而不是共用同一个参考', () => {
+test('白名单与 Email 的「与 A 相同」各自独立', () => {
   const store = freshStore()
   store.operator.boWhitelist = ['203.0.113.10']
   store.operator.emails = ['ops@example.com']
 
-  store.applySameAsA('MA', true)
+  // 只同步白名单，Email 仍可自行填写。
+  store.applySameAsA('MA', 'whitelist', true)
   assert.deepEqual(store.agentMA.boWhitelist, ['203.0.113.10'])
-  assert.deepEqual(store.agentMA.emails, ['ops@example.com'])
+  assert.equal(store.agentMA.sameWhitelistAsA, true)
+  assert.equal(store.agentMA.sameEmailsAsA, false)
+  assert.deepEqual(store.agentMA.emails, [])
 
-  // 在 MA 端就地新增一笔，不可以回头污染 A。
+  store.agentMA.emails = ['ma@example.com']
+  assert.deepEqual(store.agentMA.emails, ['ma@example.com'])
+})
+
+test('勾选白名单同步时复制阵列，不共用参考', () => {
+  const store = freshStore()
+  store.operator.boWhitelist = ['203.0.113.10']
+  store.applySameAsA('MA', 'whitelist', true)
+
   store.agentMA.boWhitelist.push('198.51.100.1')
-  store.agentMA.emails.push('ma@example.com')
-
   assert.deepEqual(store.operator.boWhitelist, ['203.0.113.10'])
+})
+
+test('勾选 Email 同步时复制阵列，不共用参考', () => {
+  const store = freshStore()
+  store.operator.emails = ['ops@example.com']
+  store.applySameAsA('MA', 'emails', true)
+
+  store.agentMA.emails.push('ma@example.com')
   assert.deepEqual(store.operator.emails, ['ops@example.com'])
 })
 
-test('勾选「与 A 相同」后，A 的就地异动会同步到 MA', async () => {
+test('A 的就地异动只同步到有勾选的那一项', async () => {
   const store = freshStore()
   store.operator.boWhitelist = ['203.0.113.10']
   store.operator.emails = ['ops@example.com']
-  store.applySameAsA('MA', true)
+  store.applySameAsA('MA', 'whitelist', true)
+  store.agentMA.emails = ['ma@example.com']
 
   store.operator.boWhitelist.push('198.51.100.0/24')
+  store.operator.emails.push('risk@example.com')
   await Promise.resolve()
 
   assert.deepEqual(store.agentMA.boWhitelist, ['203.0.113.10', '198.51.100.0/24'])
+  // Email 没勾，不该被 A 覆写。
+  assert.deepEqual(store.agentMA.emails, ['ma@example.com'])
 })
 
-test('取消勾选后，A 的异动不再同步到 MA', async () => {
+test('取消勾选后，该项不再同步且保留当下的值', async () => {
   const store = freshStore()
   store.operator.boWhitelist = ['203.0.113.10']
-  store.applySameAsA('MA', true)
-  store.applySameAsA('MA', false)
+  store.applySameAsA('MA', 'whitelist', true)
+  store.applySameAsA('MA', 'whitelist', false)
 
   store.operator.boWhitelist.push('198.51.100.1')
   await Promise.resolve()
 
   assert.deepEqual(store.agentMA.boWhitelist, ['203.0.113.10'])
+  assert.equal(store.agentMA.sameWhitelistAsA, false)
 })
 
 test('白名单必填：空阵列不算完成', () => {

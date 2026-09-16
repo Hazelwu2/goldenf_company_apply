@@ -6,6 +6,7 @@ import type {
   ComboOption,
   CompanyLevel,
   OperatorFormState,
+  SameAsAField,
 } from '@/types/apply'
 import { COMBO_LEVELS } from '@/types/apply'
 import {
@@ -88,7 +89,8 @@ function emptyAgentForm(): AgentFormState {
     adminAccount: '',
     boWhitelist: [],
     emails: [],
-    sameAsA: false,
+    sameWhitelistAsA: false,
+    sameEmailsAsA: false,
     remark: '',
   }
 }
@@ -114,24 +116,28 @@ export const useApplyStore = defineStore('apply', () => {
     return level === 'MA' ? agentMA : agentSMA
   }
 
-  /** 「与 A 相同」勾选时，同步 A 的 bo_whitelist / email 到该角色，并锁住手动输入。 */
-  function applySameAsA(level: 'MA' | 'SMA', checked: boolean) {
+  /**
+   * 「与 A 相同」勾选时，同步 A 的对应栏位并锁住手动输入。
+   * 白名单与 Email 各自独立，可只沿用其中一项。
+   * 取消勾选时保留当下的值，让使用者接着修改。
+   */
+  function applySameAsA(level: 'MA' | 'SMA', field: SameAsAField, checked: boolean) {
     const form = agentForm(level)
-    form.sameAsA = checked
-    if (checked) {
-      form.boWhitelist = [...operator.boWhitelist]
-      form.emails = [...operator.emails]
+    if (field === 'whitelist') {
+      form.sameWhitelistAsA = checked
+      if (checked) form.boWhitelist = [...operator.boWhitelist]
+      return
     }
+    form.sameEmailsAsA = checked
+    if (checked) form.emails = [...operator.emails]
   }
 
   // 若 A 的白名单 / Email 之后又修改，且 MA／SMA 仍勾选「与 A 相同」，保持同步
   function syncSameAsA() {
     for (const level of ['MA', 'SMA'] as const) {
       const form = agentForm(level)
-      if (form.sameAsA) {
-        form.boWhitelist = [...operator.boWhitelist]
-        form.emails = [...operator.emails]
-      }
+      if (form.sameWhitelistAsA) form.boWhitelist = [...operator.boWhitelist]
+      if (form.sameEmailsAsA) form.emails = [...operator.emails]
     }
   }
 
@@ -283,7 +289,8 @@ export const useApplyStore = defineStore('apply', () => {
         adminAccount: 'gfma0001',
         boWhitelist: ['203.0.113.20'],
         emails: ['ma@goldenf-demo.example'],
-        sameAsA: false,
+        sameWhitelistAsA: false,
+        sameEmailsAsA: false,
         remark: '',
       } satisfies AgentFormState)
     }
@@ -294,7 +301,8 @@ export const useApplyStore = defineStore('apply', () => {
         adminAccount: 'gfsma001',
         boWhitelist: ['203.0.113.30'],
         emails: ['sma@goldenf-demo.example'],
-        sameAsA: false,
+        sameWhitelistAsA: false,
+        sameEmailsAsA: false,
         remark: '',
       } satisfies AgentFormState)
     }

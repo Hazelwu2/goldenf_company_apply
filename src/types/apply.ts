@@ -50,13 +50,19 @@ export interface OperatorFormState {
   remark: string
 }
 
+/** 「与 A 相同」可分别套用的栏位。 */
+export type SameAsAField = 'whitelist' | 'emails'
+
 export interface AgentFormState {
   code: string
   name: string
   adminAccount: string
   boWhitelist: string[]
   emails: string[]
-  sameAsA: boolean
+  /** 后台白名单沿用 A，勾选後同步并锁定。 */
+  sameWhitelistAsA: boolean
+  /** 联络 Email 沿用 A，勾选後同步并锁定。 */
+  sameEmailsAsA: boolean
   /** 客户可自行填写的额外需求说明，选填。 */
   remark: string
 }

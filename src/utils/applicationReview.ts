@@ -44,7 +44,6 @@ interface AgentReviewSource {
   adminAccount: string
   boWhitelist: string[]
   emails: string[]
-  sameAsA: boolean
   remark: string
 }
 
