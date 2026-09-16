@@ -99,13 +99,12 @@ onMounted(async () => {
           <h1 class="reject-head__title">送出失败，整包未建立</h1>
           <p class="reject-head__title-en">Submission Failed — No Records Were Created</p>
           <p class="reject-head__desc">
-            本次申请采「全有全无」：只要任一笔资料有误，就不会建立任何资料、也不会产生开线编号。
-            您先前填写的所有内容都已保留，修正后可直接重新送出。
+            部分栏位填写有误，因此系统尚未完成开线申请。请放心，您刚才填写的内容皆已保留，
+            请修正错误后直接重新送出即可。
           </p>
           <p class="reject-head__desc-en">
-            This application is all-or-nothing: if any record has an error, nothing is created and
-            no application reference number is generated. Everything you entered has been kept — fix
-            the issues below and resubmit.
+            Some information needs correction, so your application hasn't been submitted yet. Don't
+            worry, your inputs are saved—please resolve the errors below and resubmit.
           </p>
         </div>
       </div>
