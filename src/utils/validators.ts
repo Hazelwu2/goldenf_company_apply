@@ -47,10 +47,14 @@ function isValidIPv6(token: string): boolean {
   return /^[0-9a-fA-F:]+$/.test(token) && token.includes(':')
 }
 
-/** 将逗号 / 空白 / 换行分隔的多笔 IP 拆成阵列（去除空白行）。 */
-export function splitWhitelist(raw: string): string[] {
+/**
+ * 将贴上或输入的文字拆成多笔项目：以逗号、分号、空白或换行分隔，去除空白项。
+ * 支援分号是因为从 Outlook 等客户端复制收件者时会以分号分隔。
+ * IP 与 Email 都不含这些字元，故可共用同一组分隔符。
+ */
+export function splitEntries(raw: string): string[] {
   return raw
-    .split(/[\s,]+/)
+    .split(/[\s,;]+/)
     .map((s) => s.trim())
     .filter(Boolean)
 }
@@ -66,16 +70,20 @@ export function isValidWhitelistEntry(token: string): boolean {
   return isValidIPv4(ip) || isValidIPv6(ip)
 }
 
-export function isValidWhitelist(raw: string): boolean {
-  const entries = splitWhitelist(raw)
+/** 白名单：至少一笔，且每一笔都必须合法。 */
+export function areValidWhitelist(entries: string[]): boolean {
   if (entries.length === 0) return false
   return entries.every(isValidWhitelistEntry)
 }
 
-/** Email：选填，填了才验格式。 */
-export function isValidEmail(raw: string): boolean {
-  if (!raw.trim()) return true
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(raw.trim())
+/** 单笔 Email 格式验证。 */
+export function isValidEmailEntry(token: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(token.trim())
+}
+
+/** 联络 Email：选填，可填多笔；只要有填，每一笔都必须合法。 */
+export function areValidEmails(emails: string[]): boolean {
+  return emails.every(isValidEmailEntry)
 }
 
 /** 站台网址、测试账号、测试密码必须同时填写，或同时留空。 */

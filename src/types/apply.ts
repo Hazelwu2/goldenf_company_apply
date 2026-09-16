@@ -32,9 +32,9 @@ export interface OperatorFormState {
   code: string
   name: string
   adminAccount: string
-  boWhitelist: string
-  apiWhitelist: string
-  email: string
+  boWhitelist: string[]
+  apiWhitelist: string[]
+  emails: string[]
   operatingMarkets: string[]
   websiteStatus: WebsiteStatus | null
   website: string
@@ -48,8 +48,8 @@ export interface AgentFormState {
   code: string
   name: string
   adminAccount: string
-  boWhitelist: string
-  email: string
+  boWhitelist: string[]
+  emails: string[]
   sameAsA: boolean
   /** 客户可自行填写的额外需求说明，选填。 */
   remark: string

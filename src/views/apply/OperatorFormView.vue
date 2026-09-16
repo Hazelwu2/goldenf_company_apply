@@ -16,8 +16,9 @@ import { useApplySteps } from '@/composables/useApplySteps'
 import { CURRENCIES } from '@/utils/mockData'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
+import { isValidEmailEntry, isValidWhitelistEntry } from '@/utils/validators'
 import CodeInput from '@/components/apply/CodeInput.vue'
-import WhitelistTextarea from '@/components/apply/WhitelistTextarea.vue'
+import MultiValueInput from '@/components/apply/MultiValueInput.vue'
 import VendorGroupedSelect from '@/components/apply/VendorGroupedSelect.vue'
 import BilingualHint from '@/components/apply/BilingualHint.vue'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
@@ -168,14 +169,32 @@ function goNext() {
         <NFormItem required>
           <template #label><FieldLabel zh="后台白名单" en="Admin Whitelist" /></template>
           <div id="field-operator-bo-whitelist" class="anchor-target field">
-            <WhitelistTextarea v-model="store.operator.boWhitelist" />
+            <MultiValueInput
+              v-model="store.operator.boWhitelist"
+              :validate="isValidWhitelistEntry"
+              mono
+              placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
+              hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
+              hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
+              error-zh="IP 格式错误"
+              error-en="Invalid IP format"
+            />
           </div>
         </NFormItem>
 
         <NFormItem required>
           <template #label><FieldLabel zh="API 白名单" en="API Whitelist" /></template>
           <div id="field-operator-api-whitelist" class="anchor-target field">
-            <WhitelistTextarea v-model="store.operator.apiWhitelist" />
+            <MultiValueInput
+              v-model="store.operator.apiWhitelist"
+              :validate="isValidWhitelistEntry"
+              mono
+              placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
+              hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
+              hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
+              error-zh="IP 格式错误"
+              error-en="Invalid IP format"
+            />
             <BilingualHint
               zh="限制区域：美国 IP 不得加入 API 白名单。"
               en="Restricted region: IP addresses from the United States must not be added to the API whitelist."
@@ -186,7 +205,16 @@ function goNext() {
         <NFormItem>
           <template #label><FieldLabel zh="联络 Email" en="Contact Email" /></template>
           <div id="field-operator-email" class="anchor-target field">
-            <NInput v-model:value="store.operator.email" placeholder="选填" />
+            <MultiValueInput
+              v-model="store.operator.emails"
+              :validate="isValidEmailEntry"
+              input-id="operator-email-input"
+              placeholder="选填，输入 Email 后按 Enter，或以逗号、分号贴上多笔"
+              hint-zh="选填。可输入一笔或多笔 Email，输入后会成为独立项目，可单独移除。"
+              hint-en="Optional. Enter one or more email addresses; each becomes a separate item that can be removed individually."
+              error-zh="Email 格式错误"
+              error-en="Invalid email format"
+            />
           </div>
         </NFormItem>
 

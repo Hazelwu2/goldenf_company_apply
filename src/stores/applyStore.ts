@@ -11,9 +11,9 @@ import { COMBO_LEVELS } from '@/types/apply'
 import {
   isValidAdminAccount,
   isValidAgentCode,
-  isValidEmail,
+  areValidEmails,
   isValidOperatorCode,
-  isValidWhitelist,
+  areValidWhitelist,
   isValidWebsiteSection,
 } from '@/utils/validators'
 import { getCaptchaStatus } from '@/utils/captcha'
@@ -65,9 +65,9 @@ function emptyOperatorForm(): OperatorFormState {
     code: '',
     name: '',
     adminAccount: '',
-    boWhitelist: '',
-    apiWhitelist: '',
-    email: '',
+    boWhitelist: [],
+    apiWhitelist: [],
+    emails: [],
     operatingMarkets: [],
     websiteStatus: null,
     website: '',
@@ -82,8 +82,8 @@ function emptyAgentForm(): AgentFormState {
     code: '',
     name: '',
     adminAccount: '',
-    boWhitelist: '',
-    email: '',
+    boWhitelist: [],
+    emails: [],
     sameAsA: false,
     remark: '',
   }
@@ -115,8 +115,8 @@ export const useApplyStore = defineStore('apply', () => {
     const form = agentForm(level)
     form.sameAsA = checked
     if (checked) {
-      form.boWhitelist = operator.boWhitelist
-      form.email = operator.email
+      form.boWhitelist = [...operator.boWhitelist]
+      form.emails = [...operator.emails]
     }
   }
 
@@ -125,13 +125,13 @@ export const useApplyStore = defineStore('apply', () => {
     for (const level of ['MA', 'SMA'] as const) {
       const form = agentForm(level)
       if (form.sameAsA) {
-        form.boWhitelist = operator.boWhitelist
-        form.email = operator.email
+        form.boWhitelist = [...operator.boWhitelist]
+        form.emails = [...operator.emails]
       }
     }
   }
 
-  watch(() => [operator.boWhitelist, operator.email], syncSameAsA)
+  watch(() => [operator.boWhitelist, operator.emails], syncSameAsA, { deep: true })
 
   // ---- 验证（仅格式，对应规格 §3） ----
   const isOperatorValid = computed(() => {
@@ -140,9 +140,9 @@ export const useApplyStore = defineStore('apply', () => {
     if (f.vendorCodes.length === 0) return false
     if (!isValidOperatorCode(f.code)) return false
     if (!isValidAdminAccount(f.adminAccount)) return false
-    if (!isValidWhitelist(f.boWhitelist)) return false
-    if (!isValidWhitelist(f.apiWhitelist)) return false
-    if (!isValidEmail(f.email)) return false
+    if (!areValidWhitelist(f.boWhitelist)) return false
+    if (!areValidWhitelist(f.apiWhitelist)) return false
+    if (!areValidEmails(f.emails)) return false
     if (f.operatingMarkets.length === 0) return false
     if (!isValidWebsiteSection(f.websiteStatus, f.website, f.testAccount, f.testPassword))
       return false
@@ -153,8 +153,8 @@ export const useApplyStore = defineStore('apply', () => {
     const f = agentForm(level)
     if (!isValidAgentCode(f.code)) return false
     if (!isValidAdminAccount(f.adminAccount)) return false
-    if (!isValidWhitelist(f.boWhitelist)) return false
-    if (!isValidEmail(f.email)) return false
+    if (!areValidWhitelist(f.boWhitelist)) return false
+    if (!areValidEmails(f.emails)) return false
     return true
   }
 
@@ -257,9 +257,9 @@ export const useApplyStore = defineStore('apply', () => {
         code: 'GFA1',
         name: '',
         adminAccount: 'gfdemo01',
-        boWhitelist: '203.0.113.10, 198.51.100.0/24',
-        apiWhitelist: '203.0.113.10',
-        email: 'ops@goldenf-demo.example',
+        boWhitelist: ['203.0.113.10', '198.51.100.0/24'],
+        apiWhitelist: ['203.0.113.10'],
+        emails: ['ops@goldenf-demo.example', 'risk@goldenf-demo.example'],
         operatingMarkets: ['CN', 'VN'],
         websiteStatus,
         website: isLive ? 'https://a.gfdemo-example.com' : '',
@@ -273,8 +273,8 @@ export const useApplyStore = defineStore('apply', () => {
         code: 'MAGOLD',
         name: '',
         adminAccount: 'gfma0001',
-        boWhitelist: '203.0.113.20',
-        email: 'ma@goldenf-demo.example',
+        boWhitelist: ['203.0.113.20'],
+        emails: ['ma@goldenf-demo.example'],
         sameAsA: false,
         remark: '',
       } satisfies AgentFormState)
@@ -284,8 +284,8 @@ export const useApplyStore = defineStore('apply', () => {
         code: 'SMAROOT',
         name: '',
         adminAccount: 'gfsma001',
-        boWhitelist: '203.0.113.30',
-        email: 'sma@goldenf-demo.example',
+        boWhitelist: ['203.0.113.30'],
+        emails: ['sma@goldenf-demo.example'],
         sameAsA: false,
         remark: '',
       } satisfies AgentFormState)

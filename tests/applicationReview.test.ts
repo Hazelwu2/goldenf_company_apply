@@ -15,9 +15,9 @@ const operator = {
   code: 'GFA1',
   name: '',
   adminAccount: 'gfdemo01',
-  boWhitelist: '203.0.113.10, 198.51.100.0/24',
-  apiWhitelist: '203.0.113.20',
-  email: 'ops@example.com',
+  boWhitelist: ['203.0.113.10', '198.51.100.0/24'],
+  apiWhitelist: ['203.0.113.20'],
+  emails: ['ops@example.com'],
   operatingMarkets: ['CN', 'VN'],
   websiteStatus: 'live' as const,
   website: 'https://example.com',
@@ -30,8 +30,8 @@ const agentMA = {
   code: 'MAGOLD',
   name: 'Gold Agent',
   adminAccount: 'gfma0001',
-  boWhitelist: '203.0.113.30',
-  email: '',
+  boWhitelist: ['203.0.113.30'],
+  emails: [],
   sameAsA: false,
   remark: 'Priority setup',
 }
@@ -40,8 +40,8 @@ const agentSMA = {
   code: '',
   name: '',
   adminAccount: '',
-  boWhitelist: '',
-  email: '',
+  boWhitelist: [],
+  emails: [],
   sameAsA: false,
   remark: '',
 }
@@ -170,4 +170,41 @@ test('review renders operating markets as readable bilingual tags, not bare ISO 
 
   assert.equal(markets?.kind, 'tags')
   assert.deepEqual(markets?.value, ['中国 / China · CN', '越南 / Vietnam · VN'])
+})
+
+test('review renders every contact email as its own tag', () => {
+  const sections = buildApplicationReview({
+    levels: ['A'],
+    operator: {
+      ...operator,
+      emails: ['ops@example.com', 'billing@example.com', 'risk@example.com'],
+    },
+    agentMA,
+    agentSMA,
+    vendorNames: {},
+  })
+
+  const email = sections[0]?.fields.find((field) => field.key === 'email')
+
+  assert.equal(email?.kind, 'tags')
+  assert.deepEqual(email?.value, [
+    'ops@example.com',
+    'billing@example.com',
+    'risk@example.com',
+  ])
+})
+
+test('review omits the contact email row when it is left empty', () => {
+  const sections = buildApplicationReview({
+    levels: ['A'],
+    operator: { ...operator, emails: [] },
+    agentMA,
+    agentSMA,
+    vendorNames: {},
+  })
+
+  assert.equal(
+    sections[0]?.fields.some((field) => field.key === 'email'),
+    false,
+  )
 })

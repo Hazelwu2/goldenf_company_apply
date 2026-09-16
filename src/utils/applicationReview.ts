@@ -25,9 +25,9 @@ interface OperatorReviewSource {
   code: string
   name: string
   adminAccount: string
-  boWhitelist: string
-  apiWhitelist: string
-  email: string
+  boWhitelist: string[]
+  apiWhitelist: string[]
+  emails: string[]
   operatingMarkets: string[]
   websiteStatus: 'live' | 'in_progress' | null
   website: string
@@ -40,8 +40,8 @@ interface AgentReviewSource {
   code: string
   name: string
   adminAccount: string
-  boWhitelist: string
-  email: string
+  boWhitelist: string[]
+  emails: string[]
   sameAsA: boolean
   remark: string
 }
@@ -82,13 +82,6 @@ const levelMeta = {
 } as const
 
 const hierarchyOrder = ['SMA', 'MA', 'A'] as const
-
-function splitValues(value: string): string[] {
-  return value
-    .split(/[\s,]+/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-}
 
 function addField(fields: ReviewField[], field: ReviewField) {
   const hasValue = Array.isArray(field.value) ? field.value.length > 0 : field.value.trim().length > 0
@@ -135,21 +128,22 @@ function buildOperatorFields(
     key: 'boWhitelist',
     labelZh: '后台白名单',
     labelEn: 'Admin Whitelist',
-    value: splitValues(operator.boWhitelist),
+    value: operator.boWhitelist,
     kind: 'tags',
   })
   addField(fields, {
     key: 'apiWhitelist',
     labelZh: 'API 白名单',
     labelEn: 'API Whitelist',
-    value: splitValues(operator.apiWhitelist),
+    value: operator.apiWhitelist,
     kind: 'tags',
   })
   addField(fields, {
     key: 'email',
     labelZh: '联络 Email',
     labelEn: 'Contact Email',
-    value: operator.email,
+    value: operator.emails,
+    kind: 'tags',
   })
   addField(fields, {
     key: 'operatingMarkets',
@@ -228,14 +222,15 @@ function buildAgentFields(level: 'MA' | 'SMA', agent: AgentReviewSource): Review
     key: 'boWhitelist',
     labelZh: '后台 IP 白名单',
     labelEn: 'Admin IP Whitelist',
-    value: splitValues(agent.boWhitelist),
+    value: agent.boWhitelist,
     kind: 'tags',
   })
   addField(fields, {
     key: 'email',
     labelZh: '联络 Email',
     labelEn: 'Contact Email',
-    value: agent.email,
+    value: agent.emails,
+    kind: 'tags',
   })
   addField(fields, {
     key: 'remark',

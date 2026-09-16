@@ -6,7 +6,8 @@ import { InformationCircleOutline } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
 import CodeInput from '@/components/apply/CodeInput.vue'
-import WhitelistTextarea from '@/components/apply/WhitelistTextarea.vue'
+import MultiValueInput from '@/components/apply/MultiValueInput.vue'
+import { isValidEmailEntry, isValidWhitelistEntry } from '@/utils/validators'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
 import FieldHint from '@/components/apply/FieldHint.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
@@ -96,7 +97,17 @@ function goNext() {
         <NFormItem required>
           <template #label><FieldLabel zh="后台 IP 白名单" en="Admin IP Whitelist" /></template>
           <div :id="`${idPrefix}-bo-whitelist`" class="anchor-target field">
-            <WhitelistTextarea v-model="form.boWhitelist" :disabled="form.sameAsA" />
+            <MultiValueInput
+              v-model="form.boWhitelist"
+              :validate="isValidWhitelistEntry"
+              :disabled="form.sameAsA"
+              mono
+              placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
+              hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
+              hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
+              error-zh="IP 格式错误"
+              error-en="Invalid IP format"
+            />
           </div>
         </NFormItem>
 
@@ -113,7 +124,17 @@ function goNext() {
         <NFormItem>
           <template #label><FieldLabel zh="联络 Email" en="Contact Email" /></template>
           <div :id="`${idPrefix}-email`" class="anchor-target field">
-            <NInput v-model:value="form.email" placeholder="选填" :disabled="form.sameAsA" />
+            <MultiValueInput
+              v-model="form.emails"
+              :validate="isValidEmailEntry"
+              :input-id="`${idPrefix}-email-input`"
+              :disabled="form.sameAsA"
+              placeholder="选填，输入 Email 后按 Enter，或以逗号、分号贴上多笔"
+              hint-zh="选填。可输入一笔或多笔 Email，输入后会成为独立项目，可单独移除。"
+              hint-en="Optional. Enter one or more email addresses; each becomes a separate item that can be removed individually."
+              error-zh="Email 格式错误"
+              error-en="Invalid email format"
+            />
           </div>
         </NFormItem>
 
