@@ -85,15 +85,37 @@ GoldenF Company Apply 是一套以 Vue 3 製作的「開線申請」前端網站
 需要以下工具：
 
 - Node.js `22.18.0` 以上，或 `24.12.0` 以上。
-- Yarn Classic `1.x`。專案已提交 `yarn.lock`，請優先使用 Yarn，避免套件版本漂移。
+- Yarn `4.x`，透過 Corepack 啟用（見下方說明）。
 - 建議使用 VS Code，並安裝 [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar)。
 
-確認版本：
+啟用 Corepack（每台機器只需執行一次）：
+
+```bash
+corepack enable
+```
+
+確認版本，`yarn --version` 應顯示 `4.18.0`：
 
 ```bash
 node --version
 yarn --version
 ```
+
+#### 為什麼要用 Corepack
+
+本專案的 `yarn.lock` 是 **Yarn Berry（4.x）格式**，開頭為 `__metadata: version: 10`，與 Yarn Classic（1.x）**完全不相容**。
+
+若在 Yarn 1.x 下執行 `yarn install`，它不會報錯，而是直接以舊格式重寫整份 lockfile。這類改動一旦提交，會讓其他人安裝到不同版本的相依套件，且不易察覺。
+
+Corepack 是 Node.js 內建的套件管理器版本管理工具。啟用後，`yarn` 會改由 Corepack 接手，依 `package.json` 的 `packageManager` 欄位自動選用對應版本：
+
+```json
+"packageManager": "yarn@4.18.0"
+```
+
+因此只要執行過 `corepack enable`，直接使用 `yarn install`、`yarn dev` 即可，Corepack 會確保版本正確，毋須手動切換或加任何前綴。
+
+> 若 `corepack enable` 因權限失敗，請改用 `sudo corepack enable`。
 
 `world-countries` 的國家／地區資料來自 [mledoze/countries](https://github.com/mledoze/countries)，依其 ODbL-1.0 授權使用。
 
@@ -450,7 +472,23 @@ yarn build
 
 ## 疑難排解
 
-### `yarn` 使用了錯誤 Node 版本
+### `yarn --version` 顯示 1.x
+
+代表 Corepack 尚未啟用，`yarn` 仍指向全域安裝的 Yarn Classic。此時執行 `yarn install` 會以舊格式重寫 `yarn.lock`，請先啟用 Corepack：
+
+```bash
+corepack enable
+yarn --version   # 應顯示 4.18.0
+```
+
+若 `yarn.lock` 已被改寫（開頭不再是 `__metadata`），請還原後重新安裝：
+
+```bash
+git checkout -- yarn.lock
+yarn install
+```
+
+### Yarn 使用了錯誤 Node 版本
 
 症狀可能是安裝失敗、Vite 無法啟動或 TypeScript 出現不相容錯誤。先確認：
 
