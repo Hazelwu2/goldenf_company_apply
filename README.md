@@ -75,7 +75,7 @@ GoldenF Company Apply 是一套以 Vue 3 製作的「開線申請」前端網站
 | Naive UI | 表單、按鈕、卡片、對話框等基礎元件 |
 | Ionicons | 介面圖示 |
 | world-countries | ISO 3166-1 國家／地區代碼與中英文名稱資料 |
-| Node Test Runner | 工具函式與資料轉換測試 |
+| Node Test Runner | 工具函式、資料轉換與 Store 測試 |
 | ESLint、Oxlint | 程式碼品質檢查 |
 
 ## 快速開始
@@ -356,8 +356,12 @@ goldenf-company-apply-last-confirmation
 yarn test
 ```
 
+`tests/register-aliases.mjs` 以 Node 的 resolve hook 補上 Vite 的 `@/` 路徑別名與省略副檔名的相對匯入，因此測試可以直接匯入使用別名的模組（例如 Pinia Store），毋須額外的建置步驟。新增測試若要匯入 `@/...`，不需要再做任何設定。
+
 目前測試涵蓋：
 
+- Store：「與 A 相同」複製陣列而非共用參考，取消勾選後不再同步。
+- Store：白名單必填、聯絡 Email 選填但每筆都須合法、站台狀態與三個欄位一起判斷。
 - 確認頁包含所有應送出的非空欄位。
 - 未啟用的網站帳密不會出現在確認頁。
 - 測試密碼預設遮蔽。
