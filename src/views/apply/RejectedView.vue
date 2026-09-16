@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NIcon, NTag } from 'naive-ui'
 import { CloseCircleOutline } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
-import ErrorSummaryPanel, { type SubmitErrorItem } from '@/components/apply/ErrorSummaryPanel.vue'
+import ErrorSummaryPanel from '@/components/apply/ErrorSummaryPanel.vue'
+import type { SubmitErrorItem } from '@/utils/submitErrors'
 
 const store = useApplyStore()
 const router = useRouter()
+const errorSummaryTitle = ref<HTMLElement | null>(null)
 
 const levelLabel: Record<string, string> = { A: '营运商 A', MA: '代理 MA', SMA: '总代理 SMA' }
 const levelLabelEn: Record<string, string> = {
@@ -79,6 +81,11 @@ function backToEdit() {
 function resubmit() {
   router.push('/apply/confirm')
 }
+
+onMounted(async () => {
+  await nextTick()
+  errorSummaryTitle.value?.focus()
+})
 </script>
 
 <template>
@@ -117,8 +124,17 @@ function resubmit() {
         </NTag>
       </div>
 
-      <h2 class="section-title">错误摘要<span class="section-title__en">Error Summary</span></h2>
-      <ErrorSummaryPanel :errors="errors" @goto="goto" />
+      <div role="alert" aria-labelledby="error-summary-title">
+        <h2
+          id="error-summary-title"
+          ref="errorSummaryTitle"
+          class="section-title error-summary-title"
+          tabindex="-1"
+        >
+          错误摘要<span class="section-title__en">Error Summary</span>
+        </h2>
+        <ErrorSummaryPanel :errors="errors" @goto="goto" />
+      </div>
     </NCard>
 
     <div class="reject-actions">
@@ -184,6 +200,12 @@ function resubmit() {
   gap: 8px;
   flex-wrap: wrap;
   margin-bottom: 20px;
+}
+
+.error-summary-title:focus-visible {
+  outline: 2px solid var(--color-error);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .role-status__en {

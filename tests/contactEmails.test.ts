@@ -41,3 +41,19 @@ test('individual email entry validation', () => {
   assert.equal(isValidEmailEntry('no-at-sign.com'), false)
   assert.equal(isValidEmailEntry(''), false)
 })
+
+test('pasted multi-line text splits on CRLF and tabs', () => {
+  // 从试算表或记事本贴上时会带 \r\n 或 tab。
+  assert.deepEqual(splitEntries('a@example.com\r\nb@example.com'), [
+    'a@example.com',
+    'b@example.com',
+  ])
+  assert.deepEqual(splitEntries('a@example.com\tb@example.com'), [
+    'a@example.com',
+    'b@example.com',
+  ])
+  assert.deepEqual(splitEntries('203.0.113.10\r\n198.51.100.0/24\r\n'), [
+    '203.0.113.10',
+    '198.51.100.0/24',
+  ])
+})

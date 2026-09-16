@@ -51,6 +51,18 @@ function handleInput(value: string) {
   draft.value = value
 }
 
+/**
+ * 单行 input 会依 HTML 的 value sanitization 规则移除换行，
+ * 直接读 value 会把「一行一笔」的贴上内容黏成一笔无效资料。
+ * 因此改从剪贴簿取原始文字，赶在浏览器清理之前自行切分。
+ */
+function handlePaste(event: ClipboardEvent) {
+  const pasted = event.clipboardData?.getData('text') ?? ''
+  if (!pasted || !/[\s,;]/.test(pasted)) return
+  event.preventDefault()
+  commitDraft(`${draft.value}${pasted}`)
+}
+
 function handleBlur() {
   if (draft.value.trim()) commitDraft(draft.value)
 }
@@ -87,7 +99,7 @@ function handleBackspace() {
       </NTag>
     </div>
     <NInput
-      :input-props="{ id: props.inputId }"
+      :input-props="{ id: props.inputId, onPaste: handlePaste }"
       :value="draft"
       :disabled="props.disabled"
       :placeholder="props.placeholder"
@@ -111,8 +123,28 @@ function handleBackspace() {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 8px;
+}
+
+/*
+ * NTag 预设 white-space: nowrap 且高度固定，长 Email 或完整 IPv6 会超出栏位，
+ * 再被卡片的 overflow: hidden 裁掉，连移除钮都点不到。
+ * 改为限制宽度并允许在标签内换行，完整值与移除钮都保持可见。
+ */
+.multi-value__tags :deep(.n-tag) {
+  max-width: 100%;
+  height: auto;
+  min-height: 22px;
+  align-items: flex-start;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.multi-value__tags :deep(.n-tag__content) {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.5;
 }
 
 .multi-value__tags.is-mono :deep(.n-tag__content),
