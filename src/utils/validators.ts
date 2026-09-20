@@ -1,6 +1,6 @@
 /**
  * 栏位验证规则（对应规格 §3，代理代码规则已依最新调整）。
- * 仅做格式验证：营运商代码 2–4 英数、不含 0；代理／总代理代码最多 12 码英数；
+ * 仅做格式验证：营运商代码 2–4 英数、不含 0；代理／总代理代码 2–12 码英数；
  * 账号 6–10 小写英数；IP 仅验格式，不验地区、不做网段显示。
  */
 
@@ -13,9 +13,9 @@ export function isValidOperatorCode(raw: string): boolean {
   return true
 }
 
-/** 代理／总代理代码：1–12 码英数字符。 */
+/** 代理／总代理代码：2–12 码英数字符（对应 API 规格 §2.3）。 */
 export function isValidAgentCode(raw: string): boolean {
-  return /^[A-Za-z0-9]{1,12}$/.test(raw.trim())
+  return /^[A-Za-z0-9]{2,12}$/.test(raw.trim())
 }
 
 /** 依代码规则正规化输入：转大写、滤掉不允许的字元、裁切到最大长度。 */
