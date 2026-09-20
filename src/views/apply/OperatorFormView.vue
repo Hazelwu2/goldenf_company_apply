@@ -254,11 +254,11 @@ function goNext() {
               multiple
               filterable
               :options="marketOptions"
-              placeholder="选择营运市场／ISO 国家地区代码（可多选）"
+              placeholder="可多选，请选择站台主要经营的市场"
             />
             <FieldHint
-              zh="送出时使用 ISO 3166-1 alpha-2 国家／地区代码，例如 VN、TH、HK、MO。"
-              en="The submission uses ISO 3166-1 alpha-2 country or territory codes, such as VN, TH, HK, and MO."
+              zh="请选择站台主要经营的市场，填写正确有助于加快审核开通。"
+              en="Select the markets where your site mainly operates. Accurate selections help speed up approval."
             />
           </div>
         </NFormItem>
