@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { NInput, NTag } from 'naive-ui'
 import { splitEntries } from '@/utils/validators'
 import FieldHint from './FieldHint.vue'
+import FieldError from './FieldError.vue'
 
 /**
  * 可填多笔的栏位：输入或贴上后以逗号、分号、空白或换行切成一个个标签，
@@ -111,10 +112,7 @@ function handleBackspace() {
       @keydown.backspace="handleBackspace"
     />
     <FieldHint v-if="props.hintZh && props.hintEn" :zh="props.hintZh" :en="props.hintEn" />
-    <div v-if="invalidEntries.length" class="multi-value__error" role="alert">
-      <span class="multi-value__error-zh">{{ props.errorZh }}</span>
-      <span class="multi-value__error-en">{{ props.errorEn }}</span>
-    </div>
+    <FieldError v-if="invalidEntries.length" :zh="props.errorZh" :en="props.errorEn" />
   </div>
 </template>
 
@@ -154,27 +152,5 @@ function handleBackspace() {
 
 .multi-value__field.is-mono :deep(input) {
   font-size: 15px;
-}
-
-.multi-value__error {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 4px 8px;
-  margin-top: 8px;
-  padding: 9px 11px;
-  border: 1px solid var(--color-error-border);
-  border-radius: 7px;
-  background: var(--color-error-soft);
-  color: var(--color-error-strong);
-}
-
-.multi-value__error-zh {
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.multi-value__error-en {
-  font-size: 13px;
 }
 </style>

@@ -16,13 +16,14 @@ import { useApplySteps } from '@/composables/useApplySteps'
 import { CURRENCIES } from '@/utils/mockData'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
-import { isValidEmailEntry, isValidWhitelistEntry } from '@/utils/validators'
+import { isValidEmailEntry, isValidWebsiteUrl, isValidWhitelistEntry } from '@/utils/validators'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import MultiValueInput from '@/components/apply/MultiValueInput.vue'
 import VendorGroupedSelect from '@/components/apply/VendorGroupedSelect.vue'
 import BilingualHint from '@/components/apply/BilingualHint.vue'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
 import FieldHint from '@/components/apply/FieldHint.vue'
+import FieldError from '@/components/apply/FieldError.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
 import CurrencyChangeDialog from '@/components/apply/CurrencyChangeDialog.vue'
 
@@ -37,6 +38,14 @@ const currencyChangeImpact = computed(() =>
 )
 
 const marketOptions = operatingMarketOptions
+
+/** 有输入内容才显示格式错误，避免使用者还在输入时就跳错。 */
+const showWebsiteUrlError = computed(
+  () =>
+    store.operator.websiteStatus === 'live' &&
+    store.operator.website.trim().length > 0 &&
+    !isValidWebsiteUrl(store.operator.website),
+)
 
 /** C05：换币别时，若已选的产品商不支援新币别，跳确认 dialog，确认后才真正切换并自动取消勾选。 */
 function handleCurrencyUpdate(newCurrency: string) {
@@ -312,6 +321,11 @@ function goNext() {
             <FieldHint
               zh="选择「已有网站」时，站台网址、测试账号与测试密码三者必须一起填写。"
               en="When the site is live, the website URL, test account, and test password must all be provided together."
+            />
+            <FieldError
+              v-if="showWebsiteUrlError"
+              zh="请输入完整网址，需包含 https://"
+              en="Enter a complete URL including https://"
             />
           </div>
         </NFormItem>

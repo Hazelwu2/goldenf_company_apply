@@ -86,6 +86,26 @@ export function areValidEmails(emails: string[]): boolean {
   return emails.every(isValidEmailEntry)
 }
 
+/**
+ * 站台网址格式：必须是 http／https 的完整网址，且主机名含点号。
+ * 只接受这两种协定，避免把 javascript: 之类的可执行内容当成网址存下来。
+ */
+export function isValidWebsiteUrl(raw: string): boolean {
+  const value = raw.trim()
+  if (!value) return false
+
+  let url: URL
+  try {
+    url = new URL(value)
+  } catch {
+    return false
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') return false
+  const host = url.hostname
+  return host.includes('.') && !host.startsWith('.') && !host.endsWith('.')
+}
+
 /** 站台网址、测试账号、测试密码必须同时填写，或同时留空。 */
 export function hasCompleteWebsiteCredentials(
   website: string,
@@ -98,7 +118,7 @@ export function hasCompleteWebsiteCredentials(
 
 /**
  * 站台区块整体规则（站台状态 + 三个栏位一起判断）：
- * - 已有网站：站台网址、测试账号、测试密码三者必须同时填写。
+ * - 已有网站：站台网址、测试账号、测试密码三者必须同时填写，且网址格式须合法。
  * - 尚在开发中：三者必须同时留空。
  * - 尚未选择状态：一律视为未完成。
  */
@@ -111,7 +131,9 @@ export function isValidWebsiteSection(
   if (!status) return false
   if (!hasCompleteWebsiteCredentials(website, testAccount, testPassword)) return false
   const isFilled = Boolean(website.trim())
-  return status === 'live' ? isFilled : !isFilled
+  if (status !== 'live') return !isFilled
+  // 已有网站：网址必须是合法的 http／https 网址，不能只是有填。
+  return isFilled && isValidWebsiteUrl(website)
 }
 
 /**

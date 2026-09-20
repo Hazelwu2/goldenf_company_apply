@@ -174,3 +174,18 @@ test('MA／SMA 不受通讯栏位影响（仅 A 需要填写）', () => {
   assert.equal(store.isAgentValid('MA'), true)
   assert.equal('chatSoftware' in store.agentMA, false)
 })
+
+test('站台网址乱填时不能送出', () => {
+  const store = freshStore()
+  fillValidOperator(store)
+  assert.equal(store.isOperatorValid, true)
+
+  store.operator.website = '随便乱填'
+  assert.equal(store.isOperatorValid, false)
+
+  store.operator.website = 'example.com'
+  assert.equal(store.isOperatorValid, false)
+
+  store.operator.website = 'https://example.com'
+  assert.equal(store.isOperatorValid, true)
+})
