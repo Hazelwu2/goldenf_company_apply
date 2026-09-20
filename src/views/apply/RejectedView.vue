@@ -96,8 +96,8 @@ onMounted(async () => {
           <NIcon :component="CloseCircleOutline" size="28" />
         </span>
         <div>
-          <h1 class="reject-head__title">送出失败，整包未建立</h1>
-          <p class="reject-head__title-en">Submission Failed — No Records Were Created</p>
+          <h1 class="reject-head__title">申请尚未送出</h1>
+          <p class="reject-head__title-en">Application Not Submitted Yet</p>
           <p class="reject-head__desc">
             部分栏位填写有误，因此系统尚未完成开线申请。请放心，您刚才填写的内容皆已保留，
             请修正错误后直接重新送出即可。
