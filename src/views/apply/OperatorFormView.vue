@@ -315,7 +315,7 @@ function goNext() {
           <div id="field-operator-website" class="anchor-target field">
             <NInput
               v-model:value="store.operator.website"
-              placeholder="https://"
+              placeholder="请输入完整网址，例如 https://your-site.com 或 http://your-site.com"
               :disabled="store.operator.websiteStatus !== 'live'"
             />
             <FieldHint
@@ -324,8 +324,8 @@ function goNext() {
             />
             <FieldError
               v-if="showWebsiteUrlError"
-              zh="请输入完整网址，需包含 https://"
-              en="Enter a complete URL including https://"
+              zh="请输入完整网址，须以 http:// 或 https:// 开头"
+              en="Enter a complete URL starting with http:// or https://"
             />
           </div>
         </NFormItem>

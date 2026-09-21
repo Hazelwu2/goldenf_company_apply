@@ -68,3 +68,10 @@ test('a live site with a malformed URL cannot be submitted', () => {
   assert.equal(isValidWebsiteSection('live', '随便乱填', 'tester01', 'secret'), false)
   assert.equal(isValidWebsiteSection('live', 'https://example.com', 'tester01', 'secret'), true)
 })
+
+test('http sites are accepted, not only https', () => {
+  // 部分客户的站台仍是 http，不可因为偏好 https 就挡下来。
+  assert.equal(isValidWebsiteUrl('http://your-site.com'), true)
+  assert.equal(isValidWebsiteUrl('http://a.gf-demo.com:8080/login'), true)
+  assert.equal(isValidWebsiteSection('live', 'http://your-site.com', 'tester01', 'secret'), true)
+})
