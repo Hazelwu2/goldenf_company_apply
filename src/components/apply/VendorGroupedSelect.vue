@@ -27,15 +27,22 @@ function renderOptionLabel(vendor: (typeof VENDORS)[number], unavailable: boolea
       ]),
       unavailable
         ? h(
-            'span',
-            { class: 'vendor-option__unavailable' },
-            `不支持 ${props.currency} / Unavailable`,
+            NTag,
+            {
+              class: ['vendor-option__badge', 'vendor-option__badge--unavailable'],
+              size: 'tiny',
+              bordered: false,
+              type: 'warning',
+            },
+            {
+              default: () => `不支持 ${props.currency} / Unavailable`,
+            },
           )
         : h(
             NTag,
             {
+              class: 'vendor-option__badge',
               size: 'tiny',
-              round: true,
               bordered: false,
               type: vendor.env === 'official_test' ? 'success' : 'default',
             },
@@ -160,37 +167,27 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
   color: var(--color-text-muted);
 }
 
-.vendor-option > .n-tag {
+.vendor-option__badge {
   flex: none;
+  height: auto;
+  min-height: 22px;
+  padding: 2px 8px;
+  border-radius: 5px;
 }
 
-.vendor-option > .n-tag .n-tag__content {
+.vendor-option__badge .n-tag__content {
   font-size: 12px;
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .vendor-option.is-unavailable {
-  margin-inline: -8px;
-  padding: 6px 8px;
-  border-left: 3px solid var(--color-warning-border);
-  background: var(--color-warning-soft);
-}
-
-.vendor-option.is-unavailable .vendor-option__name,
-.vendor-option.is-unavailable .vendor-option__name-en {
-  color: var(--color-text-secondary);
-}
-
-.vendor-option__unavailable {
-  flex: none;
-  color: var(--color-warning);
-  font-size: 12px;
-  font-weight: 700;
-  text-align: right;
+  cursor: not-allowed;
 }
 
 .n-base-select-option.n-base-select-option--disabled {
   cursor: not-allowed;
-  opacity: 1;
+  opacity: 0.5;
 }
 
 .vendor-option__name-zh,
