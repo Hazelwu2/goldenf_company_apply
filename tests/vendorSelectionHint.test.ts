@@ -4,8 +4,8 @@ import { getVendorSelectionHint } from '../src/utils/vendorSelectionHint.ts'
 
 test('vendor hint explains that selection depends on the selected currency', () => {
   assert.deepEqual(getVendorSelectionHint('VND'), {
-    zh: '仅显示支持 VND 币别的产品商。',
-    en: 'Only vendors that support VND are shown.',
+    zh: '支持 VND 的产品商优先显示；不支持的项目列于最下方。',
+    en: 'Vendors supporting VND appear first; unavailable options are listed last.',
   })
 })
 

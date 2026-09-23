@@ -133,12 +133,12 @@ const items: PreviewItem[] = [
 
 <style scoped>
 .screen {
-  max-width: 980px;
+  max-width: var(--layout-width-preview);
   margin: 0 auto;
 }
 
 .screen__header {
-  margin-bottom: 20px;
+  margin-bottom: var(--layout-section-gap);
 }
 
 .screen__title {
@@ -159,7 +159,7 @@ const items: PreviewItem[] = [
 .preview-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
+  gap: var(--layout-item-gap);
 }
 
 @media (max-width: 900px) {

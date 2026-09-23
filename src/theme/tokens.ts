@@ -1,7 +1,7 @@
 /**
  * 设计 Token — 单一事实来源
  *
- * 视觉方向：雾森林绿＋暖灰，降低长时间阅读的白光与高彩度刺激。
+ * 视觉方向：雾森林绿＋中性灰白，以清楚的表面层级降低长时间阅读负担。
  * 这里先定义「原始色票」，theme-overrides.ts 再把它们映射进 Naive UI 的语意色。
  */
 
@@ -21,6 +21,9 @@ export const palette = {
   primaryHover: '#334B41',
   primaryPressed: '#293D35',
   primarySuppl: '#9CAFA4',
+  primaryAction: '#3E5B4C',
+  primaryActionHover: '#334B41',
+  primaryActionPressed: '#293D35',
 
   // 语意色
   success: '#47715A',
@@ -44,16 +47,16 @@ export const palette = {
   infoSuppl: '#AAB3AD',
 
   // 中性色 / 背景
-  bodyBg: '#F3F2ED',
-  cardBg: '#FCFBF8',
-  border: '#D2D5CD',
-  divider: '#E1E3DC',
+  bodyBg: '#F5F5F5',
+  cardBg: '#FFFFFF',
+  border: '#D5D9D6',
+  divider: '#E5E8E6',
 
-  textBase: '#252A27',
-  text1: '#252A27',
-  text2: '#4B5650',
-  text3: '#65716B',
-  textDisabled: '#8C958F',
+  textBase: '#202522',
+  text1: '#202522',
+  text2: '#4B5550',
+  text3: '#65706A',
+  textDisabled: '#909893',
 } as const
 
 /**
@@ -65,6 +68,9 @@ export const darkPalette = {
   primaryHover: '#ACC6B5',
   primaryPressed: '#83A390',
   primarySuppl: '#6F8979',
+  primaryAction: '#A7C8B3',
+  primaryActionHover: '#B5D3BF',
+  primaryActionPressed: '#91B59E',
 
   success: '#8EBA9B',
   successHover: '#A1C8AC',

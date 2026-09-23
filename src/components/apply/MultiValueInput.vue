@@ -184,9 +184,9 @@ function handleKeydown(event: KeyboardEvent) {
 .multi-value__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
   align-items: flex-start;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .multi-value__tag-item {
@@ -205,10 +205,9 @@ function handleKeydown(event: KeyboardEvent) {
 .multi-value__tags :deep(.n-tag) {
   max-width: 100%;
   height: auto;
-  min-height: 22px;
+  min-height: 34px;
   align-items: center;
-  padding-top: 2px;
-  padding-bottom: 2px;
+  padding: 4px 10px;
 }
 
 .multi-value__tags :deep(.n-tag__content) {
@@ -217,16 +216,20 @@ function handleKeydown(event: KeyboardEvent) {
   min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
-  line-height: 1.5;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .multi-value__tags :deep(.n-tag__close) {
   align-self: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 6px;
 }
 
 .multi-value__tag-icon {
   flex: none;
-  margin-right: 4px;
+  margin-right: 5px;
   color: var(--color-error);
 }
 
@@ -244,7 +247,7 @@ function handleKeydown(event: KeyboardEvent) {
   align-items: center;
   gap: 5px;
   margin-top: 2px;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
   padding: 0 2px;
   color: var(--color-error-strong);
   line-height: 1.35;
@@ -264,13 +267,13 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 .multi-value__summary-zh {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .multi-value__summary-en {
   min-width: 0;
-  font-size: 13px;
+  font-size: 14px;
   color: var(--color-text-secondary);
 }
 </style>

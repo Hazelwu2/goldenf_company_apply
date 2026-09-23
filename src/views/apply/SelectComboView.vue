@@ -115,7 +115,7 @@ function confirmNext() {
 
 <style scoped>
 .screen {
-  max-width: 920px;
+  max-width: var(--layout-width-wide);
   margin: 0 auto;
 }
 
@@ -124,7 +124,7 @@ function confirmNext() {
   grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
   gap: 44px;
   align-items: end;
-  margin-bottom: 28px;
+  margin-bottom: var(--layout-section-gap);
   padding-bottom: 24px;
   border-bottom: 1px solid var(--color-border);
 }

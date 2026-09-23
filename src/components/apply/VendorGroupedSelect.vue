@@ -2,6 +2,7 @@
 import { computed, h } from 'vue'
 import { NSelect, NTag } from 'naive-ui'
 import { VENDORS } from '@/utils/mockData'
+import { groupVendorsForCurrency } from '@/utils/vendorAvailability'
 import FieldHint from './FieldHint.vue'
 import { getVendorSelectionHint } from '@/utils/vendorSelectionHint'
 
@@ -81,33 +82,44 @@ function renderSelectedTag({
 }
 
 const options = computed(() => {
-  const disabledFor = (vendor: (typeof VENDORS)[number]) =>
-    props.currency != null && !vendor.currencies.includes(props.currency)
+  const groups = groupVendorsForCurrency(VENDORS, props.currency)
 
-  const build = (env: (typeof VENDORS)[number]['env']) =>
-    VENDORS.filter((v) => v.env === env).map((v) => ({
+  const build = (vendors: typeof VENDORS, unavailable = false) =>
+    vendors.map((v) => ({
       value: v.code,
       code: v.code,
       nameZh: v.nameZh,
       nameEn: v.nameEn,
-      label: renderOptionLabel(v, disabledFor(v)),
-      disabled: disabledFor(v),
+      label: renderOptionLabel(v, unavailable),
+      disabled: unavailable,
     }))
 
   return [
-    {
+    groups.officialTest.length > 0
+      ? {
       type: 'group' as const,
       key: 'official_test',
       label: '正式与测试环境 / Production & Test',
-      children: build('official_test'),
-    },
-    {
+          children: build(groups.officialTest),
+        }
+      : null,
+    groups.officialOnly.length > 0
+      ? {
       type: 'group' as const,
       key: 'official_only',
       label: '仅正式环境 / Production Only',
-      children: build('official_only'),
-    },
-  ]
+          children: build(groups.officialOnly),
+        }
+      : null,
+    groups.unavailable.length > 0
+      ? {
+          type: 'group' as const,
+          key: 'unavailable',
+          label: `不支持 ${props.currency} / Unavailable for ${props.currency}`,
+          children: build(groups.unavailable, true),
+        }
+      : null,
+  ].filter((group) => group !== null)
 })
 
 /** 搜寻比对中文名称／英文名称／内部代码（代码不显示，但仍可用来搜寻）。 */

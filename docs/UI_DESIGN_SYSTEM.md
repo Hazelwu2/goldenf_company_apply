@@ -14,11 +14,11 @@ When a product request conflicts with this contract, preserve accessibility and 
 
 ## Product character
 
-The interface is a calm, trustworthy, bilingual business form. The visual direction is **mist forest green with warm neutral surfaces**. It should feel considered and human, not decorative, futuristic, glossy, or like a generic AI-generated dashboard.
+The interface is a calm, trustworthy, bilingual business form. The visual direction is **mist forest green with crisp neutral surfaces**. It should feel considered and human, not decorative, futuristic, glossy, or like a generic AI-generated dashboard.
 
 Use these qualities:
 
-- Calm: low saturation, warm gray surfaces, restrained status colors.
+- Calm: low saturation, neutral gray-white surfaces, restrained status colors.
 - Clear: strong information hierarchy and readable Chinese and English.
 - Tactile: thin borders, small offset shadows, and a short top accent on major cards.
 - Focused: one obvious primary action per decision point.
@@ -42,15 +42,16 @@ Blue is not part of this product palette. Interactive emphasis uses forest green
 | Primary | `#3E5B4C` | `#9BB8A6` | `--color-primary` |
 | Primary hover | `#334B41` | `#ACC6B5` | `--color-primary-hover` |
 | Primary pressed | `#293D35` | `#83A390` | `--color-primary-pressed` |
-| Page background | `#F3F2ED` | `#171C19` | `--color-page` |
-| Main surface | `#FCFBF8` | `#1F2521` | `--color-surface` |
-| Muted surface | `#EEEEE7` | `#282F2A` | `--color-surface-muted` |
-| Hover surface | `#F5F4EF` | `#2D352F` | `--color-surface-hover` |
-| Border | `#D2D5CD` | `#3B453E` | `--color-border` |
-| Strong border | `#BCC3BB` | `#56635A` | `--color-border-strong` |
-| Primary text | `#252A27` | `#F1F0E9` | `--color-text` |
-| Secondary text | `#4B5650` | `#D1D6D0` | `--color-text-secondary` |
-| Muted text | `#65716B` | `#AEB8B1` | `--color-text-muted` |
+| Primary action | `#3E5B4C` | `#A7C8B3` | `--color-primary-action` |
+| Page background | `#F5F5F5` | `#171C19` | `--color-page` |
+| Main surface | `#FFFFFF` | `#1F2521` | `--color-surface` |
+| Muted surface | `#F0F2F1` | `#282F2A` | `--color-surface-muted` |
+| Hover surface | `#F7F8F7` | `#2D352F` | `--color-surface-hover` |
+| Border | `#D5D9D6` | `#3B453E` | `--color-border` |
+| Strong border | `#B9C0BB` | `#56635A` | `--color-border-strong` |
+| Primary text | `#202522` | `#F1F0E9` | `--color-text` |
+| Secondary text | `#4B5550` | `#D1D6D0` | `--color-text-secondary` |
+| Muted text | `#65706A` | `#AEB8B1` | `--color-text-muted` |
 | Warning | `#A15817` | `#D6A15F` | `--color-warning` |
 | Error | `#A84F48` | `#D28A82` | `--color-error` |
 | Success | `#47715A` | `#8EBA9B` | `--color-success` |
@@ -61,6 +62,7 @@ Rules:
 - Use muted surfaces to group related information, not as a second page background.
 - Text contrast must be at least 4.5:1 for normal text.
 - Never communicate status by color alone; pair color with text or an icon.
+- In light mode, use neutral gray for the page and reserve pure white for cards and controls so the surface hierarchy remains clear without excessive brightness.
 - Do not add gradients, neon colors, saturated blue, pure white page backgrounds, or pure black surfaces.
 
 ## Typography
@@ -96,10 +98,14 @@ Do not place essential information only in a placeholder. Keep a visible bilingu
 
 ## Layout and spacing
 
+- Shared layout widths and spacing live as `--layout-*` variables in `src/App.vue`; pages must use
+  these semantic variables instead of repeating raw widths or page padding.
 - Main application forms: maximum width 920 px, matching the application-combination step.
 - Confirmation content: maximum width 720 px.
 - Success result content: maximum width 600 px unless a wider summary requires 720 px.
+- Visual-preview grids may use a maximum width of 980 px.
 - Page horizontal padding: `clamp(16px, 4vw, 40px)`.
+- Page top padding: `clamp(24px, 4vw, 48px)`; page bottom padding: 72 px.
 - Section gap: 16–24 px.
 - Field group gap: 12–18 px.
 - Card padding: 20–24 px desktop, 16 px mobile.
@@ -127,13 +133,33 @@ Use one card for one conceptual group. Avoid placing every row inside its own ca
 - Show validation beside the affected field.
 - List only invalid whitelist entries; do not repeat valid input as tags.
 - Use searchable multi-select for long vendor lists. Collapse selected values with `+N` when space is limited.
+- In the vendor selector, keep available vendors in their environment groups and collect unavailable
+  vendors in one disabled group at the bottom. Preserve the source order within each group.
 - Omit empty optional fields from review screens.
 - Mask passwords on review screens and provide a labeled show/hide control.
 - Use 44 px minimum touch targets for primary controls.
 
+### Multi-value tags
+
+IP addresses, email addresses, and other committed multi-value entries use the shared
+`MultiValueInput` tag scale:
+
+- 34 px minimum tag height, 15 px text, and 4 px × 10 px padding.
+- 8 px gaps between neighboring tags so values and remove actions remain visually distinct.
+- Machine values use the product monospace stack.
+- Error icons, content, and remove controls remain vertically centered.
+- Tags may wrap between items. A long individual value may wrap within its tag instead of causing
+  horizontal page scrolling.
+- Editable tags are visually larger than read-only review tags. Review tags use a 30 px minimum
+  height, 14 px text, and 8 px gaps so they remain readable without competing with form controls.
+- A field with multiple malformed entries shows one field-level bilingual error summary; do not
+  repeat the same message under every tag.
+
 ## Buttons and actions
 
 Each screen has one visually dominant action. Use a primary filled button for the action that advances or preserves critical information. Secondary, back, edit, and preview actions use secondary, text, or quaternary styles.
+
+The enabled next-step action uses `--color-primary-action`, a 44 px minimum height, stronger label weight, and `--shadow-primary-action`. Disabled and invalid-attempt states must not use this elevated treatment, so availability is immediately recognizable.
 
 Button labels start with a verb and are bilingual. Example:
 
@@ -158,6 +184,10 @@ Critical actions must show loading and success or error feedback. A disabled act
 ### Fixed stepper
 
 The stepper stays fixed at the top. Its height and the application shell offset use the same `--app-stepper-height` variable. Desktop shows Chinese and English; compact mobile may hide text when the numbered sequence remains understandable and has a bilingual accessible name.
+
+### Application hierarchy card
+
+The application-combination page presents the SMA → MA → A relationship as a prominent information card: a white primary surface, strong border, soft elevation, short forest-green top accent, bilingual title row with a vector hierarchy icon, and a pale-green hierarchy panel. Supporting selection guidance sits in a separate muted notice within the same card. The compact dialog version keeps the title and hierarchy panel but omits the explanatory copy.
 
 ### Review before submission
 

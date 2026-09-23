@@ -73,6 +73,7 @@ function handleNext() {
       <div v-else />
       <NButton
         type="primary"
+        class="step-footer__next"
         :disabled="props.nextDisabled && !props.allowDisabledAttempt"
         :class="{ 'is-disabled-attempt': props.nextDisabled && props.allowDisabledAttempt }"
         :title="
@@ -159,10 +160,44 @@ function handleNext() {
   font-weight: 400;
 }
 
+.step-footer__next {
+  min-height: 44px;
+  padding-inline: 18px;
+  font-weight: 600;
+}
+
+.step-footer__next:not(.n-button--disabled):not(.is-disabled-attempt) {
+  --n-color: var(--color-primary-action) !important;
+  --n-color-hover: var(--color-primary-action-hover) !important;
+  --n-color-pressed: var(--color-primary-action-pressed) !important;
+  --n-color-focus: var(--color-primary-action-hover) !important;
+  --n-border: 1px solid var(--color-primary-action) !important;
+  --n-border-hover: 1px solid var(--color-primary-action-hover) !important;
+  --n-border-pressed: 1px solid var(--color-primary-action-pressed) !important;
+  --n-border-focus: 1px solid var(--color-primary-action-hover) !important;
+  box-shadow: var(--shadow-primary-action);
+}
+
 .is-disabled-attempt {
   cursor: pointer;
   opacity: 0.5;
   filter: saturate(0.65);
+}
+
+@media (max-width: 520px) {
+  .step-footer__actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .step-footer__actions :deep(.n-button) {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .step-footer__actions > div:empty {
+    display: none;
+  }
 }
 
 </style>

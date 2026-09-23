@@ -184,8 +184,8 @@ async function handleInvalidNext() {
               :disabled="form.sameWhitelistAsA"
               mono
               placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
-              hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
-              hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
+              hint-zh="请填写固定对外 IP；仅白名单内的 IP 可使用我司后台。"
+              hint-en="Enter fixed public IPs. Only allowlisted IPs can access our admin system."
               error-zh="IP 格式错误"
               error-en="Invalid IP format"
               :external-status="showRequired('boWhitelist', form.boWhitelist, { disabled: form.sameWhitelistAsA }) ? 'error' : undefined"
@@ -263,7 +263,7 @@ async function handleInvalidNext() {
 
 <style scoped>
 .screen {
-  max-width: 920px;
+  max-width: var(--layout-width-wide);
   margin: 0 auto;
 }
 

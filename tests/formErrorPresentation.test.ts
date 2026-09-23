@@ -110,6 +110,35 @@ test('disabled step guidance uses a warning container and vector icon', () => {
   assert.match(source, /var\(--color-warning-border\)/)
 })
 
+test('step footer stacks bilingual actions on narrow screens', () => {
+  const source = readSource('src/components/apply/StepFooterActions.vue')
+
+  assert.match(source, /@media \(max-width: 520px\)/)
+  assert.match(source, /flex-direction: column-reverse/)
+  assert.match(source, /step-footer__actions[\s\S]*width: 100%/)
+})
+
+test('enabled next action is visually stronger than its unavailable state', () => {
+  const source = readSource('src/components/apply/StepFooterActions.vue')
+
+  assert.match(source, /step-footer__next/)
+  assert.match(source, /step-footer__next:not\(\.n-button--disabled\):not\(\.is-disabled-attempt\)/)
+  assert.match(source, /--color-primary-action/)
+  assert.match(source, /min-height: 44px/)
+  assert.match(source, /box-shadow: var\(--shadow-primary-action\)/)
+})
+
+test('whitelist hints explain the fixed public IP requirement and access consequence', () => {
+  const operatorSource = readSource('src/views/apply/OperatorFormView.vue')
+  const agentSource = readSource('src/views/apply/AgentFormView.vue')
+
+  assert.match(operatorSource, /请填写固定对外 IP；仅白名单内的 IP 可使用我司后台。/)
+  assert.match(operatorSource, /Enter fixed public IPs\. Only allowlisted IPs can access our admin system\./)
+  assert.match(operatorSource, /请填写固定对外 IP；仅接受白名单内 IP 发出的 API 请求。/)
+  assert.match(operatorSource, /Enter fixed public IPs\. Only API requests from allowlisted IPs are accepted\./)
+  assert.match(agentSource, /请填写固定对外 IP；仅白名单内的 IP 可使用我司后台。/)
+})
+
 test('bilingual rules notice uses a neutral information icon and semantic surface', () => {
   assert.deepEqual(bilingualHintPresentation, {
     iconName: 'InformationCircleOutline',

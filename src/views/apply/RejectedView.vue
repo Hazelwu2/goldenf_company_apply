@@ -90,7 +90,7 @@ onMounted(async () => {
 
 <template>
   <section class="screen">
-    <NCard size="large">
+    <NCard size="large" class="screen__card">
       <div class="reject-head">
         <span class="reject-head__icon">
           <NIcon :component="CloseCircleOutline" size="28" />
@@ -145,7 +145,7 @@ onMounted(async () => {
 
 <style scoped>
 .screen {
-  max-width: 720px;
+  max-width: var(--layout-width-reading);
   margin: 0 auto;
 }
 

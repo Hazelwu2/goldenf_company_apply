@@ -145,25 +145,39 @@ function navigateStep(path: string) {
 :root {
   color-scheme: light;
   --app-stepper-height: 73px;
+  --layout-width-wide: 920px;
+  --layout-width-reading: 720px;
+  --layout-width-result: 600px;
+  --layout-width-preview: 980px;
+  --layout-page-padding-inline: clamp(16px, 4vw, 40px);
+  --layout-page-padding-top: clamp(24px, 4vw, 48px);
+  --layout-page-padding-bottom: 72px;
+  --layout-card-padding: 24px;
+  --layout-card-padding-mobile: 16px;
+  --layout-section-gap: 24px;
+  --layout-item-gap: 16px;
   --color-primary: #3e5b4c;
   --color-primary-hover: #334b41;
   --color-primary-pressed: #293d35;
   --color-primary-suppl: #9cafa4;
+  --color-primary-action: #3e5b4c;
+  --color-primary-action-hover: #334b41;
+  --color-primary-action-pressed: #293d35;
   --color-primary-soft: #e8eee9;
   --color-on-primary: #ffffff;
-  --color-page: #f3f2ed;
-  --color-surface: #fcfbf8;
-  --color-surface-muted: #eeeee7;
-  --color-surface-hover: #f5f4ef;
-  --color-tag-surface: #f8f7f2;
-  --color-border: #d2d5cd;
-  --color-border-strong: #bcc3bb;
-  --color-control-border: #9ca69f;
-  --color-divider: #e1e3dc;
-  --color-text: #252a27;
-  --color-text-secondary: #4b5650;
-  --color-text-muted: #65716b;
-  --color-text-disabled: #8c958f;
+  --color-page: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f0f2f1;
+  --color-surface-hover: #f7f8f7;
+  --color-tag-surface: #f7f8f7;
+  --color-border: #d5d9d6;
+  --color-border-strong: #b9c0bb;
+  --color-control-border: #aeb7b1;
+  --color-divider: #e5e8e6;
+  --color-text: #202522;
+  --color-text-secondary: #4b5550;
+  --color-text-muted: #65706a;
+  --color-text-disabled: #909893;
   --color-warning: #a15817;
   --color-warning-soft: #f7ebdd;
   --color-warning-border: #c9904f;
@@ -175,10 +189,11 @@ function navigateStep(path: string) {
   --color-success: #47715a;
   --color-success-soft: #e8f0ea;
   --color-success-border: #bcd0c2;
-  --shadow-card: 3px 4px 0 rgba(75, 86, 80, 0.08);
-  --shadow-form-card: 0 1px 2px rgba(75, 86, 80, 0.1);
-  --shadow-card-hover: 5px 6px 0 rgba(75, 86, 80, 0.1);
+  --shadow-card: 0 2px 8px rgba(32, 37, 34, 0.06);
+  --shadow-form-card: 0 1px 3px rgba(32, 37, 34, 0.08);
+  --shadow-card-hover: 0 5px 14px rgba(32, 37, 34, 0.09);
   --shadow-selected: 3px 4px 0 rgba(62, 91, 76, 0.11);
+  --shadow-primary-action: 0 4px 10px rgba(62, 91, 76, 0.24);
   --focus-ring: rgba(62, 91, 76, 0.32);
 }
 
@@ -188,6 +203,9 @@ function navigateStep(path: string) {
   --color-primary-hover: #acc6b5;
   --color-primary-pressed: #83a390;
   --color-primary-suppl: #6f8979;
+  --color-primary-action: #a7c8b3;
+  --color-primary-action-hover: #b5d3bf;
+  --color-primary-action-pressed: #91b59e;
   --color-primary-soft: #2c3931;
   --color-on-primary: #18201a;
   --color-page: #171c19;
@@ -218,6 +236,7 @@ function navigateStep(path: string) {
   --shadow-form-card: var(--shadow-card);
   --shadow-card-hover: 5px 6px 0 rgba(4, 8, 6, 0.3);
   --shadow-selected: 3px 4px 0 rgba(4, 8, 6, 0.28);
+  --shadow-primary-action: 0 4px 12px rgba(4, 8, 6, 0.34);
   --focus-ring: rgba(155, 184, 166, 0.42);
 }
 
@@ -275,6 +294,18 @@ body {
   box-shadow: var(--shadow-form-card);
 }
 
+.screen {
+  width: 100%;
+  min-width: 0;
+}
+
+.app-shell__main .screen__card,
+.app-shell__main .result-card {
+  --n-padding-top: var(--layout-card-padding) !important;
+  --n-padding-bottom: var(--layout-card-padding) !important;
+  --n-padding-left: var(--layout-card-padding) !important;
+}
+
 .form-screen .n-radio-group {
   display: flex;
   flex-wrap: wrap;
@@ -288,10 +319,11 @@ body {
 }
 
 @media (max-width: 680px) {
-  .form-screen .screen__card {
-    --n-padding-top: 16px !important;
-    --n-padding-bottom: 16px !important;
-    --n-padding-left: 16px !important;
+  .app-shell__main .screen__card,
+  .app-shell__main .result-card {
+    --n-padding-top: var(--layout-card-padding-mobile) !important;
+    --n-padding-bottom: var(--layout-card-padding-mobile) !important;
+    --n-padding-left: var(--layout-card-padding-mobile) !important;
   }
 
   .form-screen .n-form-item--left-labelled {
@@ -448,7 +480,8 @@ body {
 
 .app-shell__main {
   flex: 1;
-  padding: clamp(20px, 4vw, 40px) clamp(16px, 4vw, 40px) 64px;
+  padding: var(--layout-page-padding-top) var(--layout-page-padding-inline)
+    var(--layout-page-padding-bottom);
 }
 
 .fade-slide-enter-active,

@@ -16,7 +16,12 @@ import { useApplySteps } from '@/composables/useApplySteps'
 import { CURRENCIES } from '@/utils/mockData'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
-import { isValidEmailEntry, isValidWebsiteUrl, isValidWhitelistEntry } from '@/utils/validators'
+import {
+  getOperatorCodeValidationError,
+  isValidEmailEntry,
+  isValidWebsiteUrl,
+  isValidWhitelistEntry,
+} from '@/utils/validators'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import MultiValueInput from '@/components/apply/MultiValueInput.vue'
 import VendorGroupedSelect from '@/components/apply/VendorGroupedSelect.vue'
@@ -53,6 +58,26 @@ const showWebsiteUrlError = computed(
     store.operator.websiteStatus === 'live' &&
     store.operator.website.trim().length > 0 &&
     !isValidWebsiteUrl(store.operator.website),
+)
+
+const operatorCodeError = computed(() =>
+  touchedFields.has('code')
+    ? getOperatorCodeValidationError(store.operator.code)
+    : null,
+)
+const showOperatorCodeRequired = computed(() => operatorCodeError.value === 'required')
+const showOperatorCodeFormatError = computed(
+  () => operatorCodeError.value !== null && operatorCodeError.value !== 'required',
+)
+const operatorCodeErrorZh = computed(() =>
+  operatorCodeError.value === 'contains-zero'
+    ? '营运商代码不得包含数字 0'
+    : '请输入 2–4 码英数字',
+)
+const operatorCodeErrorEn = computed(() =>
+  operatorCodeError.value === 'contains-zero'
+    ? 'Operator code must not contain digit 0'
+    : 'Enter 2–4 alphanumeric characters',
 )
 
 function markTouched(field: string, event: FocusEvent, disabled = false) {
@@ -205,9 +230,15 @@ async function handleInvalidNext() {
             <CodeInput
               v-model="store.operator.code"
               input-id="operator-code"
-              :status="showRequired('code', store.operator.code) ? 'error' : undefined"
-              :aria-describedby="showRequired('code', store.operator.code) ? 'operator-code-required' : undefined"
-              :show-required-error="showRequired('code', store.operator.code)"
+              :status="operatorCodeError ? 'error' : undefined"
+              :aria-describedby="showOperatorCodeFormatError ? 'operator-code-format-error' : showOperatorCodeRequired ? 'operator-code-required' : undefined"
+              :show-required-error="showOperatorCodeRequired"
+            />
+            <FieldError
+              v-if="showOperatorCodeFormatError"
+              id="operator-code-format-error"
+              :zh="operatorCodeErrorZh"
+              :en="operatorCodeErrorEn"
             />
           </div>
         </NFormItem>
@@ -262,8 +293,8 @@ async function handleInvalidNext() {
               :validate="isValidWhitelistEntry"
               mono
               placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
-              hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
-              hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
+              hint-zh="请填写固定对外 IP；仅白名单内的 IP 可使用我司后台。"
+              hint-en="Enter fixed public IPs. Only allowlisted IPs can access our admin system."
               error-zh="IP 格式错误"
               error-en="Invalid IP format"
               :external-status="showRequired('boWhitelist', store.operator.boWhitelist) ? 'error' : undefined"
@@ -285,8 +316,8 @@ async function handleInvalidNext() {
               :validate="isValidWhitelistEntry"
               mono
               placeholder="输入 IP 后按 Enter，或以逗号、换行贴上多笔"
-              hint-zh="可输入一笔或多笔 IP，输入后会成为独立项目，可单独移除。"
-              hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
+              hint-zh="请填写固定对外 IP；仅接受白名单内 IP 发出的 API 请求。"
+              hint-en="Enter fixed public IPs. Only API requests from allowlisted IPs are accepted."
               error-zh="IP 格式错误"
               error-en="Invalid IP format"
               :external-status="showRequired('apiWhitelist', store.operator.apiWhitelist) ? 'error' : undefined"
@@ -570,7 +601,7 @@ async function handleInvalidNext() {
 
 <style scoped>
 .screen {
-  max-width: 920px;
+  max-width: var(--layout-width-wide);
   margin: 0 auto;
 }
 

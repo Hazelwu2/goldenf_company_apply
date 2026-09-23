@@ -4,13 +4,27 @@
  * 账号 6–10 小写英数；IP 仅验格式，不验地区、不做网段显示。
  */
 
+export type OperatorCodeValidationError =
+  | 'required'
+  | 'invalid-length'
+  | 'invalid-characters'
+  | 'contains-zero'
+
+/** 营运商代码错误类型，供验证逻辑与栏位提示共用。 */
+export function getOperatorCodeValidationError(
+  raw: string,
+): OperatorCodeValidationError | null {
+  const value = raw.trim()
+  if (!value) return 'required'
+  if (value.length < 2 || value.length > 4) return 'invalid-length'
+  if (!/^[A-Za-z0-9]+$/.test(value)) return 'invalid-characters'
+  if (value.includes('0')) return 'contains-zero'
+  return null
+}
+
 /** 营运商代码：2–4 英数字符，不得含数字 0（送出前应先用 toUpperCase 正规化）。 */
 export function isValidOperatorCode(raw: string): boolean {
-  const value = raw.trim()
-  if (value.length < 2 || value.length > 4) return false
-  if (!/^[A-Za-z0-9]+$/.test(value)) return false
-  if (value.includes('0')) return false
-  return true
+  return getOperatorCodeValidationError(raw) === null
 }
 
 /** 代理／总代理代码：2–12 码英数字符（对应 API 规格 §2.3）。 */

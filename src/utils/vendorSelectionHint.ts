@@ -7,7 +7,7 @@ export function getVendorSelectionHint(currency: string | null) {
   }
 
   return {
-    zh: `仅显示支持 ${currency} 币别的产品商。`,
-    en: `Only vendors that support ${currency} are shown.`,
+    zh: `支持 ${currency} 的产品商优先显示；不支持的项目列于最下方。`,
+    en: `Vendors supporting ${currency} appear first; unavailable options are listed last.`,
   }
 }

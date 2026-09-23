@@ -67,7 +67,7 @@ function previewRejection() {
 
 <template>
   <section class="screen">
-    <NCard size="large">
+    <NCard size="large" class="screen__card">
       <template #header>
         <span class="screen__title">确认送出</span>
         <span class="screen__title-en">Confirm & Submit</span>
@@ -210,7 +210,7 @@ function previewRejection() {
 
 <style scoped>
 .screen {
-  max-width: 720px;
+  max-width: var(--layout-width-reading);
   margin: 0 auto;
 }
 
@@ -253,7 +253,7 @@ function previewRejection() {
   margin: 0 0 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: var(--layout-item-gap);
 }
 
 .review-section {
@@ -341,7 +341,18 @@ function previewRejection() {
 .review-field__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 8px;
+}
+
+.review-field__tags :deep(.n-tag) {
+  height: auto;
+  min-height: 30px;
+  padding: 3px 8px;
+}
+
+.review-field__tags :deep(.n-tag__content) {
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .review-field__secret {

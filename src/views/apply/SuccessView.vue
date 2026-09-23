@@ -128,7 +128,7 @@ async function downloadConfirmationImage() {
 
 <template>
   <section class="screen">
-    <NCard size="large" class="result-card">
+    <NCard size="large" class="result-card screen__card">
       <div class="success-head">
         <span class="success-head__icon" aria-hidden="true">
           <NIcon :component="CheckmarkCircle" size="30" />
@@ -214,7 +214,7 @@ async function downloadConfirmationImage() {
 <style scoped>
 .screen {
   width: 100%;
-  max-width: 600px;
+  max-width: var(--layout-width-result);
   min-width: 0;
   margin: 0 auto;
   box-sizing: border-box;

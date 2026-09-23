@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { isValidAgentCode } from '../src/utils/validators.ts'
+import {
+  getOperatorCodeValidationError,
+  isValidAgentCode,
+} from '../src/utils/validators.ts'
+
+test('operator code reports a dedicated error when it contains digit zero', () => {
+  assert.equal(getOperatorCodeValidationError('2220'), 'contains-zero')
+  assert.equal(getOperatorCodeValidationError('GF0'), 'contains-zero')
+  assert.equal(getOperatorCodeValidationError('GF22'), null)
+})
 
 test('agent code accepts uppercase alphanumeric values up to twelve characters', () => {
   assert.equal(isValidAgentCode('MA2026'), true)
