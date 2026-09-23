@@ -76,10 +76,10 @@ export const darkPalette = {
   warningPressed: '#BC8749',
   warningSuppl: '#8E6C43',
 
-  error: '#D28A82',
-  errorHover: '#DFA099',
-  errorPressed: '#B8746D',
-  errorSuppl: '#8C5E59',
+  error: '#F09A92',
+  errorHover: '#F5AAA3',
+  errorPressed: '#D78179',
+  errorSuppl: '#A96560',
 
   info: '#AEB8B1',
   infoHover: '#C1C9C3',
@@ -101,6 +101,20 @@ export const darkPalette = {
 export const radius = {
   base: '6px',
   small: '4px',
+  control: '8px',
+} as const
+
+export const formControl = {
+  height: '48px',
+  paddingInline: '0 12px',
+  fontSize: '16px',
+  optionHeight: '44px',
+} as const
+
+export const radioControl = {
+  size: '20px',
+  fontSize: '16px',
+  labelPadding: '0 0 0 10px',
 } as const
 
 export const spacing = {

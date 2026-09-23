@@ -1,5 +1,5 @@
 import type { GlobalThemeOverrides } from 'naive-ui'
-import { darkPalette, fontFamily, palette, radius } from './tokens'
+import { darkPalette, fontFamily, formControl, palette, radioControl, radius } from './tokens'
 
 /**
  * Naive UI GlobalThemeOverrides — 统一圆角 / 主色 / 字型。
@@ -66,13 +66,35 @@ export const themeOverrides: GlobalThemeOverrides = {
   },
 
   Input: {
-    borderRadius: radius.small,
-    fontSizeMedium: '15px',
+    heightMedium: formControl.height,
+    borderRadius: radius.control,
+    fontSizeMedium: formControl.fontSize,
+    paddingMedium: formControl.paddingInline,
+  },
+
+  Form: {
+    asteriskColor: palette.error,
+  },
+
+  Radio: {
+    radioSizeMedium: radioControl.size,
+    fontSizeMedium: radioControl.fontSize,
+    labelPadding: radioControl.labelPadding,
   },
 
   Select: {
     peers: {
-      InternalSelection: { borderRadius: radius.small },
+      InternalSelection: {
+        heightMedium: formControl.height,
+        borderRadius: radius.control,
+        fontSizeMedium: formControl.fontSize,
+        paddingSingle: formControl.paddingInline,
+      },
+      InternalSelectMenu: {
+        optionHeightMedium: formControl.optionHeight,
+        optionFontSizeMedium: formControl.fontSize,
+        optionPaddingMedium: formControl.paddingInline,
+      },
     },
   },
 
@@ -163,13 +185,35 @@ export const darkThemeOverrides: GlobalThemeOverrides = {
   },
 
   Input: {
-    borderRadius: radius.small,
-    fontSizeMedium: '15px',
+    heightMedium: formControl.height,
+    borderRadius: radius.control,
+    fontSizeMedium: formControl.fontSize,
+    paddingMedium: formControl.paddingInline,
+  },
+
+  Form: {
+    asteriskColor: darkPalette.error,
+  },
+
+  Radio: {
+    radioSizeMedium: radioControl.size,
+    fontSizeMedium: radioControl.fontSize,
+    labelPadding: radioControl.labelPadding,
   },
 
   Select: {
     peers: {
-      InternalSelection: { borderRadius: radius.small },
+      InternalSelection: {
+        heightMedium: formControl.height,
+        borderRadius: radius.control,
+        fontSizeMedium: formControl.fontSize,
+        paddingSingle: formControl.paddingInline,
+      },
+      InternalSelectMenu: {
+        optionHeightMedium: formControl.optionHeight,
+        optionFontSizeMedium: formControl.fontSize,
+        optionPaddingMedium: formControl.paddingInline,
+      },
     },
   },
 

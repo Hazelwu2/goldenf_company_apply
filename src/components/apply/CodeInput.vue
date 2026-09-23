@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { NInput } from 'naive-ui'
 import { normalizeCodeInput } from '@/utils/validators'
+import RequiredFieldError from './RequiredFieldError.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -16,6 +17,9 @@ const props = withDefaults(
     allowDigits?: boolean
     /** 是否提示不可含数字 0，预设 true（营运商代码规则）。代理代码请传 false。 */
     disallowZero?: boolean
+    status?: 'error'
+    ariaDescribedby?: string
+    showRequiredError?: boolean
   }>(),
   {
     placeholder: undefined,
@@ -55,11 +59,20 @@ const hintEn = computed(() => {
 <template>
   <div class="code-input">
     <NInput
-      :input-props="{ id: props.inputId }"
+      :input-props="{
+        id: props.inputId,
+        'aria-invalid': props.status === 'error' ? 'true' : undefined,
+        'aria-describedby': props.ariaDescribedby,
+      }"
+      :status="props.status"
       :value="modelValue"
       :placeholder="placeholder ?? '例如 GFAB'"
       class="code-input__field"
       @update:value="handleInput"
+    />
+    <RequiredFieldError
+      v-if="props.showRequiredError && props.ariaDescribedby"
+      :id="props.ariaDescribedby"
     />
     <p class="code-input__hint" :class="{ 'is-warn': isTooShort }">
       <span class="code-input__count">{{ length }}/{{ props.maxLength }}</span>

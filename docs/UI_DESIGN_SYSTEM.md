@@ -96,7 +96,8 @@ Do not place essential information only in a placeholder. Keep a visible bilingu
 
 ## Layout and spacing
 
-- Main form and confirmation content: maximum width 720 px.
+- Main application forms: maximum width 920 px, matching the application-combination step.
+- Confirmation content: maximum width 720 px.
 - Success result content: maximum width 600 px unless a wider summary requires 720 px.
 - Page horizontal padding: `clamp(16px, 4vw, 40px)`.
 - Section gap: 16–24 px.

@@ -8,6 +8,8 @@ import { getVendorSelectionHint } from '@/utils/vendorSelectionHint'
 const props = defineProps<{
   modelValue: string[]
   currency: string | null
+  status?: 'error'
+  ariaDescribedby?: string
 }>()
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
@@ -129,6 +131,9 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
       max-tag-count="responsive"
       :options="options"
       :disabled="!props.currency"
+      :status="props.status"
+      :aria-invalid="props.status === 'error' ? 'true' : undefined"
+      :aria-describedby="props.ariaDescribedby"
       :placeholder="
         props.currency ? '选择产品商（可多选） / Select vendors' : '请先选择币别 / Select currency first'
       "

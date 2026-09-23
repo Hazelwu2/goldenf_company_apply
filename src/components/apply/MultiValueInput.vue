@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { NInput, NTag } from 'naive-ui'
+import { computed, ref, useId } from 'vue'
+import { NIcon, NInput, NTag } from 'naive-ui'
+import { AlertCircleOutline } from '@vicons/ionicons5'
 import { splitEntries } from '@/utils/validators'
 import FieldHint from './FieldHint.vue'
-import FieldError from './FieldError.vue'
+import RequiredFieldError from './RequiredFieldError.vue'
+import { buildMultiValueInputView } from './multiValueInputModel'
 
 /**
  * 可填多笔的栏位：输入或贴上后以逗号、分号、空白或换行切成一个个标签，
@@ -26,6 +28,9 @@ const props = withDefaults(
     inputId?: string
     /** IP、代码等机器值以等宽字体呈现。 */
     mono?: boolean
+    externalStatus?: 'error'
+    ariaDescribedby?: string
+    showRequiredError?: boolean
   }>(),
   { disabled: false, mono: false },
 )
@@ -33,8 +38,12 @@ const props = withDefaults(
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
 
 const draft = ref('')
+const generatedInputId = useId()
+const resolvedInputId = computed(() => props.inputId ?? `multi-value-${generatedInputId}`)
 
-const invalidEntries = computed(() => props.modelValue.filter((entry) => !props.validate(entry)))
+const inputView = computed(() =>
+  buildMultiValueInputView(props.modelValue, props.validate, props.errorZh, props.errorEn),
+)
 
 /** 将草稿内容切成多笔并加入，重复值略过。 */
 function commitDraft(raw: string) {
@@ -81,38 +90,93 @@ function handleBackspace() {
     removeAt(props.modelValue.length - 1)
   }
 }
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === 'Enter') {
+    event.preventDefault()
+    commitDraft(draft.value)
+    return
+  }
+  if (event.key === 'Backspace') handleBackspace()
+}
 </script>
 
 <template>
   <div class="multi-value">
-    <div v-if="modelValue.length" class="multi-value__tags" :class="{ 'is-mono': props.mono }">
-      <NTag
-        v-for="(entry, i) in modelValue"
-        :key="`${entry}-${i}`"
-        size="small"
-        round
-        :type="props.validate(entry) ? 'default' : 'error'"
-        :closable="!props.disabled"
-        :disabled="props.disabled"
-        @close="removeAt(i)"
+    <div
+      v-if="modelValue.length"
+      class="multi-value__tags"
+      :class="{ 'is-mono': props.mono }"
+      :role="inputView.tagsRole"
+    >
+      <div
+        v-for="(item, i) in inputView.items"
+        :key="`${item.entry}-${i}`"
+        class="multi-value__tag-item"
+        :class="{ 'is-invalid': !item.valid }"
+        :aria-invalid="!item.valid ? 'true' : undefined"
       >
-        {{ entry }}
-      </NTag>
+        <NTag
+          size="small"
+          round
+          :type="item.valid ? 'default' : 'error'"
+          :closable="!props.disabled"
+          :disabled="props.disabled"
+          @close="removeAt(i)"
+        >
+          <NIcon
+            v-if="!item.valid"
+            class="multi-value__tag-icon"
+            :component="AlertCircleOutline"
+            size="15"
+            :aria-hidden="inputView.errorIconAriaHidden"
+          />
+          {{ item.entry }}
+        </NTag>
+      </div>
+    </div>
+    <div
+      v-if="inputView.summary"
+      class="multi-value__summary"
+      :role="inputView.alertRole"
+      :aria-live="inputView.alertLive"
+    >
+      <NIcon
+        class="multi-value__summary-icon"
+        :component="AlertCircleOutline"
+        size="16"
+        :aria-hidden="inputView.summaryIconAriaHidden"
+      />
+      <span class="multi-value__summary-copy">
+        <span class="multi-value__summary-zh">{{ inputView.summary.zh }}</span>
+        <span class="multi-value__summary-en">{{ inputView.summary.en }}</span>
+      </span>
     </div>
     <NInput
-      :input-props="{ id: props.inputId, onPaste: handlePaste }"
+      :input-props="{
+        id: resolvedInputId,
+        onPaste: handlePaste,
+        'aria-invalid':
+          inputView.inputStatus === 'error' || props.externalStatus === 'error'
+            ? 'true'
+            : undefined,
+        'aria-describedby': props.ariaDescribedby,
+      }"
       :value="draft"
       :disabled="props.disabled"
       :placeholder="props.placeholder"
+      :status="inputView.inputStatus ?? props.externalStatus"
       class="multi-value__field"
       :class="{ 'is-mono': props.mono }"
       @update:value="handleInput"
       @blur="handleBlur"
-      @keydown.enter.prevent="commitDraft(draft)"
-      @keydown.backspace="handleBackspace"
+      @keydown="handleKeydown"
+    />
+    <RequiredFieldError
+      v-if="props.showRequiredError && props.ariaDescribedby"
+      :id="props.ariaDescribedby"
     />
     <FieldHint v-if="props.hintZh && props.hintEn" :zh="props.hintZh" :en="props.hintEn" />
-    <FieldError v-if="invalidEntries.length" :zh="props.errorZh" :en="props.errorEn" />
   </div>
 </template>
 
@@ -125,6 +189,14 @@ function handleBackspace() {
   margin-bottom: 8px;
 }
 
+.multi-value__tag-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+  max-width: 100%;
+}
+
 /*
  * NTag 预设 white-space: nowrap 且高度固定，长 Email 或完整 IPv6 会超出栏位，
  * 再被卡片的 overflow: hidden 裁掉，连移除钮都点不到。
@@ -134,15 +206,28 @@ function handleBackspace() {
   max-width: 100%;
   height: auto;
   min-height: 22px;
-  align-items: flex-start;
+  align-items: center;
   padding-top: 2px;
   padding-bottom: 2px;
 }
 
 .multi-value__tags :deep(.n-tag__content) {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
   white-space: normal;
   overflow-wrap: anywhere;
   line-height: 1.5;
+}
+
+.multi-value__tags :deep(.n-tag__close) {
+  align-self: center;
+}
+
+.multi-value__tag-icon {
+  flex: none;
+  margin-right: 4px;
+  color: var(--color-error);
 }
 
 .multi-value__tags.is-mono :deep(.n-tag__content),
@@ -152,5 +237,40 @@ function handleBackspace() {
 
 .multi-value__field.is-mono :deep(input) {
   font-size: 15px;
+}
+
+.multi-value__summary {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  margin-bottom: 6px;
+  padding: 0 2px;
+  color: var(--color-error-strong);
+  line-height: 1.35;
+}
+
+.multi-value__summary-icon {
+  flex: none;
+  align-self: center;
+  color: var(--color-error);
+}
+
+.multi-value__summary-copy {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  min-width: 0;
+}
+
+.multi-value__summary-zh {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.multi-value__summary-en {
+  min-width: 0;
+  font-size: 13px;
+  color: var(--color-text-secondary);
 }
 </style>

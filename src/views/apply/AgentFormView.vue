@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, nextTick, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { NCard, NCheckbox, NForm, NFormItem, NIcon, NInput } from 'naive-ui'
 import { InformationCircleOutline } from '@vicons/ionicons5'
@@ -12,12 +12,20 @@ import { isValidEmailEntry, isValidWhitelistEntry } from '@/utils/validators'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
 import FieldHint from '@/components/apply/FieldHint.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
+import RequiredFieldError from '@/components/apply/RequiredFieldError.vue'
+import {
+  shouldShowRequiredError,
+  type RequiredFieldValue,
+} from '@/components/apply/requiredFieldValidation'
+import { getFirstInvalidAgentField } from '@/utils/invalidFieldNavigation'
+import { focusInvalidField } from '@/utils/focusInvalidField'
 
 const props = defineProps<{ level: 'MA' | 'SMA' }>()
 
 const store = useApplyStore()
 const router = useRouter()
 const { steps } = useApplySteps()
+const touchedFields = reactive(new Set<string>())
 
 const form = computed(() => store.agentForm(props.level))
 const title = computed(() => (props.level === 'MA' ? '代理 MA' : '总代理 SMA'))
@@ -25,6 +33,22 @@ const titleEn = computed(() => (props.level === 'MA' ? 'Agent MA' : 'Super Agent
 const stepKey = computed(() => (props.level === 'MA' ? 'agent-ma' : 'agent-sma'))
 const showSameAsA = computed(() => store.hasLevel('A'))
 const idPrefix = computed(() => `field-agent-${props.level.toLowerCase()}`)
+
+function markTouched(field: string, event: FocusEvent, disabled = false) {
+  if (disabled) return
+  const current = event.currentTarget as HTMLElement
+  const next = event.relatedTarget
+  if (next instanceof Node && current.contains(next)) return
+  touchedFields.add(field)
+}
+
+function showRequired(
+  field: string,
+  value: RequiredFieldValue,
+  options: { disabled?: boolean; active?: boolean } = {},
+) {
+  return shouldShowRequiredError({ touched: touchedFields.has(field), value, ...options })
+}
 
 /** 横幅只描述真正勾选的栏位，避免宣称同步了其实没同步的资料。 */
 const syncedFieldsZh = computed(() => {
@@ -42,6 +66,7 @@ const syncedFieldsEn = computed(() => {
 })
 
 function handleSameAsAChange(field: SameAsAField, checked: boolean) {
+  if (field === 'whitelist' && checked) touchedFields.delete('boWhitelist')
   store.applySameAsA(props.level, field, checked)
 }
 
@@ -56,11 +81,19 @@ function goNext() {
   const next = steps.value[idx + 1]
   router.push(next ? next.path : '/apply/confirm')
 }
+
+async function handleInvalidNext() {
+  const target = getFirstInvalidAgentField(form.value, props.level)
+  if (!target) return
+  touchedFields.add(target.key)
+  await nextTick()
+  focusInvalidField(target.id)
+}
 </script>
 
 <template>
-  <section class="screen">
-    <NCard size="large">
+  <section class="screen form-screen">
+    <NCard size="large" class="screen__card">
       <template #header>
         <span class="screen__title">{{ title }}</span>
         <span class="screen__title-en">{{ titleEn }}</span>
@@ -72,7 +105,11 @@ function goNext() {
       <NForm label-placement="left" label-width="150" require-mark-placement="right-hanging">
         <NFormItem required>
           <template #label><FieldLabel :zh="`${title}代码`" :en="`${titleEn} Code`" /></template>
-          <div :id="`${idPrefix}-code`" class="anchor-target field">
+          <div
+            :id="`${idPrefix}-code`"
+            class="anchor-target field"
+            @focusout="markTouched('code', $event)"
+          >
             <CodeInput
               v-model="form.code"
               :input-id="`${idPrefix}-code-input`"
@@ -81,6 +118,9 @@ function goNext() {
               :allow-digits="true"
               :disallow-zero="false"
               placeholder="例如 GFAGENT"
+              :status="showRequired('code', form.code) ? 'error' : undefined"
+              :aria-describedby="showRequired('code', form.code) ? `${idPrefix}-code-required` : undefined"
+              :show-required-error="showRequired('code', form.code)"
             />
           </div>
         </NFormItem>
@@ -94,10 +134,19 @@ function goNext() {
 
         <NFormItem required>
           <template #label><FieldLabel zh="后台账号" en="Admin Account" /></template>
-          <div :id="`${idPrefix}-admin-account`" class="anchor-target field">
+          <div
+            :id="`${idPrefix}-admin-account`"
+            class="anchor-target field"
+            @focusout="markTouched('adminAccount', $event)"
+          >
             <NInput
               :value="form.adminAccount"
               placeholder="6–10 码小写英数"
+              :status="showRequired('adminAccount', form.adminAccount) ? 'error' : undefined"
+              :input-props="{
+                'aria-invalid': showRequired('adminAccount', form.adminAccount) ? 'true' : undefined,
+                'aria-describedby': showRequired('adminAccount', form.adminAccount) ? `${idPrefix}-admin-account-required` : undefined,
+              }"
               @update:value="
                 (v: string) =>
                   (form.adminAccount = v
@@ -106,13 +155,21 @@ function goNext() {
                     .slice(0, 10))
               "
             />
+            <RequiredFieldError
+              v-if="showRequired('adminAccount', form.adminAccount)"
+              :id="`${idPrefix}-admin-account-required`"
+            />
             <FieldHint zh="6–10 码小写英数" en="6–10 lowercase alphanumeric characters" />
           </div>
         </NFormItem>
 
         <NFormItem required>
           <template #label><FieldLabel zh="后台 IP 白名单" en="Admin IP Whitelist" /></template>
-          <div :id="`${idPrefix}-bo-whitelist`" class="anchor-target field">
+          <div
+            :id="`${idPrefix}-bo-whitelist`"
+            class="anchor-target field"
+            @focusout="markTouched('boWhitelist', $event, form.sameWhitelistAsA)"
+          >
             <NCheckbox
               v-if="showSameAsA"
               :checked="form.sameWhitelistAsA"
@@ -131,6 +188,9 @@ function goNext() {
               hint-en="Enter one or more IP addresses; each becomes a separate item that can be removed individually."
               error-zh="IP 格式错误"
               error-en="Invalid IP format"
+              :external-status="showRequired('boWhitelist', form.boWhitelist, { disabled: form.sameWhitelistAsA }) ? 'error' : undefined"
+              :aria-describedby="showRequired('boWhitelist', form.boWhitelist, { disabled: form.sameWhitelistAsA }) ? `${idPrefix}-bo-whitelist-required` : undefined"
+              :show-required-error="showRequired('boWhitelist', form.boWhitelist, { disabled: form.sameWhitelistAsA })"
             />
           </div>
         </NFormItem>
@@ -191,22 +251,24 @@ function goNext() {
 
     <StepFooterActions
       :next-disabled="!store.isAgentValid(props.level)"
+      allow-disabled-attempt
       hint="请完整填写必填栏位，并确认格式正确"
       hint-en="Please complete all required fields with valid formats"
       @back="goBack"
       @next="goNext"
+      @invalid-next="handleInvalidNext"
     />
   </section>
 </template>
 
 <style scoped>
 .screen {
-  max-width: 720px;
+  max-width: 920px;
   margin: 0 auto;
 }
 
 .field {
-  width: 360px;
+  width: 620px;
   max-width: 100%;
 }
 
