@@ -59,6 +59,13 @@ const currencySelectionAvailable = computed(
     currencyLoadState.value === 'success' &&
     isCurrencySelectionAvailable(currencyOptions.value, store.operator.currency),
 )
+const currencySelectionStale = computed(
+  () =>
+    currencyLoadState.value === 'success' &&
+    currencyOptions.value.length > 0 &&
+    store.operator.currency !== null &&
+    !currencySelectionAvailable.value,
+)
 const currencyPlaceholder = computed(() => {
   if (currencyLoadState.value === 'loading') return '正在载入币别 / Loading currencies'
   if (currencyLoadState.value === 'error') return '币别载入失败 / Failed to load currencies'
@@ -69,6 +76,7 @@ const showCurrencyRequired = computed(() =>
   showRequired('currency', store.operator.currency, { disabled: currencyFieldDisabled.value }),
 )
 const currencyDescribedBy = computed(() => {
+  if (currencySelectionStale.value) return 'operator-currency-stale'
   if (currencyLoadState.value === 'error') return 'operator-currency-load-error'
   if (currencyLoadState.value === 'success' && currencyOptions.value.length === 0) {
     return 'operator-currency-empty'
@@ -192,6 +200,11 @@ function goNext() {
 }
 
 async function handleInvalidNext() {
+  if (currencySelectionStale.value) {
+    await nextTick()
+    focusInvalidField('field-operator-currency')
+    return
+  }
   const target = getFirstInvalidOperatorField(store.operator)
   if (!target) return
   touchedFields.add(target.key)
@@ -234,16 +247,26 @@ async function handleInvalidNext() {
               :loading="currencyLoadState === 'loading'"
               :disabled="currencyFieldDisabled"
               :placeholder="currencyPlaceholder"
-              :status="showCurrencyRequired ? 'error' : undefined"
+              :status="showCurrencyRequired || currencySelectionStale ? 'error' : undefined"
               :aria-busy="currencyLoadState === 'loading' ? 'true' : 'false'"
-              :aria-invalid="showCurrencyRequired ? 'true' : undefined"
+              :aria-invalid="showCurrencyRequired || currencySelectionStale ? 'true' : undefined"
               :aria-describedby="currencyDescribedBy"
               @update:value="handleCurrencyUpdate"
             />
             <FieldHint
-              v-if="currencyLoadState === 'success' && currencyOptions.length > 0"
+              v-if="
+                currencyLoadState === 'success' &&
+                currencyOptions.length > 0 &&
+                !currencySelectionStale
+              "
               zh="先选择币别，再选择产品商。"
               en="Choose a currency first, then select vendors."
+            />
+            <FieldError
+              v-else-if="currencySelectionStale"
+              id="operator-currency-stale"
+              zh="已选币别目前不可用，请重新选择。"
+              en="The selected currency is no longer available. Please choose another."
             />
             <FieldHint
               v-else-if="currencyLoadState === 'loading'"
