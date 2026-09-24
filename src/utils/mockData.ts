@@ -3,21 +3,6 @@
  * 元件端不需要跟着改（都是走 currency / vendor code 对照）。
  */
 
-import type { SelectOption } from 'naive-ui'
-
-export interface CurrencyOption extends SelectOption {
-  value: string
-  label: string
-}
-
-export const CURRENCIES: CurrencyOption[] = [
-  { value: 'CNY', label: 'CNY 人民币' },
-  { value: 'USD', label: 'USD 美金' },
-  { value: 'THB', label: 'THB 泰铢' },
-  { value: 'VND', label: 'VND 越南盾' },
-  { value: 'IDR', label: 'IDR 印尼盾' },
-]
-
 export type VendorEnv = 'official_test' | 'official_only'
 
 export interface VendorOption {

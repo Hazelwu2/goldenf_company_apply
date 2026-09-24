@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, nextTick, reactive, ref } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   NAlert,
+  NButton,
   NCard,
   NForm,
   NFormItem,
@@ -13,7 +14,7 @@ import {
 } from 'naive-ui'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
-import { CURRENCIES } from '@/utils/mockData'
+import { getCurrencies, type CurrencyOption } from '@/api/currencyApi'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
 import {
@@ -44,6 +45,27 @@ const router = useRouter()
 const { steps } = useApplySteps()
 const pendingCurrency = ref<string | null>(null)
 const touchedFields = reactive(new Set<string>())
+const currencyOptions = ref<CurrencyOption[]>([])
+const currencyLoadState = ref<'loading' | 'success' | 'error'>('loading')
+const currencyFieldDisabled = computed(
+  () => currencyLoadState.value !== 'success' || currencyOptions.value.length === 0,
+)
+const currencyPlaceholder = computed(() => {
+  if (currencyLoadState.value === 'loading') return '正在载入币别 / Loading currencies'
+  if (currencyLoadState.value === 'error') return '币别载入失败 / Failed to load currencies'
+  if (currencyOptions.value.length === 0) return '暂无可用币别 / No currencies available'
+  return '请选择币别 / Select currency'
+})
+const showCurrencyRequired = computed(() =>
+  showRequired('currency', store.operator.currency, { disabled: currencyFieldDisabled.value }),
+)
+const currencyDescribedBy = computed(() => {
+  if (currencyLoadState.value === 'error') return 'operator-currency-load-error'
+  if (currencyLoadState.value === 'success' && currencyOptions.value.length === 0) {
+    return 'operator-currency-empty'
+  }
+  return showCurrencyRequired.value ? 'operator-currency-required' : undefined
+})
 const currencyChangeImpact = computed(() =>
   pendingCurrency.value
     ? getCurrencyChangeImpact(store.operator.vendorCodes, pendingCurrency.value)
@@ -51,6 +73,19 @@ const currencyChangeImpact = computed(() =>
 )
 
 const marketOptions = operatingMarketOptions
+
+async function loadCurrencyOptions() {
+  currencyLoadState.value = 'loading'
+  try {
+    currencyOptions.value = await getCurrencies()
+    currencyLoadState.value = 'success'
+  } catch {
+    currencyOptions.value = []
+    currencyLoadState.value = 'error'
+  }
+}
+
+onMounted(loadCurrencyOptions)
 
 /** 有输入内容才显示格式错误，避免使用者还在输入时就跳错。 */
 const showWebsiteUrlError = computed(
@@ -182,23 +217,56 @@ async function handleInvalidNext() {
           <div
             id="field-operator-currency"
             class="anchor-target field"
-            @focusout="markTouched('currency', $event)"
+            @focusout="markTouched('currency', $event, currencyFieldDisabled)"
           >
             <NSelect
               :value="store.operator.currency"
-              :options="CURRENCIES"
-              placeholder="请选择币别"
-              :status="showRequired('currency', store.operator.currency) ? 'error' : undefined"
-              :aria-invalid="showRequired('currency', store.operator.currency) ? 'true' : undefined"
-              :aria-describedby="showRequired('currency', store.operator.currency) ? 'operator-currency-required' : undefined"
+              :options="currencyOptions"
+              :loading="currencyLoadState === 'loading'"
+              :disabled="currencyFieldDisabled"
+              :placeholder="currencyPlaceholder"
+              :status="showCurrencyRequired ? 'error' : undefined"
+              :aria-busy="currencyLoadState === 'loading' ? 'true' : 'false'"
+              :aria-invalid="showCurrencyRequired ? 'true' : undefined"
+              :aria-describedby="currencyDescribedBy"
               @update:value="handleCurrencyUpdate"
             />
             <FieldHint
+              v-if="currencyLoadState === 'success' && currencyOptions.length > 0"
               zh="先选择币别，再选择产品商。"
               en="Choose a currency first, then select vendors."
             />
+            <FieldHint
+              v-else-if="currencyLoadState === 'loading'"
+              role="status"
+              aria-live="polite"
+              zh="正在载入可用币别。"
+              en="Loading available currencies."
+            />
+            <FieldHint
+              v-else-if="currencyLoadState === 'success'"
+              id="operator-currency-empty"
+              role="status"
+              zh="目前没有可用币别，请稍后再试。"
+              en="No currencies are available. Please try again later."
+            />
+            <div v-else class="currency-load-error">
+              <FieldError
+                id="operator-currency-load-error"
+                zh="无法载入币别，请重试。"
+                en="Currencies could not be loaded. Please try again."
+              />
+              <NButton
+                class="currency-retry"
+                secondary
+                aria-label="重新载入币别 / Retry loading currencies"
+                @click="loadCurrencyOptions"
+              >
+                重新载入 / Retry
+              </NButton>
+            </div>
             <RequiredFieldError
-              v-if="showRequired('currency', store.operator.currency)"
+              v-if="showCurrencyRequired"
               id="operator-currency-required"
             />
           </div>
@@ -608,6 +676,11 @@ async function handleInvalidNext() {
 .field {
   width: 620px;
   max-width: 100%;
+}
+
+.currency-retry {
+  min-height: 44px;
+  margin-top: 8px;
 }
 
 .radio-control {
