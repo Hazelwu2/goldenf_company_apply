@@ -1,7 +1,18 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import axios from 'axios'
-import { getCurrencies } from '../src/api/currencyApi.ts'
+import { getCurrencies, isCurrencySelectionAvailable } from '../src/api/currencyApi.ts'
+
+test('a selected currency is available only while it exists in loaded options', () => {
+  const options = [
+    { value: 'USD', label: 'USD 美元', memo: '' },
+    { value: 'VND', label: 'VND 越南盾', memo: '' },
+  ]
+
+  assert.equal(isCurrencySelectionAvailable(options, 'USD'), true)
+  assert.equal(isCurrencySelectionAvailable(options, 'CNY'), false)
+  assert.equal(isCurrencySelectionAvailable(options, null), false)
+})
 
 test('successful currency response becomes ordered select options without losing memo', async () => {
   const options = await getCurrencies({

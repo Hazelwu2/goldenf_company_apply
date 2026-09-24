@@ -14,7 +14,11 @@ import {
 } from 'naive-ui'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
-import { getCurrencies, type CurrencyOption } from '@/api/currencyApi'
+import {
+  getCurrencies,
+  isCurrencySelectionAvailable,
+  type CurrencyOption,
+} from '@/api/currencyApi'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
 import {
@@ -49,6 +53,11 @@ const currencyOptions = ref<CurrencyOption[]>([])
 const currencyLoadState = ref<'loading' | 'success' | 'error'>('loading')
 const currencyFieldDisabled = computed(
   () => currencyLoadState.value !== 'success' || currencyOptions.value.length === 0,
+)
+const currencySelectionAvailable = computed(
+  () =>
+    currencyLoadState.value === 'success' &&
+    isCurrencySelectionAvailable(currencyOptions.value, store.operator.currency),
 )
 const currencyPlaceholder = computed(() => {
   if (currencyLoadState.value === 'loading') return '正在载入币别 / Loading currencies'
@@ -277,16 +286,16 @@ async function handleInvalidNext() {
           <div
             id="field-operator-vendor"
             class="anchor-target field"
-            @focusout="markTouched('vendors', $event, !store.operator.currency)"
+            @focusout="markTouched('vendors', $event, !currencySelectionAvailable)"
           >
             <VendorGroupedSelect
               v-model="store.operator.vendorCodes"
-              :currency="store.operator.currency"
-              :status="showRequired('vendors', store.operator.vendorCodes, { disabled: !store.operator.currency }) ? 'error' : undefined"
-              :aria-describedby="showRequired('vendors', store.operator.vendorCodes, { disabled: !store.operator.currency }) ? 'operator-vendors-required' : undefined"
+              :currency="currencySelectionAvailable ? store.operator.currency : null"
+              :status="showRequired('vendors', store.operator.vendorCodes, { disabled: !currencySelectionAvailable }) ? 'error' : undefined"
+              :aria-describedby="showRequired('vendors', store.operator.vendorCodes, { disabled: !currencySelectionAvailable }) ? 'operator-vendors-required' : undefined"
             />
             <RequiredFieldError
-              v-if="showRequired('vendors', store.operator.vendorCodes, { disabled: !store.operator.currency })"
+              v-if="showRequired('vendors', store.operator.vendorCodes, { disabled: !currencySelectionAvailable })"
               id="operator-vendors-required"
             />
           </div>
@@ -656,7 +665,7 @@ async function handleInvalidNext() {
     </NCard>
 
     <StepFooterActions
-      :next-disabled="!store.isOperatorValid"
+      :next-disabled="!store.isOperatorValid || !currencySelectionAvailable"
       allow-disabled-attempt
       hint="请完整填写必填栏位，并确认格式正确"
       hint-en="Please complete all required fields with valid formats"

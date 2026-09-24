@@ -33,6 +33,15 @@ export interface CurrencyApiResponse {
   data: { list: CurrencyApiItem[] }
 }
 
+export function isCurrencySelectionAvailable(
+  options: CurrencyOption[],
+  selectedCurrency: string | null,
+): boolean {
+  return (
+    selectedCurrency !== null && options.some((currency) => currency.value === selectedCurrency)
+  )
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
 }
