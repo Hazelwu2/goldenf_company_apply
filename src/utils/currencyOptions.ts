@@ -1,6 +1,7 @@
 import type { CurrencyDto } from '@/api/types'
 
-export interface CurrencyOption {
+/** 用 type 而不是 interface：NSelect 的 options 需要可接受任意欄位的物件型別。 */
+export type CurrencyOption = {
   value: string
   label: string
   memo: string

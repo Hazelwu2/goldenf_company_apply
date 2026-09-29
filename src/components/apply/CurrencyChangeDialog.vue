@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { NButton, NModal } from 'naive-ui'
-import type { VendorOption } from '@/utils/mockData'
+import type { Vendor } from '@/utils/vendors'
 
 defineProps<{
   show: boolean
   previousCurrency: string
   nextCurrency: string
-  remove: VendorOption[]
-  keep: VendorOption[]
+  remove: Vendor[]
+  keep: Vendor[]
 }>()
 
 const emit = defineEmits<{
@@ -62,7 +62,7 @@ const emit = defineEmits<{
         </p>
         <ul class="currency-change-dialog__list">
           <li v-for="vendor in remove" :key="vendor.code">
-            <span>{{ vendor.nameZh }}</span>
+            <span>{{ vendor.name }}</span>
             <span class="currency-change-dialog__status">不支持 {{ nextCurrency }} / Unavailable</span>
           </li>
         </ul>
@@ -82,7 +82,7 @@ const emit = defineEmits<{
         </p>
         <ul class="currency-change-dialog__list">
           <li v-for="vendor in keep" :key="vendor.code">
-            <span>{{ vendor.nameZh }}</span>
+            <span>{{ vendor.name }}</span>
             <span class="currency-change-dialog__status">支持 {{ nextCurrency }} / Kept</span>
           </li>
         </ul>

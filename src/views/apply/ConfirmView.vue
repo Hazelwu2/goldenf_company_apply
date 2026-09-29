@@ -11,7 +11,7 @@ import {
 } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
-import { VENDORS } from '@/utils/mockData'
+import { useReferenceDataStore } from '@/stores/useReferenceDataStore'
 import { buildApplicationReview } from '@/utils/applicationReview'
 import CaptchaField from '@/components/apply/CaptchaField.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
@@ -20,14 +20,14 @@ const store = useApplyStore()
 const router = useRouter()
 const { steps } = useApplySteps()
 
-const vendorNames = Object.fromEntries(VENDORS.map((vendor) => [vendor.code, vendor.nameZh]))
+const referenceData = useReferenceDataStore()
 const reviewSections = computed(() =>
   buildApplicationReview({
     levels: store.levels,
     operator: store.operator,
     agentMA: store.agentMA,
     agentSMA: store.agentSMA,
-    vendorNames,
+    vendorNames: referenceData.vendorNames,
   }),
 )
 const revealedSecrets = ref(new Set<string>())
@@ -45,6 +45,7 @@ function isSecretVisible(sectionLevel: string, fieldKey: string) {
 }
 
 onMounted(() => {
+  referenceData.loadVendors()
   if (!store.captchaCode) store.regenerateCaptcha()
 })
 

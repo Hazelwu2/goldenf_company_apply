@@ -1,15 +1,21 @@
-import { VENDORS, type VendorOption } from './mockData.ts'
+import { supportsCurrency } from './vendorAvailability'
+import type { Vendor } from './vendors'
 
-export function getCurrencyChangeImpact(selectedCodes: string[], nextCurrency: string): {
-  remove: VendorOption[]
-  keep: VendorOption[]
+/** 換幣別時，列出已選產品商中哪些會因為不支援新幣別而被移除、哪些保留。 */
+export function getCurrencyChangeImpact(
+  selectedCodes: string[],
+  nextCurrency: string,
+  vendors: readonly Vendor[],
+): {
+  remove: Vendor[]
+  keep: Vendor[]
 } {
   const selectedVendors = selectedCodes
-    .map((code) => VENDORS.find((vendor) => vendor.code === code))
-    .filter((vendor): vendor is VendorOption => Boolean(vendor))
+    .map((code) => vendors.find((vendor) => vendor.code === code))
+    .filter((vendor): vendor is Vendor => Boolean(vendor))
 
   return {
-    remove: selectedVendors.filter((vendor) => !vendor.currencies.includes(nextCurrency)),
-    keep: selectedVendors.filter((vendor) => vendor.currencies.includes(nextCurrency)),
+    remove: selectedVendors.filter((vendor) => !supportsCurrency(vendor, nextCurrency)),
+    keep: selectedVendors.filter((vendor) => supportsCurrency(vendor, nextCurrency)),
   }
 }

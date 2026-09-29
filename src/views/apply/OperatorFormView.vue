@@ -14,12 +14,8 @@ import {
 } from 'naive-ui'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
-import { applyApi } from '@/api/client'
-import {
-  isCurrencySelectionAvailable,
-  toCurrencyOptions,
-  type CurrencyOption,
-} from '@/utils/currencyOptions'
+import { useReferenceDataStore } from '@/stores/useReferenceDataStore'
+import { isCurrencySelectionAvailable } from '@/utils/currencyOptions'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
 import {
@@ -50,8 +46,37 @@ const router = useRouter()
 const { steps } = useApplySteps()
 const pendingCurrency = ref<string | null>(null)
 const touchedFields = reactive(new Set<string>())
-const currencyOptions = ref<CurrencyOption[]>([])
-const currencyLoadState = ref<'loading' | 'success' | 'error'>('loading')
+const referenceData = useReferenceDataStore()
+const currencyOptions = computed(() => referenceData.currencyOptions)
+/** 還沒開始載入（idle）在畫面上也當成載入中。 */
+const currencyLoadState = computed(() =>
+  referenceData.currencyStatus === 'idle' ? 'loading' : referenceData.currencyStatus,
+)
+const vendorLoadState = computed(() =>
+  referenceData.vendorStatus === 'idle' ? 'loading' : referenceData.vendorStatus,
+)
+const vendorListReady = computed(
+  () => vendorLoadState.value === 'success' && referenceData.vendors.length > 0,
+)
+const vendorFieldDisabled = computed(
+  () => !currencySelectionAvailable.value || !vendorListReady.value,
+)
+const vendorPlaceholder = computed(() => {
+  if (vendorLoadState.value === 'loading') return '正在载入产品商 / Loading vendors'
+  if (vendorLoadState.value === 'error') return '产品商载入失败 / Failed to load vendors'
+  if (referenceData.vendors.length === 0) return '暂无可用产品商 / No vendors available'
+  return undefined
+})
+const showVendorsRequired = computed(() =>
+  showRequired('vendors', store.operator.vendorCodes, { disabled: vendorFieldDisabled.value }),
+)
+const vendorsDescribedBy = computed(() => {
+  if (vendorLoadState.value === 'error') return 'operator-vendors-load-error'
+  if (vendorLoadState.value === 'success' && referenceData.vendors.length === 0) {
+    return 'operator-vendors-empty'
+  }
+  return showVendorsRequired.value ? 'operator-vendors-required' : undefined
+})
 const currencyFieldDisabled = computed(
   () => currencyLoadState.value !== 'success' || currencyOptions.value.length === 0,
 )
@@ -86,24 +111,16 @@ const currencyDescribedBy = computed(() => {
 })
 const currencyChangeImpact = computed(() =>
   pendingCurrency.value
-    ? getCurrencyChangeImpact(store.operator.vendorCodes, pendingCurrency.value)
+    ? getCurrencyChangeImpact(store.operator.vendorCodes, pendingCurrency.value, referenceData.vendors)
     : { remove: [], keep: [] },
 )
 
 const marketOptions = operatingMarketOptions
 
-async function loadCurrencyOptions() {
-  currencyLoadState.value = 'loading'
-  try {
-    currencyOptions.value = toCurrencyOptions(await applyApi.listCurrencies())
-    currencyLoadState.value = 'success'
-  } catch {
-    currencyOptions.value = []
-    currencyLoadState.value = 'error'
-  }
-}
-
-onMounted(loadCurrencyOptions)
+onMounted(() => {
+  referenceData.loadCurrencies()
+  referenceData.loadVendors()
+})
 
 /** 有输入内容才显示格式错误，避免使用者还在输入时就跳错。 */
 const showWebsiteUrlError = computed(
@@ -157,7 +174,7 @@ function handleCurrencyUpdate(newCurrency: string) {
     return
   }
 
-  const impact = getCurrencyChangeImpact(store.operator.vendorCodes, newCurrency)
+  const impact = getCurrencyChangeImpact(store.operator.vendorCodes, newCurrency, referenceData.vendors)
 
   if (impact.remove.length === 0) {
     store.operator.currency = newCurrency
@@ -293,7 +310,7 @@ async function handleInvalidNext() {
                 class="currency-retry"
                 secondary
                 aria-label="重新载入币别 / Retry loading currencies"
-                @click="loadCurrencyOptions"
+                @click="referenceData.retryCurrencies"
               >
                 重新载入 / Retry
               </NButton>
@@ -310,18 +327,49 @@ async function handleInvalidNext() {
           <div
             id="field-operator-vendor"
             class="anchor-target field"
-            @focusout="markTouched('vendors', $event, !currencySelectionAvailable)"
+            @focusout="markTouched('vendors', $event, vendorFieldDisabled)"
           >
             <VendorGroupedSelect
               v-model="store.operator.vendorCodes"
+              :vendors="referenceData.vendors"
               :currency="currencySelectionAvailable ? store.operator.currency : null"
-              :status="showRequired('vendors', store.operator.vendorCodes, { disabled: !currencySelectionAvailable }) ? 'error' : undefined"
-              :aria-describedby="showRequired('vendors', store.operator.vendorCodes, { disabled: !currencySelectionAvailable }) ? 'operator-vendors-required' : undefined"
+              :disabled="!vendorListReady"
+              :placeholder="vendorPlaceholder"
+              :show-hint="vendorListReady"
+              :status="showVendorsRequired ? 'error' : undefined"
+              :aria-busy="vendorLoadState === 'loading' ? 'true' : 'false'"
+              :aria-describedby="vendorsDescribedBy"
             />
-            <RequiredFieldError
-              v-if="showRequired('vendors', store.operator.vendorCodes, { disabled: !currencySelectionAvailable })"
-              id="operator-vendors-required"
+            <FieldHint
+              v-if="vendorLoadState === 'loading'"
+              role="status"
+              aria-live="polite"
+              zh="正在载入可用产品商。"
+              en="Loading available vendors."
             />
+            <FieldHint
+              v-else-if="vendorLoadState === 'success' && referenceData.vendors.length === 0"
+              id="operator-vendors-empty"
+              role="status"
+              zh="目前没有可用产品商，请稍后再试。"
+              en="No vendors are available. Please try again later."
+            />
+            <div v-else-if="vendorLoadState === 'error'" class="currency-load-error">
+              <FieldError
+                id="operator-vendors-load-error"
+                zh="无法载入产品商，请重试。"
+                en="Vendors could not be loaded. Please try again."
+              />
+              <NButton
+                class="currency-retry"
+                secondary
+                aria-label="重新载入产品商 / Retry loading vendors"
+                @click="referenceData.retryVendors"
+              >
+                重新载入 / Retry
+              </NButton>
+            </div>
+            <RequiredFieldError v-if="showVendorsRequired" id="operator-vendors-required" />
           </div>
         </NFormItem>
 

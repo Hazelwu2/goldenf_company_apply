@@ -1,32 +1,52 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
 import { NSelect, NTag } from 'naive-ui'
-import { VENDORS } from '@/utils/mockData'
 import { groupVendorsForCurrency } from '@/utils/vendorAvailability'
+import type { Vendor } from '@/utils/vendors'
 import FieldHint from './FieldHint.vue'
 import { getVendorSelectionHint } from '@/utils/vendorSelectionHint'
 
-const props = defineProps<{
-  modelValue: string[]
-  currency: string | null
-  status?: 'error'
-  ariaDescribedby?: string
-}>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: string[]
+    vendors: Vendor[]
+    currency: string | null
+    /** 產品商清單還沒準備好（載入中、失敗、空清單）時停用。 */
+    disabled?: boolean
+    /** 停用時要顯示的說明文字；沒給就用預設文字。 */
+    placeholder?: string
+    /** 清單還沒準備好時由外層顯示載入狀態，這裡就不顯示選擇提示。 */
+    showHint?: boolean
+    status?: 'error'
+    ariaDescribedby?: string
+  }>(),
+  {
+    disabled: false,
+    placeholder: undefined,
+    showHint: true,
+    status: undefined,
+    ariaDescribedby: undefined,
+  },
+)
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string[]): void }>()
 
 const selectionHint = computed(() => getVendorSelectionHint(props.currency))
 
-function renderOptionLabel(vendor: (typeof VENDORS)[number], unavailable: boolean) {
-  const hasTranslatedName = vendor.nameZh !== vendor.nameEn
+const isDisabled = computed(() => !props.currency || props.disabled)
 
+const placeholderText = computed(() => {
+  if (props.disabled && props.placeholder) return props.placeholder
+  return props.currency
+    ? '选择产品商（可多选） / Select vendors'
+    : '请先选择币别 / Select currency first'
+})
+
+function renderOptionLabel(vendor: Vendor, unavailable: boolean) {
   return () =>
     h('div', { class: ['vendor-option', { 'is-unavailable': unavailable }] }, [
       h('span', { class: 'vendor-option__name' }, [
-        h('span', { class: 'vendor-option__name-zh' }, vendor.nameZh),
-        ...(hasTranslatedName
-          ? [h('span', { class: 'vendor-option__name-en' }, vendor.nameEn)]
-          : []),
+        h('span', { class: 'vendor-option__name-zh' }, vendor.name),
       ]),
       unavailable
         ? h(
@@ -47,11 +67,11 @@ function renderOptionLabel(vendor: (typeof VENDORS)[number], unavailable: boolea
               class: 'vendor-option__badge',
               size: 'tiny',
               bordered: false,
-              type: vendor.env === 'official_test' ? 'success' : 'default',
+              type: vendor.demo ? 'success' : 'default',
             },
             {
               default: () =>
-                vendor.env === 'official_test'
+                vendor.demo
                   ? '正式＋测试 / Prod. + Test'
                   : '仅正式 / Production',
             },
@@ -66,30 +86,28 @@ function renderSelectedTag({
   option: Record<string, unknown>
   handleClose: () => void
 }) {
-  const nameZh = typeof option.nameZh === 'string' ? option.nameZh : String(option.value ?? '')
-  const nameEn = typeof option.nameEn === 'string' ? option.nameEn : nameZh
+  const name = typeof option.name === 'string' ? option.name : String(option.value ?? '')
 
   return h(
     NTag,
     {
       class: 'vendor-selection-tag',
       closable: !option.disabled,
-      title: nameZh === nameEn ? nameZh : `${nameZh}／${nameEn}`,
+      title: name,
       onClose: handleClose,
     },
-    { default: () => nameZh },
+    { default: () => name },
   )
 }
 
 const options = computed(() => {
-  const groups = groupVendorsForCurrency(VENDORS, props.currency)
+  const groups = groupVendorsForCurrency(props.vendors, props.currency)
 
-  const build = (vendors: typeof VENDORS, unavailable = false) =>
+  const build = (vendors: Vendor[], unavailable = false) =>
     vendors.map((v) => ({
       value: v.code,
       code: v.code,
-      nameZh: v.nameZh,
-      nameEn: v.nameEn,
+      name: v.name,
       label: renderOptionLabel(v, unavailable),
       disabled: unavailable,
     }))
@@ -122,18 +140,18 @@ const options = computed(() => {
   ].filter((group) => group !== null)
 })
 
-/** 搜寻比对中文名称／英文名称／内部代码（代码不显示，但仍可用来搜寻）。 */
+/** 搜尋比對名稱與內部代碼（代碼不顯示，但仍可用來搜尋）。 */
 function filterVendor(pattern: string, option: Record<string, unknown>) {
   const needle = pattern.trim().toLowerCase()
   if (!needle) return true
-  return [option.nameZh, option.nameEn, option.code].some(
+  return [option.name, option.code].some(
     (field) => typeof field === 'string' && field.toLowerCase().includes(needle),
   )
 }
 </script>
 
 <template>
-  <div class="vendor-grouped-select" :class="{ 'is-disabled': !props.currency }">
+  <div class="vendor-grouped-select" :class="{ 'is-disabled': isDisabled }">
     <NSelect
       :value="modelValue"
       multiple
@@ -142,16 +160,14 @@ function filterVendor(pattern: string, option: Record<string, unknown>) {
       :render-tag="renderSelectedTag"
       max-tag-count="responsive"
       :options="options"
-      :disabled="!props.currency"
+      :disabled="isDisabled"
       :status="props.status"
       :aria-invalid="props.status === 'error' ? 'true' : undefined"
       :aria-describedby="props.ariaDescribedby"
-      :placeholder="
-        props.currency ? '选择产品商（可多选） / Select vendors' : '请先选择币别 / Select currency first'
-      "
+      :placeholder="placeholderText"
       @update:value="(v: string[]) => emit('update:modelValue', v)"
     />
-    <FieldHint :zh="selectionHint.zh" :en="selectionHint.en" />
+    <FieldHint v-if="props.showHint" :zh="selectionHint.zh" :en="selectionHint.en" />
   </div>
 </template>
 

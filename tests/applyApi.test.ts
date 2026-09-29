@@ -144,3 +144,46 @@ test('an empty currency list is a valid result', async () => {
   const { api } = respondWith({ status: 1, message: '成功', data: { list: [] } })
   assert.deepEqual(await api.listCurrencies(), [])
 })
+
+const BETBY = {
+  code: 'betby',
+  name: 'BETBY 體育／BETBY',
+  status: 'online',
+  demo: true,
+  support: { v2: true, v3: false },
+  currency: { VND: { vendor: 'VND', rate: '', gf_support: false, decimal: '' } },
+}
+
+test('vendor list requests the form endpoint and returns the backend vendors', async () => {
+  const { api, received } = respondWith({
+    status: 1,
+    message: '成功',
+    data: { totalCount: 1, currentPage: 0, perPage: 0, list: [BETBY] },
+  })
+
+  const vendors = await api.listVendors()
+
+  assert.equal(received.url, '/vendor/list')
+  assert.equal(received.method, 'get')
+  assert.deepEqual(vendors, [BETBY])
+})
+
+test('vendor list with a malformed vendor is rejected at the API boundary', async () => {
+  const malformed = [
+    { list: 'not-an-array' },
+    { list: [{ ...BETBY, demo: 'yes' }] },
+    { list: [{ ...BETBY, currency: null }] },
+    { list: [{ ...BETBY, currency: [{ vendor: 'VND', rate: '', gf_support: false, decimal: '' }] }] },
+    { list: [{ ...BETBY, support: null }] },
+    { list: [{ ...BETBY, name: undefined }] },
+  ]
+
+  for (const data of malformed) {
+    const { api } = respondWith({ status: 1, message: '成功', data })
+    await assert.rejects(api.listVendors(), (error: unknown) => {
+      assert.ok(error instanceof ApiError)
+      assert.equal(error.kind, 'contract')
+      return true
+    })
+  }
+})

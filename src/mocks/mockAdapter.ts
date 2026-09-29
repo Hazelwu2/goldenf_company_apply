@@ -1,5 +1,6 @@
 import { AxiosError, type AxiosAdapter, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { MOCK_CURRENCIES } from './currencies'
+import { MOCK_VENDORS } from './vendors'
 
 type MockHandler = (config: InternalAxiosRequestConfig) => { status?: number; body: unknown }
 
@@ -10,6 +11,8 @@ function success(data: unknown) {
 /** 以「METHOD 路徑」對應假回應；回應格式與後端完全相同（含外層 envelope）。 */
 const routes: Record<string, MockHandler> = {
   'POST /api/v1/exchange/list': () => success({ list: MOCK_CURRENCIES }),
+  'GET /vendor/list': () =>
+    success({ totalCount: MOCK_VENDORS.length, currentPage: 0, perPage: 0, list: MOCK_VENDORS }),
 }
 
 function routeKey(config: InternalAxiosRequestConfig) {
