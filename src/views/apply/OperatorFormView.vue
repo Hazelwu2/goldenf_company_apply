@@ -14,11 +14,12 @@ import {
 } from 'naive-ui'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
+import { applyApi } from '@/api/client'
 import {
-  getCurrencies,
   isCurrencySelectionAvailable,
+  toCurrencyOptions,
   type CurrencyOption,
-} from '@/api/currencyApi'
+} from '@/utils/currencyOptions'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
 import {
@@ -94,7 +95,7 @@ const marketOptions = operatingMarketOptions
 async function loadCurrencyOptions() {
   currencyLoadState.value = 'loading'
   try {
-    currencyOptions.value = await getCurrencies()
+    currencyOptions.value = toCurrencyOptions(await applyApi.listCurrencies())
     currencyLoadState.value = 'success'
   } catch {
     currencyOptions.value = []
