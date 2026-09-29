@@ -27,13 +27,8 @@ export default defineConfig(({ command, mode }) => {
       },
     },
     server: {
-      // 開發時把 API 轉給後端，避免 CORS；/vendor/list 沒有 /api 前綴，要另外轉。
-      proxy: proxyTarget
-        ? {
-            '/api': { target: proxyTarget, changeOrigin: true },
-            '/vendor': { target: proxyTarget, changeOrigin: true },
-          }
-        : undefined,
+      // 開發時把 API 轉給後端，避免 CORS。
+      proxy: proxyTarget ? { '/api': { target: proxyTarget, changeOrigin: true } } : undefined,
     },
   }
 })

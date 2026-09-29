@@ -14,7 +14,7 @@ function unsupported(...codes: string[]): VendorDto['currency'] {
 }
 
 /**
- * 產品商清單假資料，格式比照後端 /vendor/list。
+ * 產品商清單假資料，格式比照後端 /api/v1/company_apply/vendor/list。
  * 刻意涵蓋各種篩選情境：有／沒有測試環境、下線、不支援 2.0、沒有任何原廠幣別、
  * currency 裡夾帶空字串，以及以獨立產品商出現的 Motivation。
  */

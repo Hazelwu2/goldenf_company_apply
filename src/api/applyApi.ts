@@ -53,7 +53,10 @@ export function createApplyApi(http: HttpClient) {
     },
 
     async listVendors(): Promise<VendorDto[]> {
-      const data = await http.request({ method: 'get', url: '/vendor/list' }, parseVendorList)
+      const data = await http.request(
+        { method: 'get', url: '/api/v1/company_apply/vendor/list' },
+        parseVendorList,
+      )
       return data.list
     },
   }

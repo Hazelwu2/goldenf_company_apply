@@ -42,7 +42,7 @@ function fakeBackend(options: { failTimes?: Record<string, number> } = {}) {
       const response = { data: 'error', status: 500, statusText: '500', headers: {}, config }
       throw new AxiosError('failed', 'ERR_BAD_RESPONSE', config, {}, response)
     }
-    const list = url === '/vendor/list' ? VENDORS : CURRENCIES
+    const list = url === '/api/v1/company_apply/vendor/list' ? VENDORS : CURRENCIES
     return {
       data: { status: 1, message: '成功', data: { list } },
       status: 200,
@@ -78,7 +78,7 @@ test('concurrent loads share one request', async () => {
   assert.equal(store.vendorStatus, 'loading')
   await Promise.all([pending, store.loadVendors()])
 
-  assert.equal(calls['/vendor/list'], 1)
+  assert.equal(calls['/api/v1/company_apply/vendor/list'], 1)
 })
 
 test('vendors are filtered to selectable ones and expose display names by code', async () => {
@@ -94,7 +94,7 @@ test('vendors are filtered to selectable ones and expose display names by code',
 })
 
 test('failed load reports an error and retry fetches again', async () => {
-  const { store, calls } = fakeBackend({ failTimes: { '/vendor/list': 1 } })
+  const { store, calls } = fakeBackend({ failTimes: { '/api/v1/company_apply/vendor/list': 1 } })
 
   await store.loadVendors()
   assert.equal(store.vendorStatus, 'error')
@@ -102,7 +102,7 @@ test('failed load reports an error and retry fetches again', async () => {
 
   await store.retryVendors()
   assert.equal(store.vendorStatus, 'success')
-  assert.equal(calls['/vendor/list'], 2)
+  assert.equal(calls['/api/v1/company_apply/vendor/list'], 2)
 })
 
 test('retry refetches even after a successful load', async () => {

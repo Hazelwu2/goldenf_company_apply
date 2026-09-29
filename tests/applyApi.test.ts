@@ -163,7 +163,7 @@ test('vendor list requests the form endpoint and returns the backend vendors', a
 
   const vendors = await api.listVendors()
 
-  assert.equal(received.url, '/vendor/list')
+  assert.equal(received.url, '/api/v1/company_apply/vendor/list')
   assert.equal(received.method, 'get')
   assert.deepEqual(vendors, [BETBY])
 })
