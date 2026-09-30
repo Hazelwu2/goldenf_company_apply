@@ -41,7 +41,7 @@ test('currency list posts the agreed request and returns backend currencies in o
   const currencies = await api.listCurrencies()
 
   assert.deepEqual(received, {
-    url: '/api/v1/exchange/list',
+    url: '/api/v1/company_apply/exchange/list',
     method: 'post',
     body: '{}',
     contentType: 'application/json',

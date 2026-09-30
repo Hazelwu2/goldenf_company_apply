@@ -64,7 +64,7 @@ test('currencies load once and become select options', async () => {
   await store.loadCurrencies()
 
   assert.equal(store.currencyStatus, 'success')
-  assert.equal(calls['/api/v1/exchange/list'], 1)
+  assert.equal(calls['/api/v1/company_apply/exchange/list'], 1)
   assert.deepEqual(store.currencyOptions, [
     { value: 'VND', label: 'VND 越南盾', memo: '' },
     { value: 'USD', label: 'USD 美元', memo: '' },
@@ -111,7 +111,7 @@ test('retry refetches even after a successful load', async () => {
   await store.loadCurrencies()
   await store.retryCurrencies()
 
-  assert.equal(calls['/api/v1/exchange/list'], 2)
+  assert.equal(calls['/api/v1/company_apply/exchange/list'], 2)
 })
 
 test('vendor list marked stale is fetched again on the next load and keeps the loaded vendors until refetched', async () => {

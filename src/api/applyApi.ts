@@ -46,7 +46,7 @@ export function createApplyApi(http: HttpClient) {
   return {
     async listCurrencies(): Promise<CurrencyDto[]> {
       const data = await http.request(
-        { method: 'post', url: '/api/v1/exchange/list', data: {} },
+        { method: 'post', url: '/api/v1/company_apply/exchange/list', data: {} },
         parseCurrencyList,
       )
       return data.list
