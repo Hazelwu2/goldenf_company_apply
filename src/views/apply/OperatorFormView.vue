@@ -17,6 +17,7 @@ import { useApplySteps } from '@/composables/useApplySteps'
 import { useReferenceDataStore } from '@/stores/useReferenceDataStore'
 import { isCurrencySelectionAvailable } from '@/utils/currencyOptions'
 import { getCurrencyChangeImpact } from '@/utils/currencyChangeImpact'
+import { splitSelectedVendors } from '@/utils/vendors'
 import { operatingMarketOptions } from '@/utils/operatingMarkets'
 import {
   getOperatorCodeValidationError,
@@ -70,7 +71,23 @@ const vendorPlaceholder = computed(() => {
 const showVendorsRequired = computed(() =>
   showRequired('vendors', store.operator.vendorCodes, { disabled: vendorFieldDisabled.value }),
 )
+/**
+ * 幣別可用且產品商清單有資料時，才判斷已選產品商是否失效；
+ * 清單載入中／失敗／為空時欄位是停用的，失效標籤點不掉，改由載入提示處理並擋住下一步。
+ */
+const invalidVendorCodes = computed(() => {
+  if (!currencySelectionAvailable.value || !vendorListReady.value) return []
+  return splitSelectedVendors(
+    store.operator.vendorCodes,
+    referenceData.vendors,
+    store.operator.currency ?? '',
+  ).invalid
+})
+const invalidVendorNames = computed(() =>
+  invalidVendorCodes.value.map((code) => referenceData.vendorNames[code] ?? code),
+)
 const vendorsDescribedBy = computed(() => {
+  if (invalidVendorCodes.value.length > 0) return 'operator-vendors-invalid'
   if (vendorLoadState.value === 'error') return 'operator-vendors-load-error'
   if (vendorLoadState.value === 'success' && referenceData.vendors.length === 0) {
     return 'operator-vendors-empty'
@@ -223,6 +240,11 @@ async function handleInvalidNext() {
     focusInvalidField('field-operator-currency')
     return
   }
+  if (!vendorListReady.value || invalidVendorCodes.value.length > 0) {
+    await nextTick()
+    focusInvalidField('field-operator-vendor')
+    return
+  }
   const target = getFirstInvalidOperatorField(store.operator)
   if (!target) return
   touchedFields.add(target.key)
@@ -336,6 +358,7 @@ async function handleInvalidNext() {
               :disabled="!vendorListReady"
               :placeholder="vendorPlaceholder"
               :show-hint="vendorListReady"
+              :invalid-codes="invalidVendorCodes"
               :status="showVendorsRequired ? 'error' : undefined"
               :aria-busy="vendorLoadState === 'loading' ? 'true' : 'false'"
               :aria-describedby="vendorsDescribedBy"
@@ -369,6 +392,12 @@ async function handleInvalidNext() {
                 重新载入 / Retry
               </NButton>
             </div>
+            <FieldError
+              v-if="invalidVendorCodes.length > 0"
+              id="operator-vendors-invalid"
+              :zh="`请移除失效的产品商：${invalidVendorNames.join('、')}`"
+              :en="`Remove unavailable vendors: ${invalidVendorNames.join(', ')}`"
+            />
             <RequiredFieldError v-if="showVendorsRequired" id="operator-vendors-required" />
           </div>
         </NFormItem>
@@ -737,7 +766,12 @@ async function handleInvalidNext() {
     </NCard>
 
     <StepFooterActions
-      :next-disabled="!store.isOperatorValid || !currencySelectionAvailable"
+      :next-disabled="
+        !store.isOperatorValid ||
+        !currencySelectionAvailable ||
+        !vendorListReady ||
+        invalidVendorCodes.length > 0
+      "
       allow-disabled-attempt
       hint="请完整填写必填栏位，并确认格式正确"
       hint-en="Please complete all required fields with valid formats"

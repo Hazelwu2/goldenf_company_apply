@@ -42,6 +42,16 @@ const items: PreviewItem[] = [
     },
   },
   {
+    id: 'C04',
+    title: '已选产品商失效',
+    desc: '（位于 C03 内）已选的产品商已下线（betby）或不在清单中（GONE）：标示失效、可移除，移除前不能下一步。',
+    go: () => {
+      store.seedDemoData('A')
+      store.operator.vendorCodes = ['PP', 'betby', 'GONE']
+      router.push({ path: '/apply/operator', hash: '#field-operator-vendor' })
+    },
+  },
+  {
     id: 'C05',
     title: '换币别不相容确认',
     desc: '（位于 C03 内）已选 CNY + 产品商后，切换币别试试看会跳出的确认 dialog。',

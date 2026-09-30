@@ -17,6 +17,8 @@ const props = withDefaults(
     placeholder?: string
     /** 清單還沒準備好時由外層顯示載入狀態，這裡就不顯示選擇提示。 */
     showHint?: boolean
+    /** 已選但已失效的產品商代碼（消失、下線、不支援目前幣別），標示為失效且可移除。 */
+    invalidCodes?: string[]
     status?: 'error'
     ariaDescribedby?: string
   }>(),
@@ -24,6 +26,7 @@ const props = withDefaults(
     disabled: false,
     placeholder: undefined,
     showHint: true,
+    invalidCodes: () => [],
     status: undefined,
     ariaDescribedby: undefined,
   },
@@ -86,7 +89,28 @@ function renderSelectedTag({
   option: Record<string, unknown>
   handleClose: () => void
 }) {
-  const name = typeof option.name === 'string' ? option.name : String(option.value ?? '')
+  const code = String(option.value ?? '')
+  const name = typeof option.name === 'string' ? option.name : code
+  const invalid = props.invalidCodes.includes(code)
+
+  if (invalid) {
+    // 失效的產品商可能是停用選項或已不在清單中，直接更新 v-model 移除，不依賴 NSelect 的關閉行為
+    return h(
+      NTag,
+      {
+        class: ['vendor-selection-tag', 'vendor-selection-tag--invalid'],
+        type: 'error',
+        closable: true,
+        title: `${name}（已失效 / Unavailable）`,
+        onClose: () =>
+          emit(
+            'update:modelValue',
+            props.modelValue.filter((selected) => selected !== code),
+          ),
+      },
+      { default: () => `${name}（已失效）` },
+    )
+  }
 
   return h(
     NTag,

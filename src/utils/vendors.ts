@@ -30,3 +30,22 @@ export function toSelectableVendors(dtos: VendorDto[]): Vendor[] {
     return [{ code: dto.code, name: dto.name, demo: dto.demo, currencies }]
   })
 }
+
+/**
+ * 把已選產品商分成有效與失效：不在可選清單中（消失、下線、不支援 2.0、沒有原廠幣別）
+ * 或不支援目前幣別的都算失效，保留原本的選取順序。
+ */
+export function splitSelectedVendors(
+  selectedCodes: readonly string[],
+  vendors: readonly Vendor[],
+  currency: string,
+): { valid: string[]; invalid: string[] } {
+  const valid: string[] = []
+  const invalid: string[] = []
+  for (const code of selectedCodes) {
+    const vendor = vendors.find((item) => item.code === code)
+    if (vendor && vendor.currencies.includes(currency)) valid.push(code)
+    else invalid.push(code)
+  }
+  return { valid, invalid }
+}

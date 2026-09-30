@@ -9,15 +9,17 @@ export type LoadStatus = 'idle' | 'loading' | 'success' | 'error'
 
 /**
  * 管理一份從 API 載入的清單：成功後不再重打；載入中重複呼叫共用同一個請求；
- * retry 一律重新載入。
+ * retry 一律重新載入；markStale 後下一次 load 會重新載入（重新載入期間狀態為 loading）。
  */
 function useRemoteList<T>(fetchList: () => Promise<T[]>) {
   const items = shallowRef<T[]>([])
   const status = ref<LoadStatus>('idle')
   let pending: Promise<void> | null = null
+  let stale = false
 
   function fetch(): Promise<void> {
     status.value = 'loading'
+    stale = false
     pending = fetchList()
       .then((list) => {
         items.value = list
@@ -35,7 +37,7 @@ function useRemoteList<T>(fetchList: () => Promise<T[]>) {
 
   function load(): Promise<void> {
     if (pending) return pending
-    if (status.value === 'success') return Promise.resolve()
+    if (status.value === 'success' && !stale) return Promise.resolve()
     return fetch()
   }
 
@@ -43,7 +45,11 @@ function useRemoteList<T>(fetchList: () => Promise<T[]>) {
     return pending ?? fetch()
   }
 
-  return { items, status, load, retry }
+  function markStale() {
+    stale = true
+  }
+
+  return { items, status, load, retry, markStale }
 }
 
 /**
@@ -73,6 +79,8 @@ export function defineReferenceDataStore(api: ApplyApi) {
       vendorNames,
       loadVendors: vendorList.load,
       retryVendors: vendorList.retry,
+      /** 後端回報產品商相關錯誤時使用（ticket 08 串接），下次進入營運商 A 頁會重新取得清單。 */
+      markVendorsStale: vendorList.markStale,
     }
   })
 }

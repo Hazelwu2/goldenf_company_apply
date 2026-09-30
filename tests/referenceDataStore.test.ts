@@ -113,3 +113,20 @@ test('retry refetches even after a successful load', async () => {
 
   assert.equal(calls['/api/v1/exchange/list'], 2)
 })
+
+test('vendor list marked stale is fetched again on the next load and keeps the loaded vendors until refetched', async () => {
+  const { store, calls } = fakeBackend()
+
+  await store.loadVendors()
+  store.markVendorsStale()
+  assert.deepEqual(
+    store.vendors.map((vendor) => vendor.code),
+    ['PP'],
+  )
+
+  await store.loadVendors()
+  await store.loadVendors()
+
+  assert.equal(calls['/api/v1/company_apply/vendor/list'], 2)
+  assert.equal(store.vendorStatus, 'success')
+})
