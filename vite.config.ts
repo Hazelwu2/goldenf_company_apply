@@ -3,7 +3,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import { resolveApiMode } from './src/api/apiMode'
+import { resolveApiMode } from './src/api/apiMode.ts'
 
 // https://vite.dev/config/
 export default defineConfig(({ command, mode }) => {
