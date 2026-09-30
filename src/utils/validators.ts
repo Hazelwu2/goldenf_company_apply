@@ -168,3 +168,18 @@ export function isValidChatSoftware(value: string | null): boolean {
 export function isValidChatGroup(raw: string): boolean {
   return raw.trim().length > 0
 }
+
+/** 客戶備註上限，前後端一致（API 規格 merchant_remark 最多 250 個字）。 */
+export const REMARK_MAX_LENGTH = 250
+
+/**
+ * 以字元（code point）計算，emoji 算一個字；供送出前再檢查一次使用（ticket 06 串接）。
+ * 輸入框用原生 maxlength（emoji 算兩個字），只會比後端更早擋住，不會超過上限。
+ */
+export function countRemarkChars(value: string): number {
+  return Array.from(value).length
+}
+
+export function isValidRemark(value: string): boolean {
+  return countRemarkChars(value) <= REMARK_MAX_LENGTH
+}

@@ -8,7 +8,11 @@ import type { SameAsAField } from '@/types/apply'
 import { useApplySteps } from '@/composables/useApplySteps'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import MultiValueInput from '@/components/apply/MultiValueInput.vue'
-import { isValidEmailEntry, isValidWhitelistEntry } from '@/utils/validators'
+import RemarkInput from '@/components/apply/RemarkInput.vue'
+import {
+  isValidEmailEntry,
+  isValidWhitelistEntry,
+} from '@/utils/validators'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
 import FieldHint from '@/components/apply/FieldHint.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
@@ -127,7 +131,7 @@ async function handleInvalidNext() {
 
         <NFormItem>
           <template #label><FieldLabel :zh="`${title}名称`" :en="`${titleEn} Name`" /></template>
-          <div class="field">
+          <div :id="`${idPrefix}-name`" class="anchor-target field">
             <NInput v-model:value="form.name" placeholder="选填" />
           </div>
         </NFormItem>
@@ -222,17 +226,8 @@ async function handleInvalidNext() {
 
         <NFormItem>
           <template #label><FieldLabel zh="备注" en="Remarks" /></template>
-          <div class="field">
-            <NInput
-              v-model:value="form.remark"
-              type="textarea"
-              :autosize="{ minRows: 2, maxRows: 4 }"
-              placeholder="选填，如有额外需求可在此说明"
-            />
-            <FieldHint
-              zh="可自由填写额外需求，非必填。"
-              en="Optional — describe any extra requirements here."
-            />
+          <div :id="`${idPrefix}-remark`" class="anchor-target field">
+            <RemarkInput v-model="form.remark" :count-id="`${idPrefix}-remark-count`" />
           </div>
         </NFormItem>
       </NForm>

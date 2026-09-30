@@ -27,6 +27,7 @@ import {
 } from '@/utils/validators'
 import CodeInput from '@/components/apply/CodeInput.vue'
 import MultiValueInput from '@/components/apply/MultiValueInput.vue'
+import RemarkInput from '@/components/apply/RemarkInput.vue'
 import VendorGroupedSelect from '@/components/apply/VendorGroupedSelect.vue'
 import BilingualHint from '@/components/apply/BilingualHint.vue'
 import FieldLabel from '@/components/apply/FieldLabel.vue'
@@ -423,7 +424,7 @@ async function handleInvalidNext() {
 
         <NFormItem>
           <template #label><FieldLabel zh="营运商名称" en="Operator Name" /></template>
-          <div class="field">
+          <div id="field-operator-name" class="anchor-target field">
             <NInput v-model:value="store.operator.name" placeholder="选填" />
           </div>
         </NFormItem>
@@ -613,17 +614,8 @@ async function handleInvalidNext() {
 
         <NFormItem>
           <template #label><FieldLabel zh="备注" en="Remarks" /></template>
-          <div class="field">
-            <NInput
-              v-model:value="store.operator.remark"
-              type="textarea"
-              :autosize="{ minRows: 2, maxRows: 4 }"
-              placeholder="选填，如有额外需求可在此说明"
-            />
-            <FieldHint
-              zh="可自由填写额外需求，非必填。"
-              en="Optional — describe any extra requirements here."
-            />
+          <div id="field-operator-remark" class="anchor-target field">
+            <RemarkInput v-model="store.operator.remark" count-id="operator-remark-count" />
           </div>
         </NFormItem>
       </NForm>
