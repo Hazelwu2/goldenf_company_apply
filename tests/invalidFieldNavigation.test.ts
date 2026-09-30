@@ -68,3 +68,27 @@ test('agent navigation includes optional values only when their format is invali
     id: 'field-agent-ma-email',
   })
 })
+
+test('a remark over 250 characters is an invalid field for every role', () => {
+  const tooLong = '字'.repeat(251)
+  const validAgent: AgentFormState = {
+    code: 'AGENT1',
+    name: '',
+    adminAccount: 'agent001',
+    boWhitelist: ['203.0.113.20'],
+    emails: [],
+    sameWhitelistAsA: false,
+    sameEmailsAsA: false,
+    remark: '',
+  }
+
+  assert.deepEqual(getFirstInvalidOperatorField({ ...validOperator, remark: tooLong }), {
+    key: 'remark',
+    id: 'field-operator-remark',
+  })
+  assert.deepEqual(getFirstInvalidAgentField({ ...validAgent, remark: tooLong }, 'SMA'), {
+    key: 'remark',
+    id: 'field-agent-sma-remark',
+  })
+  assert.equal(getFirstInvalidOperatorField({ ...validOperator, remark: '字'.repeat(250) }), null)
+})

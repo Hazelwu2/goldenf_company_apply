@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   NAlert,
   NButton,
@@ -135,9 +135,14 @@ const currencyChangeImpact = computed(() =>
 
 const marketOptions = operatingMarketOptions
 
-onMounted(() => {
-  referenceData.loadCurrencies()
-  referenceData.loadVendors()
+const route = useRoute()
+
+onMounted(async () => {
+  await Promise.all([referenceData.loadCurrencies(), referenceData.loadVendors()])
+  // 從確認頁送出前檢查被導回時（?check=1），清單載入後直接標出第一個錯誤欄位並聚焦
+  if (route.query.check !== '1') return
+  await router.replace({ path: route.path })
+  await handleInvalidNext()
 })
 
 /** 有输入内容才显示格式错误，避免使用者还在输入时就跳错。 */
@@ -236,7 +241,8 @@ function goNext() {
 }
 
 async function handleInvalidNext() {
-  if (currencySelectionStale.value) {
+  if (!currencySelectionAvailable.value) {
+    touchedFields.add('currency')
     await nextTick()
     focusInvalidField('field-operator-currency')
     return

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { NButton, NCard, NCheckbox, NIcon, NTag } from 'naive-ui'
+import { NButton, NCard, NCheckbox, NIcon, NTag, useMessage } from 'naive-ui'
 import {
   EyeOffOutline,
   EyeOutline,
@@ -12,11 +12,13 @@ import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
 import { useReferenceDataStore } from '@/stores/useReferenceDataStore'
 import { buildApplicationReview } from '@/utils/applicationReview'
+import { findPreSubmitProblem } from '@/utils/preSubmitCheck'
 import CaptchaField from '@/components/apply/CaptchaField.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
 
 const store = useApplyStore()
 const router = useRouter()
+const message = useMessage()
 const { steps } = useApplySteps()
 
 const referenceData = useReferenceDataStore()
@@ -44,6 +46,7 @@ function isSecretVisible(sectionLevel: string, fieldKey: string) {
 }
 
 onMounted(() => {
+  referenceData.loadCurrencies()
   referenceData.loadVendors()
   if (!store.captchaCode) store.regenerateCaptcha()
 })
@@ -54,8 +57,38 @@ function goBack() {
   router.push(prev ? prev.path : '/apply')
 }
 
-function handleSubmit() {
+/** 送出前等待清單載入期間停用按鈕，避免連點送出兩次。 */
+const checking = ref(false)
+
+async function handleSubmit() {
+  if (!store.canSubmit || checking.value) return
+
+  // 送出前再檢查一次所有角色，避免直接開確認頁網址或回去改壞資料後仍能送出
+  checking.value = true
+  try {
+    await Promise.all([referenceData.loadCurrencies(), referenceData.loadVendors()])
+  } finally {
+    checking.value = false
+  }
+  // 等待期間使用者可能取消勾選宣告，重新確認
   if (!store.canSubmit) return
+  const problem = findPreSubmitProblem({
+    levels: store.levels,
+    operator: store.operator,
+    agentMA: store.agentMA,
+    agentSMA: store.agentSMA,
+    currencyStatus: referenceData.currencyStatus,
+    currencyCodes: referenceData.currencyOptions.map((option) => option.value),
+    vendorStatus: referenceData.vendorStatus,
+    vendors: referenceData.vendors,
+  })
+  if (problem) {
+    message.warning('资料尚未完成，请先修正标示的栏位 / Please fix the highlighted field first')
+    // check=1：目標頁載入後會標出第一個錯誤欄位並聚焦
+    router.push({ path: problem.path, query: { check: '1' } })
+    return
+  }
+
   store.submitApplication()
   router.push('/apply/success')
 }
@@ -191,7 +224,8 @@ function handleSubmit() {
     <StepFooterActions
       next-label="确认送出"
       next-label-en="Confirm & Submit"
-      :next-disabled="!store.canSubmit"
+      :next-disabled="!store.canSubmit || checking"
+      :next-loading="checking"
       hint="请勾选宣告并通过安全验证后才能送出"
       hint-en="Please check the declaration and pass the security verification to submit"
       @back="goBack"

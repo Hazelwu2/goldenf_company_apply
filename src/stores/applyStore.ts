@@ -18,6 +18,7 @@ import {
   isValidWebsiteSection,
   isValidChatSoftware,
   isValidChatGroup,
+  isValidRemark,
 } from '@/utils/validators'
 import { getCaptchaStatus } from '@/utils/captcha'
 
@@ -158,6 +159,7 @@ export const useApplyStore = defineStore('apply', () => {
       return false
     if (!isValidChatSoftware(f.chatSoftware)) return false
     if (!isValidChatGroup(f.chatGroup)) return false
+    if (!isValidRemark(f.remark)) return false
     return true
   })
 
@@ -167,6 +169,7 @@ export const useApplyStore = defineStore('apply', () => {
     if (!isValidAdminAccount(f.adminAccount)) return false
     if (!areValidWhitelist(f.boWhitelist)) return false
     if (!areValidEmails(f.emails)) return false
+    if (!isValidRemark(f.remark)) return false
     return true
   }
 

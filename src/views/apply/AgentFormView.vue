@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, reactive } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { NCard, NCheckbox, NForm, NFormItem, NIcon, NInput } from 'naive-ui'
 import { InformationCircleOutline } from '@vicons/ionicons5'
 import { useApplyStore } from '@/stores/applyStore'
@@ -93,6 +93,14 @@ async function handleInvalidNext() {
   await nextTick()
   focusInvalidField(target.id)
 }
+
+// 從確認頁送出前檢查被導回時（?check=1），直接標出第一個錯誤欄位並聚焦
+const route = useRoute()
+onMounted(async () => {
+  if (route.query.check !== '1') return
+  await router.replace({ path: route.path })
+  await handleInvalidNext()
+})
 </script>
 
 <template>

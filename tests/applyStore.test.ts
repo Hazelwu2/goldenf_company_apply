@@ -199,3 +199,16 @@ test('preview success data is marked as a demo value instead of looking like a r
   assert.match(store.referenceNo ?? '', /DEMO/)
   assert.ok(store.submittedAt)
 })
+
+test('a remark over 250 characters blocks the role from being valid', () => {
+  const store = freshStore()
+  store.seedDemoData('SMA_MA_A')
+  assert.equal(store.isOperatorValid, true)
+  assert.equal(store.isAgentValid('MA'), true)
+
+  store.operator.remark = '字'.repeat(251)
+  store.agentMA.remark = '字'.repeat(251)
+
+  assert.equal(store.isOperatorValid, false)
+  assert.equal(store.isAgentValid('MA'), false)
+})

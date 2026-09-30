@@ -7,6 +7,7 @@ import {
   isValidChatGroup,
   isValidChatSoftware,
   isValidOperatorCode,
+  isValidRemark,
   isValidWebsiteUrl,
 } from '@/utils/validators'
 
@@ -47,6 +48,7 @@ export function getFirstInvalidOperatorField(
       form.operatingMarkets.length > 0,
       { key: 'operatingMarkets', id: 'field-operator-markets' },
     ],
+    [isValidRemark(form.remark), { key: 'remark', id: 'field-operator-remark' }],
     [Boolean(form.websiteStatus), { key: 'websiteStatus', id: 'field-operator-website-status' }],
   ]
 
@@ -85,6 +87,7 @@ export function getFirstInvalidAgentField(
       { key: 'boWhitelist', id: `${prefix}-bo-whitelist` },
     ],
     [areValidEmails(form.emails), { key: 'emails', id: `${prefix}-email` }],
+    [isValidRemark(form.remark), { key: 'remark', id: `${prefix}-remark` }],
   ]
 
   for (const [valid, target] of checks) {

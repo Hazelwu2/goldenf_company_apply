@@ -173,7 +173,7 @@ export function isValidChatGroup(raw: string): boolean {
 export const REMARK_MAX_LENGTH = 250
 
 /**
- * 以字元（code point）計算，emoji 算一個字；供送出前再檢查一次使用（ticket 06 串接）。
+ * 以字元（code point）計算，emoji 算一個字；表單驗證與送出前再檢查一次使用。
  * 輸入框用原生 maxlength（emoji 算兩個字），只會比後端更早擋住，不會超過上限。
  */
 export function countRemarkChars(value: string): number {

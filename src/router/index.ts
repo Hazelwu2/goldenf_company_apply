@@ -16,7 +16,9 @@ declare module 'vue-router' {
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  scrollBehavior(to) {
+  scrollBehavior(to, from) {
+    // 同一頁只改 query（例如清掉 ?check=1）時保留捲動位置，避免蓋掉聚焦錯誤欄位的捲動
+    if (to.path === from.path && !to.hash) return false
     if (to.hash) {
       return { el: to.hash, behavior: 'smooth', top: 96 }
     }
