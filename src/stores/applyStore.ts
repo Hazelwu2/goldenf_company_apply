@@ -21,6 +21,18 @@ import {
   isValidRemark,
 } from '@/utils/validators'
 import { getCaptchaStatus } from '@/utils/captcha'
+import { buildCreateApplicationBody } from '@/utils/applicationPayload'
+import type { CreateApplicationBody, CreateApplicationData } from '@/api/types'
+
+/** 送出申請的 API 呼叫；由畫面傳入 applyApi.createApplication，測試時可換成假的。 */
+export type CreateApplication = (body: CreateApplicationBody) => Promise<CreateApplicationData>
+
+export type SubmitOutcome =
+  | { kind: 'success' }
+  /** 上一次送出還沒結束。 */
+  | { kind: 'busy' }
+  /** 這份申請已經建立過（例如從成功頁按瀏覽器上一頁回到確認頁），不再重複建立。 */
+  | { kind: 'already-submitted' }
 
 export const COMBO_OPTIONS: ComboOption[] = [
   {
@@ -56,12 +68,6 @@ export const COMBO_OPTIONS: ComboOption[] = [
     descriptionEn: 'Create one operator A only, without creating a new SMA or MA.',
   },
 ]
-/**
- * 内部业务逻辑：没有上层代理时，一律挂在系统预设的根代理底下。
- * 这是后端 parent_code 的推导依据，纯内部代号，不对外显示（画面上不出现这个字串）。
- */
-const ROOT_PARENT_CODE = 'GF_MA'
-
 function emptyOperatorForm(): OperatorFormState {
   return {
     currency: null,
@@ -173,29 +179,6 @@ export const useApplyStore = defineStore('apply', () => {
     return true
   }
 
-  // ---- parent_code 推导（§5，内部栏位，画面不显示、不对使用者提及） ----
-  const parentCodeMap = computed<Partial<Record<CompanyLevel, string>>>(() => {
-    const map: Partial<Record<CompanyLevel, string>> = {}
-    switch (combo.value) {
-      case 'A':
-        map.A = ROOT_PARENT_CODE
-        break
-      case 'MA':
-        map.MA = ROOT_PARENT_CODE
-        break
-      case 'MA_A':
-        map.A = agentMA.code || '—'
-        map.MA = ROOT_PARENT_CODE
-        break
-      case 'SMA_MA_A':
-        map.A = agentMA.code || '—'
-        map.MA = agentSMA.code || '—'
-        map.SMA = ROOT_PARENT_CODE
-        break
-    }
-    return map
-  })
-
   // ---- 宣告 + 安全验证（C08，前端 state，不进 payload） ----
   const declarationChecked = ref(false)
   const captchaInput = ref('')
@@ -221,19 +204,34 @@ export const useApplyStore = defineStore('apply', () => {
   // ---- 送出结果 ----
   const referenceNo = ref<string | null>(null)
   const submittedAt = ref<string | null>(null)
+  /** 呼叫 Create API 期間為 true；確認頁以此鎖住送出與返回修改。 */
+  const submitting = ref(false)
 
-  function submitApplication() {
-    const prefix =
-      combo.value === 'SMA_MA_A'
-        ? 'SMA'
-        : combo.value === 'MA_A'
-          ? 'MA'
-          : combo.value === 'MA'
-            ? 'MA'
-            : 'A'
-    const rand = Math.floor(100000 + Math.random() * 900000)
-    referenceNo.value = `GF-${prefix}-${rand}`
-    submittedAt.value = new Date().toISOString()
+  /**
+   * 以當下的表單組出 payload 後呼叫 Create API（送出期間以這份 payload 為準）。
+   * 送出中再次呼叫、或已經有開線編號時不會重打 API；API 失敗時錯誤原樣往外丟，由畫面決定怎麼提示。
+   */
+  async function submitApplication(send: CreateApplication): Promise<SubmitOutcome> {
+    if (submitting.value) return { kind: 'busy' }
+    if (referenceNo.value) return { kind: 'already-submitted' }
+    if (!combo.value) throw new Error('No application combination selected')
+
+    const body = buildCreateApplicationBody({
+      combo: combo.value,
+      operator,
+      agentMA,
+      agentSMA,
+    })
+    submitting.value = true
+    try {
+      const created = await send(body)
+      referenceNo.value = created.reference_no
+      // 後端回傳 Unix 秒，轉成成功頁既有的 ISO 字串格式
+      submittedAt.value = new Date(created.created_at * 1000).toISOString()
+      return { kind: 'success' }
+    } finally {
+      submitting.value = false
+    }
   }
 
   /** 僅供「畫面總覽」預覽成功頁：寫入明顯的示範編號，不經過送出流程、不呼叫 API。 */
@@ -333,7 +331,6 @@ export const useApplyStore = defineStore('apply', () => {
 
     isOperatorValid,
     isAgentValid,
-    parentCodeMap,
 
     declarationChecked,
     captchaInput,
@@ -345,6 +342,7 @@ export const useApplyStore = defineStore('apply', () => {
 
     referenceNo,
     submittedAt,
+    submitting,
     submitApplication,
     seedDemoSubmission,
     resetAll,

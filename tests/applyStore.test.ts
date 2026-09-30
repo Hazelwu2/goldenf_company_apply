@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useApplyStore } from '@/stores/applyStore'
+import type { CreateApplicationBody, CreateApplicationData } from '@/api/types'
 
 function freshStore() {
   setActivePinia(createPinia())
@@ -211,4 +212,91 @@ test('a remark over 250 characters blocks the role from being valid', () => {
 
   assert.equal(store.isOperatorValid, false)
   assert.equal(store.isAgentValid('MA'), false)
+})
+
+const CREATED: CreateApplicationData = {
+  reference_no: 'APY-20260911-0001',
+  created_at: 1789056000,
+  records: [],
+}
+
+test('submitting sends the current form and records the backend reference number and time', async () => {
+  const store = freshStore()
+  store.seedDemoData('MA_A')
+  const sent: CreateApplicationBody[] = []
+  let submittingDuringCall = false
+
+  const outcome = await store.submitApplication(async (body) => {
+    sent.push(body)
+    submittingDuringCall = store.submitting
+    return CREATED
+  })
+
+  assert.equal(outcome.kind, 'success')
+  assert.equal(sent.length, 1)
+  assert.equal(sent[0]?.combination, 'MA + A')
+  assert.deepEqual(sent[0]?.records.map((record) => record.code), ['GFA1', 'MAGOLD'])
+  assert.equal(submittingDuringCall, true)
+  assert.equal(store.submitting, false)
+  assert.equal(store.referenceNo, 'APY-20260911-0001')
+  assert.equal(store.submittedAt, new Date(1789056000 * 1000).toISOString())
+})
+
+test('a second submit while the first is in flight does not call the API again', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+  let calls = 0
+  let finish: (data: CreateApplicationData) => void = () => {}
+  const send = () => {
+    calls += 1
+    return new Promise<CreateApplicationData>((resolve) => (finish = resolve))
+  }
+
+  const first = store.submitApplication(send)
+  const second = await store.submitApplication(send)
+  finish(CREATED)
+  await first
+
+  assert.equal(calls, 1)
+  assert.equal(second.kind, 'busy')
+})
+
+test('the payload is taken when submitting starts, not after later edits', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+  let received: CreateApplicationBody | null = null
+  const pending = store.submitApplication(async (body) => {
+    await new Promise((resolve) => setTimeout(resolve, 5))
+    received = body
+    return CREATED
+  })
+  store.operator.code = 'EDIT'
+  await pending
+
+  assert.equal((received as CreateApplicationBody | null)?.records[0]?.code, 'GFA1')
+})
+
+test('resetting clears the reference number and submission time', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+  await store.submitApplication(async () => CREATED)
+  store.resetAll()
+
+  assert.equal(store.referenceNo, null)
+  assert.equal(store.submittedAt, null)
+})
+
+test('an application that already has a reference number is not submitted again', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+  let calls = 0
+  const send = async () => {
+    calls += 1
+    return CREATED
+  }
+  await store.submitApplication(send)
+  const again = await store.submitApplication(send)
+
+  assert.equal(calls, 1)
+  assert.equal(again.kind, 'already-submitted')
 })

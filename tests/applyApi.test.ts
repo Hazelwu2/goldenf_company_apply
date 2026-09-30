@@ -3,6 +3,7 @@ import test from 'node:test'
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios'
 import { createApplyApi } from '../src/api/applyApi.ts'
 import { ApiError, createHttpClient } from '../src/api/http.ts'
+import type { CreateApplicationBody } from '../src/api/types.ts'
 
 interface ReceivedRequest {
   url?: string
@@ -183,6 +184,64 @@ test('vendor list with a malformed vendor is rejected at the API boundary', asyn
     await assert.rejects(api.listVendors(), (error: unknown) => {
       assert.ok(error instanceof ApiError)
       assert.equal(error.kind, 'contract')
+      return true
+    })
+  }
+})
+
+const CREATE_BODY: CreateApplicationBody = {
+  combination: 'MA',
+  status: 'pending',
+  records: [
+    {
+      company_level: 'MA',
+      type: 'company',
+      code: 'MA12',
+      name: '',
+      parent_code: 'GF_MA',
+      admin_account: 'maadmin01',
+      bo_whitelist: ['192.168.1.10'],
+      emails: [],
+      merchant_remark: '',
+      memo: [],
+    },
+  ],
+}
+
+const CREATED = {
+  reference_no: 'APY-20260911-0001',
+  created_at: 1789056000,
+  records: [
+    { _id: '68c1', company_level: 'MA', type: 'company', code: 'MA12', status: 'pending' },
+  ],
+}
+
+test('create application posts the payload and returns the reference number', async () => {
+  const { api, received } = respondWith({ status: 1, message: '成功', data: CREATED })
+
+  const created = await api.createApplication(CREATE_BODY)
+
+  assert.deepEqual(received, {
+    url: '/api/v1/company_apply/create',
+    method: 'post',
+    body: JSON.stringify(CREATE_BODY),
+    contentType: 'application/json',
+  })
+  assert.deepEqual(created, CREATED)
+})
+
+test('create application rejects a success response without a usable reference number', async () => {
+  for (const data of [
+    { ...CREATED, reference_no: '' },
+    { ...CREATED, reference_no: 1 },
+    { ...CREATED, created_at: '1789056000' },
+    { ...CREATED, records: null },
+    null,
+  ]) {
+    const { api } = respondWith({ status: 1, message: '成功', data })
+    await assert.rejects(api.createApplication(CREATE_BODY), (error: unknown) => {
+      assert.ok(error instanceof ApiError)
+      assert.equal(error.kind, 'contract', JSON.stringify(data))
       return true
     })
   }

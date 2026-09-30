@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { NButton, NCard, NCheckbox, NIcon, NTag, useMessage } from 'naive-ui'
 import {
   EyeOffOutline,
@@ -8,6 +8,7 @@ import {
   PencilOutline,
   ShieldCheckmarkOutline,
 } from '@vicons/ionicons5'
+import { applyApi } from '@/api/client'
 import { useApplyStore } from '@/stores/applyStore'
 import { useApplySteps } from '@/composables/useApplySteps'
 import { useReferenceDataStore } from '@/stores/useReferenceDataStore'
@@ -59,9 +60,14 @@ function goBack() {
 
 /** 送出前等待清單載入期間停用按鈕，避免連點送出兩次。 */
 const checking = ref(false)
+/** 檢查清單或呼叫 API 期間：送出按鈕 loading，返回修改與上一步停用。 */
+const busy = computed(() => checking.value || store.submitting)
+
+// 檢查或送出中不允許離開（包含 Stepper、瀏覽器上一頁），避免離開後才在背景送出、或送出與畫面資料不一致
+onBeforeRouteLeave(() => !busy.value)
 
 async function handleSubmit() {
-  if (!store.canSubmit || checking.value) return
+  if (!store.canSubmit || busy.value) return
 
   // 送出前再檢查一次所有角色，避免直接開確認頁網址或回去改壞資料後仍能送出
   checking.value = true
@@ -89,8 +95,16 @@ async function handleSubmit() {
     return
   }
 
-  store.submitApplication()
-  router.push('/apply/success')
+  let outcome
+  try {
+    outcome = await store.submitApplication(applyApi.createApplication)
+  } catch {
+    message.error('送出失败，请稍后再试 / Submission failed. Please try again later.')
+    return
+  }
+  if (outcome.kind === 'success' || outcome.kind === 'already-submitted') {
+    router.push('/apply/success')
+  }
 }
 
 </script>
@@ -130,7 +144,12 @@ async function handleSubmit() {
               </h2>
               <span class="review-section__title-en">{{ section.titleEn }}</span>
             </div>
-            <NButton text type="primary" @click="router.push(section.editPath)">
+            <NButton
+              text
+              type="primary"
+              :disabled="busy"
+              @click="router.push(section.editPath)"
+            >
               <template #icon><NIcon :component="PencilOutline" /></template>
               返回修改 <span class="review-section__edit-en">Edit</span>
             </NButton>
@@ -224,8 +243,9 @@ async function handleSubmit() {
     <StepFooterActions
       next-label="确认送出"
       next-label-en="Confirm & Submit"
-      :next-disabled="!store.canSubmit || checking"
-      :next-loading="checking"
+      :next-disabled="!store.canSubmit"
+      :next-loading="busy"
+      :back-disabled="busy"
       hint="请勾选宣告并通过安全验证后才能送出"
       hint-en="Please check the declaration and pass the security verification to submit"
       @back="goBack"

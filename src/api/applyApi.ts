@@ -1,5 +1,11 @@
 import type { HttpClient } from './http'
-import type { CurrencyDto, CurrencyListData, VendorDto } from './types'
+import type {
+  CreateApplicationBody,
+  CreateApplicationData,
+  CurrencyDto,
+  CurrencyListData,
+  VendorDto,
+} from './types'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null
@@ -41,6 +47,16 @@ function parseVendorList(data: unknown): { list: VendorDto[] } | null {
   return list.every(isVendorDto) ? { list } : null
 }
 
+/** 建立成功時畫面一定要拿到開線編號與建立時間；records 目前只確認是陣列。 */
+function parseCreatedApplication(data: unknown): CreateApplicationData | null {
+  if (!isRecord(data)) return null
+  const { reference_no: referenceNo, created_at: createdAt, records } = data
+  if (typeof referenceNo !== 'string' || referenceNo === '') return null
+  if (typeof createdAt !== 'number' || !Number.isFinite(createdAt)) return null
+  if (!Array.isArray(records)) return null
+  return data as unknown as CreateApplicationData
+}
+
 /** 客戶表單會用到的 API；網址只在這裡定義。 */
 export function createApplyApi(http: HttpClient) {
   return {
@@ -58,6 +74,13 @@ export function createApplyApi(http: HttpClient) {
         parseVendorList,
       )
       return data.list
+    },
+
+    createApplication(body: CreateApplicationBody): Promise<CreateApplicationData> {
+      return http.request(
+        { method: 'post', url: '/api/v1/company_apply/create', data: body },
+        parseCreatedApplication,
+      )
     },
   }
 }

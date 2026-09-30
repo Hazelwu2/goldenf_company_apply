@@ -69,3 +69,26 @@ test('mock vendor list covers every filtering scenario the form must handle', as
     )
   }
 })
+
+test('mock create succeeds by default with an APY reference number and the submitted roles', async () => {
+  const before = Math.floor(Date.now() / 1000)
+  const created = await createApplyApi(http).createApplication({
+    combination: 'MA + A',
+    status: 'pending',
+    records: [
+      { company_level: 'A', type: 'operator', code: 'OP9' },
+      { company_level: 'MA', type: 'company', code: 'MA12' },
+    ] as never,
+  })
+
+  assert.match(created.reference_no, /^APY-\d{8}-\d{4,}$/)
+  assert.ok(created.created_at >= before && created.created_at <= before + 5, 'created_at is Unix seconds')
+  assert.deepEqual(
+    created.records.map((record) => [record.company_level, record.type, record.code, record.status]),
+    [
+      ['A', 'operator', 'OP9', 'pending'],
+      ['MA', 'company', 'MA12', 'pending'],
+    ],
+  )
+  assert.ok(created.records.every((record) => typeof record._id === 'string' && record._id !== ''))
+})

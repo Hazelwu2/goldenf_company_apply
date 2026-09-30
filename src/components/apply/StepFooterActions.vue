@@ -7,6 +7,8 @@ const props = withDefaults(
     backLabel?: string
     backLabelEn?: string
     showBack?: boolean
+    /** 例如送出中，暫時不允許返回上一步。 */
+    backDisabled?: boolean
     nextLabel?: string
     nextLabelEn?: string
     nextDisabled?: boolean
@@ -20,6 +22,7 @@ const props = withDefaults(
     backLabel: '上一步',
     backLabelEn: 'Back',
     showBack: true,
+    backDisabled: false,
     nextLabel: '下一步',
     nextLabelEn: 'Next',
     nextDisabled: false,
@@ -61,7 +64,12 @@ function handleNext() {
       </div>
     </div>
     <div class="step-footer__actions">
-      <NButton v-if="props.showBack" quaternary @click="emit('back')">
+      <NButton
+        v-if="props.showBack"
+        quaternary
+        :disabled="props.backDisabled"
+        @click="emit('back')"
+      >
         <template #icon>
           <NIcon :component="ArrowBackOutline" />
         </template>
