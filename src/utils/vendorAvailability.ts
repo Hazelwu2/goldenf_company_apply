@@ -13,6 +13,7 @@ export function supportsCurrency(vendor: Vendor, currency: string) {
 /**
  * 依目前幣別將產品商分組：先判斷是否支援幣別，支援的再依有無測試環境（demo）分組；
  * 不支援的集中到最後，避免停用選項打斷主要選擇流程。各組內維持後端回傳順序。
+ * 規則見 docs/產品商下拉選單規格.md 第 3.2 節，修改時請一併更新文件。
  */
 export function groupVendorsForCurrency<T extends Vendor>(
   vendors: readonly T[],

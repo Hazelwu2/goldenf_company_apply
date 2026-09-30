@@ -21,6 +21,7 @@ function supportedCurrencies(vendor: VendorDto): string[] {
 /**
  * 後端回傳所有產品商，前端只保留可以申請的：
  * 上線中、支援 2.0、至少有一個原廠支援幣別。其餘完全不出現在選單。
+ * 規則見 docs/產品商下拉選單規格.md 第 3.1 節，修改時請一併更新文件。
  */
 export function toSelectableVendors(dtos: VendorDto[]): Vendor[] {
   return dtos.flatMap((dto) => {
@@ -34,6 +35,7 @@ export function toSelectableVendors(dtos: VendorDto[]): Vendor[] {
 /**
  * 把已選產品商分成有效與失效：不在可選清單中（消失、下線、不支援 2.0、沒有原廠幣別）
  * 或不支援目前幣別的都算失效，保留原本的選取順序。
+ * 規則見 docs/產品商下拉選單規格.md 第 5.2 節，修改時請一併更新文件。
  */
 export function splitSelectedVendors(
   selectedCodes: readonly string[],
