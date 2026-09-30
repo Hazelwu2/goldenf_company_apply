@@ -3,7 +3,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { NButton, NCard, NCheckbox, NIcon, NTag } from 'naive-ui'
 import {
-  AlertCircleOutline,
   EyeOffOutline,
   EyeOutline,
   PencilOutline,
@@ -61,9 +60,6 @@ function handleSubmit() {
   router.push('/apply/success')
 }
 
-function previewRejection() {
-  router.push('/apply/rejected')
-}
 </script>
 
 <template>
@@ -201,11 +197,6 @@ function previewRejection() {
       @back="goBack"
       @next="handleSubmit"
     />
-
-    <button type="button" class="preview-link" @click="previewRejection">
-      <NIcon :component="AlertCircleOutline" size="13" />
-      预览：整包拒绝画面（仅供画面检视，非实际送出结果）
-    </button>
   </section>
 </template>
 
@@ -400,22 +391,6 @@ function previewRejection() {
   color: var(--color-text-muted);
 }
 
-.preview-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: 16px;
-  background: none;
-  border: none;
-  font-size: 14px;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 4px;
-}
-
-.preview-link:hover {
-  color: var(--color-error);
-}
 
 @media (max-width: 560px) {
   .review-field {

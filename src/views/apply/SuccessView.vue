@@ -7,10 +7,8 @@ import { useApplyStore } from '@/stores/applyStore'
 import ReferenceNoCard from '@/components/apply/ReferenceNoCard.vue'
 import ApplicationHierarchySummary from '@/components/apply/ApplicationHierarchySummary.vue'
 import { buildConfirmationImageData } from '@/utils/applicationReview'
-import {
-  createConfirmationSvg,
-  parseConfirmationImageData,
-} from '@/utils/applicationConfirmationImage'
+import { createConfirmationSvg } from '@/utils/applicationConfirmationImage'
+import { resolveSuccessPageSource } from '@/utils/successPage'
 import type { ConfirmationImageData } from '@/utils/applicationReview'
 import { formatSubmittedAt } from '@/utils/dateTime'
 
@@ -23,19 +21,19 @@ const isDownloading = ref(false)
 const confirmationData = ref<ConfirmationImageData | null>(null)
 const SUCCESS_STORAGE_KEY = 'goldenf-company-apply-last-confirmation'
 
-// 直接进入这页做画面预览时（例如透过「画面总览」），补一组示范资料，避免空画面。
+// 成功頁只顯示已送出的結果，不會自己送出申請；沒有任何送出紀錄時導回申請首頁。
 onMounted(() => {
-  const storedConfirmation = parseConfirmationImageData(
+  const source = resolveSuccessPageSource(
+    store.referenceNo,
     window.sessionStorage.getItem(SUCCESS_STORAGE_KEY),
   )
-  if (!store.referenceNo && storedConfirmation) {
-    confirmationData.value = storedConfirmation
+  if (source.kind === 'none') {
+    router.replace('/apply')
     return
   }
-
-  if (!store.referenceNo) {
-    if (!store.combo) store.selectCombo('SMA_MA_A')
-    store.submitApplication()
+  if (source.kind === 'stored') {
+    confirmationData.value = source.data
+    return
   }
 
   confirmationData.value = buildConfirmationImageData({

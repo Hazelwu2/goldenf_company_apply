@@ -111,7 +111,7 @@ const items: PreviewItem[] = [
     desc: '大字开线编号＋复制、提交时间、组合摘要，以及 PNG 开线确认单。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
-      store.submitApplication()
+      store.seedDemoSubmission()
       router.push('/apply/success')
     },
   },

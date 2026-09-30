@@ -189,3 +189,13 @@ test('站台网址乱填时不能送出', () => {
   store.operator.website = 'https://example.com'
   assert.equal(store.isOperatorValid, true)
 })
+
+test('preview success data is marked as a demo value instead of looking like a real application', () => {
+  const store = freshStore()
+  store.seedDemoData('SMA_MA_A')
+
+  store.seedDemoSubmission()
+
+  assert.match(store.referenceNo ?? '', /DEMO/)
+  assert.ok(store.submittedAt)
+})

@@ -233,6 +233,12 @@ export const useApplyStore = defineStore('apply', () => {
     submittedAt.value = new Date().toISOString()
   }
 
+  /** 僅供「畫面總覽」預覽成功頁：寫入明顯的示範編號，不經過送出流程、不呼叫 API。 */
+  function seedDemoSubmission() {
+    referenceNo.value = 'APY-DEMO-0001'
+    submittedAt.value = new Date().toISOString()
+  }
+
   function resetAll() {
     combo.value = null
     Object.assign(operator, emptyOperatorForm())
@@ -337,6 +343,7 @@ export const useApplyStore = defineStore('apply', () => {
     referenceNo,
     submittedAt,
     submitApplication,
+    seedDemoSubmission,
     resetAll,
     seedDemoData,
   }
