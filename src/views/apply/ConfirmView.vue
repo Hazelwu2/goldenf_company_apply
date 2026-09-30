@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import { NButton, NCard, NCheckbox, NIcon, NTag, useMessage } from 'naive-ui'
+import { NAlert, NButton, NCard, NCheckbox, NIcon, NTag, useMessage } from 'naive-ui'
 import {
   EyeOffOutline,
   EyeOutline,
@@ -14,6 +14,7 @@ import { useApplySteps } from '@/composables/useApplySteps'
 import { useReferenceDataStore } from '@/stores/useReferenceDataStore'
 import { buildApplicationReview } from '@/utils/applicationReview'
 import { findPreSubmitProblem } from '@/utils/preSubmitCheck'
+import { resolveSubmitFailure } from '@/utils/submitErrors'
 import CaptchaField from '@/components/apply/CaptchaField.vue'
 import StepFooterActions from '@/components/apply/StepFooterActions.vue'
 
@@ -52,10 +53,19 @@ onMounted(() => {
   if (!store.captchaCode) store.regenerateCaptcha()
 })
 
+/** 送出失敗但留在確認頁時的提示（網路、逾時、非驗證類業務失敗等）。 */
+const submitNotice = ref<{ tone: 'error' | 'warning'; zh: string; en: string } | null>(null)
+
+/** 回到表單修改時，上一次送出的錯誤已不再適用。 */
+function goEdit(path: string) {
+  store.clearSubmitErrors()
+  router.push(path)
+}
+
 function goBack() {
   const idx = steps.value.findIndex((s) => s.key === 'confirm')
   const prev = steps.value[idx - 1]
-  router.push(prev ? prev.path : '/apply')
+  goEdit(prev ? prev.path : '/apply')
 }
 
 /** 送出前等待清單載入期間停用按鈕，避免連點送出兩次。 */
@@ -68,6 +78,9 @@ onBeforeRouteLeave(() => !busy.value)
 
 async function handleSubmit() {
   if (!store.canSubmit || busy.value) return
+  // 重新送出時，上一次的提示與錯誤清單都不再適用（送出前檢查失敗導回表單時也一樣）
+  submitNotice.value = null
+  store.clearSubmitErrors()
 
   // 送出前再檢查一次所有角色，避免直接開確認頁網址或回去改壞資料後仍能送出
   checking.value = true
@@ -98,12 +111,25 @@ async function handleSubmit() {
   let outcome
   try {
     outcome = await store.submitApplication(applyApi.createApplication)
-  } catch {
-    message.error('送出失败，请稍后再试 / Submission failed. Please try again later.')
+  } catch (error) {
+    // 只有程式狀態異常（例如沒有申請組合）才會走到這裡，顯示通用失敗提示
+    const failure = resolveSubmitFailure(error)
+    submitNotice.value = failure.kind === 'notice' ? failure : null
     return
   }
-  if (outcome.kind === 'success' || outcome.kind === 'already-submitted') {
-    router.push('/apply/success')
+  switch (outcome.kind) {
+    case 'success':
+    case 'already-submitted':
+      router.push('/apply/success')
+      break
+    case 'rejected':
+      // 後端說產品商有問題時，下次進營運商 A 頁重新取得清單
+      if (outcome.vendorsInvalid) referenceData.markVendorsStale()
+      router.push('/apply/rejected')
+      break
+    case 'failed':
+      submitNotice.value = outcome.notice
+      break
   }
 }
 
@@ -148,7 +174,7 @@ async function handleSubmit() {
               text
               type="primary"
               :disabled="busy"
-              @click="router.push(section.editPath)"
+              @click="goEdit(section.editPath)"
             >
               <template #icon><NIcon :component="PencilOutline" /></template>
               返回修改 <span class="review-section__edit-en">Edit</span>
@@ -239,6 +265,17 @@ async function handleSubmit() {
         />
       </div>
     </NCard>
+
+    <NAlert
+      v-if="submitNotice"
+      :type="submitNotice.tone"
+      :bordered="false"
+      class="submit-notice"
+      role="alert"
+    >
+      <p class="submit-notice__zh">{{ submitNotice.zh }}</p>
+      <p class="submit-notice__en">{{ submitNotice.en }}</p>
+    </NAlert>
 
     <StepFooterActions
       next-label="确认送出"
@@ -445,6 +482,21 @@ async function handleSubmit() {
   color: var(--color-text-muted);
 }
 
+.submit-notice {
+  margin-top: 18px;
+}
+
+.submit-notice__zh {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.submit-notice__en {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
 
 @media (max-width: 560px) {
   .review-field {

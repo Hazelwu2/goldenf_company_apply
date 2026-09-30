@@ -22,7 +22,17 @@ import {
 } from '@/utils/validators'
 import { getCaptchaStatus } from '@/utils/captcha'
 import { buildCreateApplicationBody } from '@/utils/applicationPayload'
-import type { CreateApplicationBody, CreateApplicationData } from '@/api/types'
+import type {
+  CreateApplicationBody,
+  CreateApplicationData,
+  CreateApplicationErrors,
+} from '@/api/types'
+import {
+  mapSubmitErrors,
+  resolveSubmitFailure,
+  type SubmitErrorItem,
+  type SubmitFailure,
+} from '@/utils/submitErrors'
 
 /** 送出申請的 API 呼叫；由畫面傳入 applyApi.createApplication，測試時可換成假的。 */
 export type CreateApplication = (body: CreateApplicationBody) => Promise<CreateApplicationData>
@@ -33,6 +43,44 @@ export type SubmitOutcome =
   | { kind: 'busy' }
   /** 這份申請已經建立過（例如從成功頁按瀏覽器上一頁回到確認頁），不再重複建立。 */
   | { kind: 'already-submitted' }
+  /** 後端驗證失敗，錯誤清單已存在 store；vendorsInvalid 表示需要重新取得產品商清單。 */
+  | { kind: 'rejected'; vendorsInvalid: boolean }
+  /** 其他失敗，留在確認頁顯示提示。 */
+  | { kind: 'failed'; notice: Extract<SubmitFailure, { kind: 'notice' }> }
+
+/** 僅供「畫面總覽」預覽失敗頁的示範錯誤，訊息明確標示為示範。 */
+const DEMO_REJECTION_ERRORS: CreateApplicationErrors = {
+  A: [
+    {
+      code: 'GFA1',
+      field: 'vendors',
+      message: '（示范）产品商「JILI」不支援币别 CNY。',
+      message_en: '(Demo) Vendor "JILI" does not support CNY.',
+    },
+    {
+      code: 'GFA1',
+      field: 'admin_account',
+      message: '（示范）账号需为 6～10 个小写英数字元。',
+      message_en: '(Demo) Account must be 6–10 lowercase alphanumeric characters.',
+    },
+  ],
+  MA: [
+    {
+      code: 'MAGOLD',
+      field: 'parent_code',
+      message: '（示范）上层代码与申请组合不符。',
+      message_en: '(Demo) The parent code does not match the application combination.',
+    },
+  ],
+  SMA: [
+    {
+      code: 'SMAROOT',
+      field: 'code',
+      message: '（示范）代码重复，已被其他总代理使用。',
+      message_en: '(Demo) This code is already used by another super agent.',
+    },
+  ],
+}
 
 export const COMBO_OPTIONS: ComboOption[] = [
   {
@@ -206,10 +254,17 @@ export const useApplyStore = defineStore('apply', () => {
   const submittedAt = ref<string | null>(null)
   /** 呼叫 Create API 期間為 true；確認頁以此鎖住送出與返回修改。 */
   const submitting = ref(false)
+  /** 上一次送出被後端驗證拒絕的逐筆錯誤，失敗頁顯示用。 */
+  const submitErrors = ref<SubmitErrorItem[]>([])
+
+  function clearSubmitErrors() {
+    submitErrors.value = []
+  }
 
   /**
    * 以當下的表單組出 payload 後呼叫 Create API（送出期間以這份 payload 為準）。
-   * 送出中再次呼叫、或已經有開線編號時不會重打 API；API 失敗時錯誤原樣往外丟，由畫面決定怎麼提示。
+   * 送出中再次呼叫、或已經有開線編號時不會重打 API。
+   * 失敗時：有逐筆驗證錯誤 → 存進 submitErrors 並回傳 rejected；其他錯誤 → 回傳 failed 與提示文字。
    */
   async function submitApplication(send: CreateApplication): Promise<SubmitOutcome> {
     if (submitting.value) return { kind: 'busy' }
@@ -223,12 +278,18 @@ export const useApplyStore = defineStore('apply', () => {
       agentSMA,
     })
     submitting.value = true
+    clearSubmitErrors()
     try {
       const created = await send(body)
       referenceNo.value = created.reference_no
       // 後端回傳 Unix 秒，轉成成功頁既有的 ISO 字串格式
       submittedAt.value = new Date(created.created_at * 1000).toISOString()
       return { kind: 'success' }
+    } catch (error) {
+      const failure = resolveSubmitFailure(error)
+      if (failure.kind === 'notice') return { kind: 'failed', notice: failure }
+      submitErrors.value = failure.errors
+      return { kind: 'rejected', vendorsInvalid: failure.vendorsInvalid }
     } finally {
       submitting.value = false
     }
@@ -238,6 +299,13 @@ export const useApplyStore = defineStore('apply', () => {
   function seedDemoSubmission() {
     referenceNo.value = 'APY-DEMO-0001'
     submittedAt.value = new Date().toISOString()
+  }
+
+  /** 僅供「畫面總覽」預覽失敗頁：寫入示範錯誤（只列目前組合內的角色），不呼叫 API。 */
+  function seedDemoRejection() {
+    const errors: CreateApplicationErrors = {}
+    for (const level of levels.value) errors[level] = DEMO_REJECTION_ERRORS[level]
+    submitErrors.value = mapSubmitErrors(errors)
   }
 
   function resetAll() {
@@ -251,6 +319,7 @@ export const useApplyStore = defineStore('apply', () => {
     captchaStatus.value = 'idle'
     referenceNo.value = null
     submittedAt.value = null
+    submitErrors.value = []
   }
 
   /**
@@ -343,7 +412,10 @@ export const useApplyStore = defineStore('apply', () => {
     referenceNo,
     submittedAt,
     submitting,
+    submitErrors,
+    clearSubmitErrors,
     submitApplication,
+    seedDemoRejection,
     seedDemoSubmission,
     resetAll,
     seedDemoData,

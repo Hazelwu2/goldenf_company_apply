@@ -67,7 +67,10 @@ function itemKey(item: SubmitErrorItem) {
             <div class="error-summary__meta">
               <span class="error-summary__field">
                 {{ item.fieldLabel }}
-                <span class="error-summary__field-en">{{ item.fieldLabelEn }}</span>
+                <!-- 查不到欄位時中英都是原始 field，只顯示一次 -->
+                <span v-if="item.fieldLabelEn !== item.fieldLabel" class="error-summary__field-en">
+                  {{ item.fieldLabelEn }}
+                </span>
               </span>
             </div>
             <p class="error-summary__message">{{ item.message }}</p>
@@ -80,7 +83,8 @@ function itemKey(item: SubmitErrorItem) {
             class="error-summary__action"
             @click="emit('goto', item)"
           >
-            前往此栏位 Go to field
+            <template v-if="item.anchorId">前往此栏位 Go to field</template>
+            <template v-else>前往此页面 Go to page</template>
             <template #icon>
               <NIcon :component="ArrowForwardOutline" aria-hidden="true" />
             </template>

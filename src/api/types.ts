@@ -97,3 +97,18 @@ export interface CreateApplicationData {
   created_at: number
   records: CreatedRecordDto[]
 }
+
+export type ApplyRoleKey = 'A' | 'MA' | 'SMA'
+
+/** Create API 驗證失敗時的單筆錯誤。 */
+export interface CreateApplicationErrorDto {
+  /** 使用者填寫的角色代碼。 */
+  code: string
+  /** 驗證失敗的 request key，例如 `vendors`、`admin_account`。 */
+  field: string
+  message: string
+  message_en: string
+}
+
+/** 以角色分組的驗證錯誤；只有出錯的角色會出現。 */
+export type CreateApplicationErrors = Partial<Record<ApplyRoleKey, CreateApplicationErrorDto[]>>

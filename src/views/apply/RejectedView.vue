@@ -18,64 +18,21 @@ const levelLabelEn: Record<string, string> = {
   SMA: 'Super Agent SMA',
 }
 
-/**
- * 示范用错误摘要：实际串接后，这里会改成 Create API 回传的逐笔错误。
- * 目前先依已选组合带出对应角色的代表性错误，方便检视「角色．栏位．讯息＋前往此栏位」的版型。
- */
-const errors = computed<SubmitErrorItem[]>(() => {
-  const list: SubmitErrorItem[] = []
-  if (store.hasLevel('A')) {
-    list.push({
-      level: 'A',
-      fieldLabel: '营运商代码',
-      fieldLabelEn: 'Operator Code',
-      message: '代码「' + (store.operator.code || 'GF0') + '」格式不符，不得包含数字 0',
-      messageEn: `Code "${store.operator.code || 'GF0'}" is invalid — digit 0 is not allowed.`,
-      routePath: '/apply/operator',
-      anchorId: 'field-operator-code',
-    })
-    list.push({
-      level: 'A',
-      fieldLabel: '后台账号',
-      fieldLabelEn: 'Admin Account',
-      message: '账号需为 6–10 码小写英数字元',
-      messageEn: 'Account must be 6–10 lowercase alphanumeric characters.',
-      routePath: '/apply/operator',
-      anchorId: 'field-operator-admin-account',
-    })
-  }
-  if (store.hasLevel('MA')) {
-    list.push({
-      level: 'MA',
-      fieldLabel: '后台 IP 白名单',
-      fieldLabelEn: 'Admin IP Whitelist',
-      message: '存在无法辨识的 IP 格式，请确认每一笔皆为合法 IP',
-      messageEn: 'One or more entries are not valid IP addresses. Please check each entry.',
-      routePath: '/apply/agent/ma',
-      anchorId: 'field-agent-ma-bo-whitelist',
-    })
-  }
-  if (store.hasLevel('SMA')) {
-    list.push({
-      level: 'SMA',
-      fieldLabel: '总代理代码',
-      fieldLabelEn: 'Super Agent Code',
-      message: '代码重复，已被其他总代理使用',
-      messageEn: 'This code is already used by another super agent.',
-      routePath: '/apply/agent/sma',
-      anchorId: 'field-agent-sma-code',
-    })
-  }
-  return list
-})
+/** Create API 回傳的逐筆驗證錯誤；沒有錯誤清單時（例如直接開網址）導回確認頁。 */
+const errors = computed<SubmitErrorItem[]>(() => store.submitErrors)
+
+/** 有對應欄位時帶 hash 定位；沒有時只到該角色頁面頂端，不組出空的 hash。 */
+function locationOf(item: SubmitErrorItem) {
+  return item.anchorId ? { path: item.routePath, hash: `#${item.anchorId}` } : item.routePath
+}
 
 function goto(item: SubmitErrorItem) {
-  router.push({ path: item.routePath, hash: `#${item.anchorId}` })
+  router.push(locationOf(item))
 }
 
 function backToEdit() {
   const first = errors.value[0]
-  router.push(first ? { path: first.routePath, hash: `#${first.anchorId}` } : '/apply')
+  router.push(first ? locationOf(first) : '/apply/confirm')
 }
 
 function resubmit() {
@@ -83,6 +40,10 @@ function resubmit() {
 }
 
 onMounted(async () => {
+  if (errors.value.length === 0) {
+    router.replace('/apply/confirm')
+    return
+  }
   await nextTick()
   errorSummaryTitle.value?.focus()
 })

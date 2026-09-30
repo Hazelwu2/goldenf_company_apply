@@ -1,6 +1,9 @@
 import type { HttpClient } from './http'
 import type {
+  ApplyRoleKey,
   CreateApplicationBody,
+  CreateApplicationErrorDto,
+  CreateApplicationErrors,
   CreateApplicationData,
   CurrencyDto,
   CurrencyListData,
@@ -55,6 +58,35 @@ function parseCreatedApplication(data: unknown): CreateApplicationData | null {
   if (typeof createdAt !== 'number' || !Number.isFinite(createdAt)) return null
   if (!Array.isArray(records)) return null
   return data as unknown as CreateApplicationData
+}
+
+const ROLE_KEYS: ApplyRoleKey[] = ['A', 'MA', 'SMA']
+
+function isCreateApplicationError(item: unknown): item is CreateApplicationErrorDto {
+  return (
+    isRecord(item) &&
+    typeof item.code === 'string' &&
+    typeof item.field === 'string' &&
+    typeof item.message === 'string' &&
+    typeof item.message_en === 'string'
+  )
+}
+
+/**
+ * 讀取 Create API 失敗回應（business 錯誤的 data）中的 `errors`。
+ * 未知的角色 key、不是陣列的值、欄位不齊或型別不對的項目一律丟棄；
+ * 沒有可用的錯誤時回傳空物件，由畫面改顯示後端 message。
+ */
+export function parseCreateApplicationErrors(data: unknown): CreateApplicationErrors {
+  const result: CreateApplicationErrors = {}
+  if (!isRecord(data) || !isRecord(data.errors) || Array.isArray(data.errors)) return result
+  for (const role of ROLE_KEYS) {
+    const items = data.errors[role]
+    if (!Array.isArray(items)) continue
+    const valid = items.filter(isCreateApplicationError)
+    if (valid.length > 0) result[role] = valid
+  }
+  return result
 }
 
 /** 客戶表單會用到的 API；網址只在這裡定義。 */

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import type { AxiosAdapter, InternalAxiosRequestConfig } from 'axios'
-import { createApplyApi } from '../src/api/applyApi.ts'
+import { createApplyApi, parseCreateApplicationErrors } from '../src/api/applyApi.ts'
 import { ApiError, createHttpClient } from '../src/api/http.ts'
 import type { CreateApplicationBody } from '../src/api/types.ts'
 
@@ -244,5 +244,46 @@ test('create application rejects a success response without a usable reference n
       assert.equal(error.kind, 'contract', JSON.stringify(data))
       return true
     })
+  }
+})
+
+test('create validation failure keeps the backend errors grouped by role', async () => {
+  const errors = {
+    A: [{ code: 'GFA0', field: 'code', message: '代碼格式不符', message_en: 'Invalid code' }],
+    MA: [{ code: 'MA12', field: 'bo_whitelist', message: 'IP 格式錯誤', message_en: 'Invalid IP' }],
+  }
+  const { api } = respondWith({ status: 0, message: 'apply validation failed.', data: { errors } })
+
+  await assert.rejects(api.createApplication(CREATE_BODY), (error: unknown) => {
+    assert.ok(error instanceof ApiError)
+    assert.equal(error.kind, 'business')
+    assert.deepEqual(parseCreateApplicationErrors(error.data), errors)
+    return true
+  })
+})
+
+test('create errors drop unknown role keys and malformed items', () => {
+  const valid = { code: 'OP9', field: 'vendors', message: '不支援', message_en: 'Unsupported' }
+  const parsed = parseCreateApplicationErrors({
+    errors: {
+      A: [
+        valid,
+        { code: 'OP9', field: 'code', message: '缺英文' },
+        { code: 'OP9', field: 1, message: 'x', message_en: 'x' },
+        null,
+        'oops',
+      ],
+      MA: 'not an array',
+      SMA: [],
+      OP: [valid],
+    },
+  })
+
+  assert.deepEqual(parsed, { A: [valid] })
+})
+
+test('create errors are empty when the failure has no usable errors object', () => {
+  for (const data of [undefined, null, {}, { errors: null }, { errors: [] }, { errors: 'x' }, []]) {
+    assert.deepEqual(parseCreateApplicationErrors(data), {}, JSON.stringify(data))
   }
 })

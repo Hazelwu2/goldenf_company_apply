@@ -3,6 +3,7 @@ import test from 'node:test'
 import { createPinia, setActivePinia } from 'pinia'
 import { useApplyStore } from '@/stores/applyStore'
 import type { CreateApplicationBody, CreateApplicationData } from '@/api/types'
+import { ApiError } from '@/api/http'
 
 function freshStore() {
   setActivePinia(createPinia())
@@ -299,4 +300,91 @@ test('an application that already has a reference number is not submitted again'
 
   assert.equal(calls, 1)
   assert.equal(again.kind, 'already-submitted')
+})
+
+function validationFailure() {
+  return new ApiError('business', 'apply validation failed.', {
+    httpStatus: 200,
+    data: {
+      errors: {
+        A: [{ code: 'GFA1', field: 'vendors', message: '不支援', message_en: 'Unsupported' }],
+      },
+    },
+  })
+}
+
+test('a validation failure keeps the mapped errors and reports the vendor problem', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+
+  const outcome = await store.submitApplication(async () => {
+    throw validationFailure()
+  })
+
+  assert.deepEqual(outcome, { kind: 'rejected', vendorsInvalid: true })
+  assert.equal(store.submitting, false)
+  assert.equal(store.referenceNo, null)
+  assert.deepEqual(
+    store.submitErrors.map((item) => item.anchorId),
+    ['field-operator-vendor'],
+  )
+})
+
+test('other failures stay on confirm with a notice and keep the form data', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+
+  const outcome = await store.submitApplication(async () => {
+    throw new ApiError('network', 'Network error')
+  })
+
+  assert.equal(outcome.kind, 'failed')
+  assert.ok(outcome.kind === 'failed')
+  assert.match(outcome.notice.zh, /网络连线失败/)
+  assert.deepEqual(store.submitErrors, [])
+  assert.equal(store.operator.code, 'GFA1')
+  assert.equal(store.submitting, false)
+})
+
+test('resubmitting clears the previous errors, and a later success leaves none behind', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+  await store.submitApplication(async () => {
+    throw validationFailure()
+  })
+  let errorsDuringRetry = -1
+
+  await store.submitApplication(async () => {
+    errorsDuringRetry = store.submitErrors.length
+    return CREATED
+  })
+
+  assert.equal(errorsDuringRetry, 0)
+  assert.deepEqual(store.submitErrors, [])
+})
+
+test('clearing and resetting remove the previous submit errors', async () => {
+  const store = freshStore()
+  store.seedDemoData('A')
+  await store.submitApplication(async () => {
+    throw validationFailure()
+  })
+  store.clearSubmitErrors()
+  assert.deepEqual(store.submitErrors, [])
+
+  await store.submitApplication(async () => {
+    throw validationFailure()
+  })
+  store.resetAll()
+  assert.deepEqual(store.submitErrors, [])
+})
+
+test('preview rejection seeds clearly marked demo errors without calling the API', () => {
+  const store = freshStore()
+  store.seedDemoData('SMA_MA_A')
+  store.seedDemoRejection()
+
+  assert.ok(store.submitErrors.length > 0)
+  assert.ok(store.submitErrors.every((item) => item.message.includes('示范')))
+  assert.equal(store.referenceNo, null)
 })

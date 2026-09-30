@@ -102,6 +102,7 @@ const items: PreviewItem[] = [
     desc: '不建立任何资料、不产编号；错误摘要含「前往此栏位」锚点跳转。',
     go: () => {
       store.seedDemoData('SMA_MA_A')
+      store.seedDemoRejection()
       router.push('/apply/rejected')
     },
   },

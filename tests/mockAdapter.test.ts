@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createApplyApi } from '../src/api/applyApi.ts'
 import { ApiError, createHttpClient } from '../src/api/http.ts'
-import { mockAdapter } from '../src/mocks/mockAdapter.ts'
+import { mockAdapter, setMockCreateScenario } from '../src/mocks/mockAdapter.ts'
+import { parseCreateApplicationErrors } from '../src/api/applyApi.ts'
 import { toSelectableVendors } from '../src/utils/vendors.ts'
 
 const http = createHttpClient({ adapter: mockAdapter })
@@ -91,4 +92,57 @@ test('mock create succeeds by default with an APY reference number and the submi
     ],
   )
   assert.ok(created.records.every((record) => typeof record._id === 'string' && record._id !== ''))
+})
+
+const THREE_ROLES = {
+  combination: 'SMA + MA + A',
+  status: 'pending',
+  records: [
+    { company_level: 'A', type: 'operator', code: 'OP9' },
+    { company_level: 'MA', type: 'company', code: 'MA12' },
+    { company_level: 'SMA', type: 'company', code: 'SMAROOT' },
+  ],
+} as never
+
+async function createFailure(scenario: Parameters<typeof setMockCreateScenario>[0]) {
+  setMockCreateScenario(scenario)
+  try {
+    await createApplyApi(http).createApplication(THREE_ROLES)
+  } catch (error) {
+    return error
+  } finally {
+    setMockCreateScenario(null)
+  }
+  assert.fail(`scenario ${scenario} should fail`)
+}
+
+test('mock create can return a validation failure grouped by the submitted roles', async () => {
+  const error = await createFailure('validation')
+
+  assert.ok(error instanceof ApiError)
+  assert.equal(error.kind, 'business')
+  const errors = parseCreateApplicationErrors(error.data)
+  const fields = Object.values(errors).flatMap((items) => items.map((item) => item.field))
+  assert.ok(fields.includes('vendors'), 'has a vendors error')
+  assert.ok(fields.includes('parent_code'), 'has an error without an editable field')
+  assert.ok(
+    fields.some((field) => !['vendors', 'parent_code', 'code', 'admin_account', 'bo_whitelist'].includes(field)),
+    'has an unknown field',
+  )
+  assert.equal(errors.A?.[0]?.code, 'OP9', 'errors carry the submitted role code')
+})
+
+test('mock create can fail without errors, time out, or lose the network', async () => {
+  const business = await createFailure('business')
+  assert.ok(business instanceof ApiError)
+  assert.equal(business.kind, 'business')
+  assert.deepEqual(parseCreateApplicationErrors(business.data), {})
+
+  const timeout = await createFailure('timeout')
+  assert.ok(timeout instanceof ApiError)
+  assert.equal(timeout.kind, 'no-response')
+
+  const network = await createFailure('network')
+  assert.ok(network instanceof ApiError)
+  assert.equal(network.kind, 'network')
 })
