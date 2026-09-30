@@ -38,3 +38,9 @@ __screenshots__/
 # Vite
 *.timestamp-*-*.mjs
 .gstack/
+
+# Local issue tracker
+/.scratch/
+
+# Codex session
+.context/
