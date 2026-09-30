@@ -13,11 +13,11 @@
 ### 1.1 API 清單
 
 | 使用端 | 功能 | Method | Path |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 客戶表單 | 建立開線申請 | `POST` | `/api/v1/company_apply/create` |
 | 後台 2.0 | 查詢開線申請清單 | `GET` | `/api/v1/company_apply/list` |
 | 後台 2.0 | 編輯單筆申請資料 | `POST` | `/api/v1/company_apply/update` |
-| 後台 2.0 | 刪除單筆申請資料 | `POST` | `/api/v1/company_apply/delete` |
+| 後台 2.0 | 刪除多筆申請資料 | `POST` | `/api/v1/company_apply/delete` |
 | 客戶表單 | 取得產品商清單，下拉選單用 | `GET` | `/api/v1/company_apply/vendor/list` |
 | 客戶表單 | 取得幣值轉換清單，下拉選單用 | `POST` | `/api/v1/company_apply/exchange/list` |
 
@@ -54,7 +54,7 @@
 `combination` 僅接受以下值：
 
 | `combination` | `records` 必須包含的角色 |
-|---|---|
+| --- | --- |
 | `SMA + MA + A` | SMA、MA、A |
 | `MA + A` | MA、A |
 | `MA` | MA |
@@ -65,7 +65,7 @@
 ### 1.4 角色與類型
 
 | 角色 | `company_level` | `type` | 說明 |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 營運商 | `A` | `operator` | 實際串接產品商及營運站台的角色 |
 | 代理 | `MA` | `company` | 管理下層營運商的代理角色 |
 | 總代理 | `SMA` | `company` | 管理下層代理的總代理角色 |
@@ -75,7 +75,7 @@
 ### 1.5 上層代碼
 
 | `combination 申請組合` | record | `parent_code` |
-|---|---|---|
+| --- | --- | --- |
 | `A` | A | `GF_MA` |
 | `MA` | MA | `GF_MA` |
 | `MA + A` | MA | `GF_MA` |
@@ -89,7 +89,7 @@
 每筆 A、MA、SMA record 各自擁有一個狀態，後台可以自由切換：
 
 | 值 | 顯示名稱 |
-|---|---|
+| --- | --- |
 | `vendor_pending` | 待原廠設置 |
 | `pending` | 待確認 |
 | `data_missing` | 資料需補充 |
@@ -150,7 +150,7 @@ Content-Type: application/json
 ### 2.2 最外層欄位
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 驗證規則 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `combination` | 角色組合 | string | 是 | 僅接受 `SMA + MA + A`、`MA + A`、`MA`、`A` |
 | `status` | 申請狀態 | string | 是 | 客戶表單固定傳 `pending`；Create API 不接受其他值 |
 | `records` | 申請資料 | array | 是 | 本次客戶申請的資料 |
@@ -158,7 +158,7 @@ Content-Type: application/json
 ### 2.3 A／MA／SMA 共用欄位
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 說明與驗證規則 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `company_level` | 申請資料所屬公司別層級 | string | 是 | 僅接受 `A`、`MA`、`SMA` |
 | `type` | 類型 | string | 是 | 僅接受 `operator`、`company`；A 必須為 `operator`，MA／SMA 必須為 `company` |
 | `code` | 營運商或代理代碼 | string | 是 | - `A`：2～4 個英數字符且不得包含 `0` <br/>- `MA／SMA`：2～12 個英數字符，統一轉為大寫<br/>不得與系統、同一前端請求參數內其他 record，或開線申請書資料表既有代碼重複 |
@@ -181,7 +181,7 @@ Content-Type: application/json
 ```
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 說明 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `created_at` | 建立時間 | integer | 是 | 備註建立時間，使用 Unix timestamp 毫秒 |
 | `memo` | 備註內容 | string | 是 | 小明在後台填寫的工作日記內容 |
 | `created_by` | 建立人 | string | 是 | 建立此筆備註的內部人員名稱 |
@@ -199,7 +199,7 @@ Content-Type: application/json
 ### 2.4 僅營運商 A 使用的欄位
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 說明與驗證規則 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `currency` | 營運商幣別 | string | 是 | 幣別必須存在於「系統／幣值轉換清單」 |
 | `vendors` | 申請開通的產品商 | string[] | 是 | 必須為非空陣列；每個 Vendor code 必須存在且可申請，並支援 `currency` 指定的幣別 |
 | `api_whitelist` | 營運商 API IP 白名單 | string[] | 是 | 必須為非空陣列；每一筆須符合 IP 或 CIDR 格式；不驗證 IP 所屬地區，也不阻擋美國 IP |
@@ -250,10 +250,9 @@ APY-20260911-0001
 - 同一次多角色申請拆出的所有 records 共用同一個 `reference_no`。
 - 後端額外處理欄位
 
-| 參數 | 中文名稱 | 型別 |  規則 |
-| :--- | :--- | :--- |  :--- |
-| `type` | 公司別類型 | String |  - 當`company_level: 'A'` 則帶`operator`<br/>- 當`company_level: 'MA or SMA'`, 則帶`company` |
-| `role` | 角色 | String |  - 當`company_level: 'A'` 則帶`op`<br/>- 當`company_level: 'MA or SMA'`, 則帶 `agent` |
+| 參數 | 中文名稱 | 型別 | 規則 |
+| :--- | :--- | :--- | :--- |
+| `role` | 角色 | String | - 當`company_level: 'A'` 則帶`op`<br/>- 當`company_level: 'MA or SMA'`, 則帶 `agent` |
 | `version` | 版本號 | Number | 建立 key 值 |
 | `sort` | 排序 | Number | 帶 `0` |
 | `mongodb` | MongoDB | String | 建立 key 值 |
@@ -262,10 +261,10 @@ APY-20260911-0001
 | `group` | 群組 | Array[String] | 建立 key 值 |
 | `seamless_host` | host | String | 建立 key 值 |
 | `seamless_wtoken` | WToken | String | 建立 key 值 |
-| `k8s_group` | K8s 部署群組 | String | 建立 key 值  |
+| `k8s_group` | K8s 部署群組 | String | 建立 key 值 |
 | `memo` | 備註 | String | 建立 key 值 |
 | `business_memo` | 業務歷程備註 | Array[Object] | 建立 key 值 |
-| `background` | 資料是否完善 | Boolean |  供前端清單頁顯示 |
+| `background` | 資料是否完善 | Boolean | 供前端清單頁顯示 |
 
 ### 2.8 成功 response
 
@@ -344,7 +343,7 @@ APY-20260911-0001
 `data.errors` 以角色分組：key 為 `A`、`MA`、`SMA`，value 為該角色的錯誤陣列；只有出錯的角色會出現。
 
 | 錯誤欄位 | 中文名稱 | 必填 | 說明 |
-|---|---|:---:|---|
+| --- | --- | :---: | --- |
 | `code` | 角色代碼 | 是 | 使用者實際填寫的角色代碼 |
 | `field` | 錯誤欄位 | 是 | 驗證失敗的 request key；例：產品商使用 `vendors` |
 | `message` | 中文錯誤訊息 | 是 | 中文錯誤訊息 |
@@ -404,7 +403,7 @@ GET /api/v1/company_apply/vendor/list
 ### 3.2 產品商欄位
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 說明 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `code` | 產品商代碼 | string | 是 | 前端提交開線申請時放入 `records[].vendors` 的值 |
 | `name` | 產品商名稱 | string | 是 | 下拉選單顯示名稱，可包含中英文名稱 |
 | `status` | 產品商狀態 | string | 是 | 前端篩選使用，規則見 [產品商下拉選單規格](產品商下拉選單規格.md) |
@@ -445,7 +444,7 @@ GET /api/v1/company_apply/vendor/list
 每一筆幣別資料格式：
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 說明 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `vendor` | 原廠支援幣別 | string | 是 | 非空字串才代表產品商原廠支援該幣別 |
 | `rate` | 匯率 | string | 是 | 原資料值；申請表不使用此欄位進行篩選 |
 | `gf_support` | GF 是否支援 | boolean | 是 | 申請表不使用此欄位進行篩選 |
@@ -520,7 +519,7 @@ Content-Type: application/json
 ### 4.3 幣別-下拉選單需要欄位
 
 | 欄位 | 中文名稱 | 型別 | 必填 | 說明 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `code` | 幣別代碼 | string | 是 | 幣別下拉選單的值；前端提交申請時放入 A record 的 `currency` |
 | `name` | 幣別名稱 | string | 是 | 幣別下拉選單的顯示名稱 |
 | `memo` | 幣別備註 | string | 是 | 幣別補充說明；沒有內容時回傳空字串 |
@@ -556,7 +555,7 @@ GET /api/v1/company_apply/list
 ### 5.2 Query parameters
 
 | 參數 | 中文名稱 | 型別 | 必填 | 規則 |
-|---|---|---|:---:|---|
+| --- | --- | --- | :---: | --- |
 | `page` | 頁碼 | integer | 否 | 沿用後台 2.0 分頁規則 |
 | `page_size` | 每頁筆數 | integer | 否 | 每頁回傳的資料筆數 |
 | `field` | 需要欄位 | array | 否 | 空陣列表示給全部欄位 |
@@ -567,7 +566,7 @@ GET /api/v1/company_apply/list
 | `filter.status` | 狀態 | string | 否 | 篩選該列 record 的處理狀態；沒給 key 值表示全部 |
 | `filter.vendors` | 產品商 | array | 否 | 產品商代碼；record 只要包含該產品商即符合；沒給 key 值表示全部 |
 | `filter.currency` | 幣別 | string | 否 | 幣別精確比對；沒給 key 值表示全部 |
-| `filter.company_level` | 角色層級 | string | 否 | 僅判斷角色，接受 `A`、`MA`、`SMA` ；沒給 key 值表示全部|
+| `filter.company_level` | 角色層級 | string | 否 | 僅判斷角色，接受 `A`、`MA`、`SMA` ；沒給 key 值表示全部 |
 
 時間規則：
 
@@ -657,14 +656,13 @@ GET /api/v1/company_apply/list
 ## 6. 編輯單筆申請資料 API
 
 ```http
-POST /api/v1/company_apply/edit
+POST /api/v1/company_apply/update
 Content-Type: application/json
 ```
 
 後台以 MongoDB `_id` 識別一筆拆分後的 record。
 
 ### 6.1 Request
-
 
 ```json
 {
@@ -678,7 +676,7 @@ Content-Type: application/json
   "admin_account": "op9admin",
   "bo_whitelist": ["192.168.1.10"],
   "api_whitelist": ["203.0.113.55"],
-  "email": ["ops@example.com"],
+  "emails": ["ops@example.com"],
   "currency": "VND",
   "vendors": ["CQ9", "JDB"],
   "operating_markets": ["VN", "TH"],
@@ -710,6 +708,7 @@ Content-Type: application/json
 - 其他申請欄位與 `status` 均可修改。
 - 修改不保留舊值、修改人或修改時間歷程。
 - 驗證規則與 Create API 的對應角色一致。
+- 後台補填欄位 `version`、`sort`、`mongodb`、`mongodb_rep`、`postgresql`、`group`、`seamless_host`、`seamless_wtoken`、`k8s_group` 一律選填，不擋送出；實際開線走到「批量添加代理階層」時才會驗證。
 
 ### 6.2 Response
 
@@ -810,13 +809,11 @@ Content-Type: application/json
 
 - API URL POST `/api/v1/company_apply/create`
 
-
 ### Payload
 
 > payload：前端送去給 API 的實際參數
 
 前端預計會送的請求
-
 
 ```json=
 {
@@ -861,7 +858,7 @@ Content-Type: application/json
 #### A／MA／SMA 共用
 
 | API 欄位 | 用途 | 必填 | 請後端驗證的規則 |
-|---|---|:---:|---|
+| --- | --- | :---: | --- |
 | `email` | 聯絡電子郵件 | 否 | 空值可接受；有值時驗證 Email 格式 |
 | `memo` | 備註 | 否 | 陣列格式，空值可接受。小明在線時備註用的，需要有時間段，`小明日記` |
 
@@ -900,6 +897,7 @@ Content-Type: application/json
 ![image](https://hackmd.io/_uploads/B1fnvyO_Gg.png)
 
 因 UI 需要，錯誤需要告訴前端
+
 - company_level：是 SMA / MA / A 哪一筆資料有誤
 - code：代碼，使用者實際填寫的營商 / 代理代碼
 - field：實際前端送的 API Key，哪個欄位有誤
@@ -926,25 +924,28 @@ Content-Type: application/json
 ## 規則
 
 ![image](https://hackmd.io/_uploads/B13V_J_OGe.png)
+
 - 「已有網站／尚在開發中」、「與 A 相同」、驗證碼皆為前端狀態，不會實際傳參數給 Create API
 
 Parent Code
+
 ```
 - 第一次會自動帶 parent_code：[sma, ma, a], [ma, a]
 - 不自動帶 parent_code：[a], [ma]
 ```
+
 > 260910 最後結論：前端自動帶入階層，如果是只單開一個沒有階層，前端幫忙代入 GF_MA。給小明三次機會，如果醜三的話就把自動帶入 parent_code 取消，填死他！
 
 ## 業務/開線申請書 - 編輯 API
 
-POST `/api/v1/activation_application/edit`
+POST `/api/v1/company_apply/update`
 
 ### Payload
 
 前端預計會送的請求
 
-
 A
+
 ```json=
 {
     "id": "xxx",
@@ -1029,7 +1030,7 @@ SMA / MA
 ## 給前端看 - 批量添加代理階層(type:operator) 現有規格
 
 | API 欄位 | 用途 | 必填 | 後端驗證規則 | 前端驗證規則 |
-|---|---|---:|---|---|
+| --- | --- | ---: | --- | --- |
 | `company` | 批次資料陣列 | 是 | 必須存在 | 上傳表格最多 100 筆 |
 | `code` | 公司別／營運商代碼 | 是 | 必填、`alpha_dash`；預檢不得與既有公司代碼重複；正式建立時限 2–4 碼且僅英數 | 必填、不得與既有公司或 Excel 內重複、不得含 `0`、長度 2–4 |
 | `name` | 公司別與營運商名稱 | 是 | 必填 | 必填 |
@@ -1057,37 +1058,34 @@ SMA / MA
 | `gToken` | 二次確認／驗證 Token | 否 | 此 Controller 未見欄位 validator | 由確認密碼流程帶入；有值才附加至公司建立的 FormData |
 | `file` | 開線申請書 | 否 | 公司建立 API 讀取上傳檔案並儲存 | 接受 `.xls`、`.xlsx`、`.csv`，上限 5 MB |
 
-
-
-
 ## 封存 Q&A
 
 ### 260904 會議結論
 
 #### 1. `美國 IP 不得加入 API 白名單`：後端需要也一起驗證嗎？目前走規則是使用者自行驗證，要系統阻擋嗎？
+
 ==260904 會議結論==：畫面上仍需提示禁止填入美國 IP，前後端不需驗證 IP 是否為美國，仍由使用者驗證
 ![image](https://hackmd.io/_uploads/rkfuLy__Gg.png)
 
 #### 2. `company_level` 是否接受作為 SMA／MA／A 的層級欄位？要
 
 #### 3. 運營市場，前端要傳國家代碼？要，用 [mledoze/countries](https://github.com/mledoze/countries)，全球最完整的國家/地區資料庫。提醒：澳門、香港要特別獨立選項讓 user 選
+
 ![image](https://hackmd.io/_uploads/HyqFLk_dMg.png)
 
 #### 4. 前端請求 `/api/v1/company_apply/vendor/list` API，需要多回傳「測試環境」，以便組成產品商多選下拉
+
 ![image](https://hackmd.io/_uploads/HkYnLJu_Gx.png)
 
 #### 5. 待 PM 與 小明確認開線完後的動作，後台是否需要`狀態欄位`？結論：==需要==
 
 #### 6. Alisa 提出當使用者刪除時，但當狀態是 `待原廠設置`，可以跳出溫馨提醒對方。PM 與 USER `小明` 確認不需溫馨提醒設置
 
-#### 7. parent_code 規則：
+#### 7. parent_code 規則
 
 - 單獨 A／MA 掛 GF_MA
 - MA + A：MA 掛 GF_MA，A 掛本次 MA
 - SMA + MA + A：SMA 掛 GF_MA，MA 掛 SMA，A 掛 MA
-
-
-
 
 ### 260916 實際開發細節討論
 
@@ -1106,11 +1104,12 @@ SMA / MA
 vendor_code=CQ9
 currency=CNY
 ```
+
 若同一張申請選了多個產品商，只要其中包含 CQ9 就列出。多個條件同時傳入時採 AND，例如「CQ9 且 CNY」。
 ➡️ 建議如上。這可以支援你說的「同幣別一次通知產品負責人開線」。
 
-
 #### ❓ Q28 - Motivation 轉換結果：客戶選 Motivation 時，後端建立申請要轉成 CQ9。若客戶同時勾選 CQ9 與 Motivation，最後是否只保存一筆 CQ9？
+
 另外，後台是否需要知道客戶原本選的是 Motivation？
 
 - A. 不需要，只保存轉換後的 CQ9
@@ -1119,18 +1118,20 @@ currency=CNY
 > 特例 Vendor：Motivation 真人 附屬在 CQ9 下方（開線需開在 CQ9），正式站無此獨立產品商。
 
 ➡️ 建議 B，否則後台無法還原客戶原始意圖；可分成：
+
 ```
 {
   "requested_vendor_codes": ["MOTIVATION"],
   "provisioning_vendor_codes": ["CQ9"]
 }
 ```
+
 如果前後台永遠只關心實際開線項目，才選 A。
 
 > 結論：C. 就只傳 motivation，使用者選什麼就傳什麼
 
+#### ❓ Q29 - 編輯 API 的內容範圍：後台「編輯」是否可修改整張申請的所有內容，包括
 
-#### ❓ Q29 - 編輯 API 的內容範圍：後台「編輯」是否可修改整張申請的所有內容，包括：
 - 申請組合
 - A／MA／SMA code
 - Vendor 與幣別
@@ -1143,8 +1144,7 @@ currency=CNY
 
 > 結論：開線編號、申請組合不可更改，其他可更改
 
-
-#### ❓ Q34 - Create API 完整外層：目前已知前端會送固定的 pending。完整 payload 是否為：
+#### ❓ Q34 - Create API 完整外層：目前已知前端會送固定的 pending。完整 payload 是否為
 
 ```json=
 {
@@ -1157,50 +1157,57 @@ currency=CNY
   ]
 }
 ```
+
 還是 status 放在其他位置？
 ➡️ 建議確認以上格式；records 順序建議固定為 A → MA → SMA，和目前前端填寫順序一致。
 
 > 結論：外層放 status
 
-#### ❓ Q40 - 雙語錯誤訊息：失敗頁目前同時顯示中文與英文。後端是否要回傳：
+#### ❓ Q40 - 雙語錯誤訊息：失敗頁目前同時顯示中文與英文。後端是否要回傳
+
 ```
 {
   "message": "JDB 不支援 VND。",
   "message_en": "JDB does not support VND."
 }
 ```
+
 ➡️ 建議後端提供 message 與 message_en；否則前端只能移除英文錯誤訊息，或自行翻譯。
 
-
 #### 開線申請書是否要一起改名「後台營運商帳號」叫「管理員帳號」？
+>
 > 結論：討論後決定不改，比較容易讓客戶分辨，也怕後續改流程，會給客戶這份開線申請書做留存的話，這樣會比較清楚知道這都是後台帳號。
-
 
 ## 前端預計修改 260922
 
 1. 開線申請書
+
 - [ ] 「營運商設置」區塊新增營運商名稱==優先==
 
-2. 表單
+1. 表單
+
 - [ ] 錯誤訊息不明顯，更改配色試試看
 - [ ] 產品商下拉選單：不支持的幣別改顯示方式，太醜了
 - [ ] 建立營運商-後台白名單、API 白名單：可加上 hint 說明用途，加入 IP 方可使用我司後台、請求 API
 - [ ] 與 Brian 確認下拉選單 API 格式是否可行，再開始接 Mock API
 
-3. 後台
+1. 後台
+
 - [ ] 優化：SMA , MA 加上按鈕，可以一次把值帶到添加代理的頁面
 - [ ] 與 Brian 確認欄位會怎麼存、怎麼處理這些欄位？有些是營運商有、代理沒有，是會給空的 key 還是完全不產生 key 值？例：`mongodb`, `postgresql`
 
 必填問題
+
 - [x] 小明每次都會一次把所有欄位填好嗎？如果表單設定必填，就變成要一次填好欄位。
+
 > 260922 結論： 改為選填，因為最後走到批量添加代理階層或添加代理階層，都還是會被阻擋。改選填對小明來說會比較好操作
 
-4. Excel 文件
+1. Excel 文件
+
 - [ ] 消滅兩份重複的 hackmd
 
-5. Serve 部署
+1. Serve 部署
+
 - [ ] 請祥佑先架設，給祥佑 repo，並綁上 domain==優先==
+
 > 260922 小明回覆：台灣IP 可探訪此表單
-
-
-
