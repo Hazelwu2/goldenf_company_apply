@@ -1,8 +1,8 @@
 /**
- * 欄位驗證規則（對應規格 §3，代理程式碼規則已依最新調整）。
-* 僅做格式驗證：營運者代碼 2–4 英數、不含 0；代理／總代理代碼 2–12 碼英數；
+ * 欄位驗證規則（對應規格 §3，代理代碼規則已依最新調整）。
+ * 僅做格式驗證：營運商代碼 2–4 英數、不含 0；代理／總代理代碼 2–12 碼英數；
  * 帳號 6–10 小寫英數；IP 僅驗格式，不驗地區、不做網段顯示。
-*/
+ */
 
 export type OperatorCodeValidationError =
   | 'required'
@@ -10,7 +10,7 @@ export type OperatorCodeValidationError =
   | 'invalid-characters'
   | 'contains-zero'
 
-/** 營運者代碼錯誤類型，供驗證邏輯與欄位提示共用。 */
+/** 營運商代碼錯誤類型，供驗證邏輯與欄位提示共用。 */
 export function getOperatorCodeValidationError(
   raw: string,
 ): OperatorCodeValidationError | null {
@@ -22,12 +22,12 @@ export function getOperatorCodeValidationError(
   return null
 }
 
-/** 营运商代码：2–4 英数字符，不得含数字 0（送出前应先用 toUpperCase 正规化）。 */
+/** 營運商代碼：2–4 個英數字元，不得包含數字 0（送出前應先用 toUpperCase 正規化）。 */
 export function isValidOperatorCode(raw: string): boolean {
   return getOperatorCodeValidationError(raw) === null
 }
 
-/** 代理／总代理代码：2–12 码英数字符（对应 API 规格 §2.3）。 */
+/** 代理／總代理代碼：2–12 碼英數字元（對應 API 規格 §2.3）。 */
 export function isValidAgentCode(raw: string): boolean {
   return /^[A-Za-z0-9]{2,12}$/.test(raw.trim())
 }
@@ -41,7 +41,7 @@ export function normalizeCodeInput(
   return raw.toUpperCase().replace(pattern, '').slice(0, opts.maxLength)
 }
 
-/** 后台账号：6–10 个小写英数字符。 */
+/** 後台帳號：6–10 個小寫英數字元。 */
 export function isValidAdminAccount(raw: string): boolean {
   return /^[a-z0-9]{6,10}$/.test(raw.trim())
 }
@@ -63,16 +63,17 @@ function isValidIPv6(token: string): boolean {
 
 /**
  * 將貼上或輸入的文字拆成多筆項目：以逗號、分號、空白或換行分隔，去除空白項。
-* 支援分號是因為從 Outlook 等用戶端複製收件者時會以分號分隔。
-* IP 與 Email 都不含這些字符，故可共用同一組分隔符號。
-*/
+ * 支援分號是因為從 Outlook 等用戶端複製收件者時會以分號分隔。
+ * IP 與 Email 都不含這些字元，故可共用同一組分隔符號。
+ */
 export function splitEntries(raw: string): string[] {
   return raw
     .split(/[\s,;]+/)
     .map((s) => s.trim())
     .filter(Boolean)
 }
-/** 白名單格式驗證：僅驗 IP（可含 CIDR），不驗地區。空字符串視為“尚未填寫”，由必填規則另外處理。 */
+
+/** 白名單格式驗證：僅驗 IP（可含 CIDR），不驗地區。空字串視為「尚未填寫」，由必填規則另外處理。 */
 export function isValidWhitelistEntry(token: string): boolean {
   const [ip = '', cidr] = token.split('/')
   if (cidr !== undefined) {
@@ -98,8 +99,9 @@ export function isValidEmailEntry(token: string): boolean {
 export function areValidEmails(emails: string[]): boolean {
   return emails.every(isValidEmailEntry)
 }
+
 /**
- * 站台網址格式：必須是 http／https 的完整網址，且主機名稱含點號碼。
+ * 站台網址格式：必須是 http／https 的完整網址，且主機名稱含點號。
  * 只接受這兩種協定，避免把 javascript: 之類的可執行內容當成網址存下來。
  */
 export function isValidWebsiteUrl(raw: string): boolean {
@@ -127,12 +129,13 @@ export function hasCompleteWebsiteCredentials(
   const values = [website, testAccount, testPassword].map((value) => value.trim())
   return values.every(Boolean) || values.every((value) => !value)
 }
+
 /**
  * 站台區塊整體規則（站台狀態 + 三個欄位一起判斷）：
- * - 已有網站：月台網址、測試帳號、測試密碼三者必須同時填寫，且網址格式須合法。
-* - 尚在開發中：三者必須同時留空。
-* - 尚未選擇狀態：一律視為未完成。
-*/
+ * - 已有網站：站台網址、測試帳號、測試密碼三者必須同時填寫，且網址格式須合法。
+ * - 尚在開發中：三者必須同時留空。
+ * - 尚未選擇狀態：一律視為未完成。
+ */
 export function isValidWebsiteSection(
   status: 'live' | 'in_progress' | null,
   website: string,
@@ -149,8 +152,8 @@ export function isValidWebsiteSection(
 
 /**
  * 通訊軟體允許值，直接送出至 Create API 的 chat_software。
-* API 規格只接受全小寫的 `teams`、`telegram`。
-*/
+ * API 規格只接受全小寫的 `teams`、`telegram`。
+ */
 export const CHAT_SOFTWARE_OPTIONS = ['teams', 'telegram'] as const
 
 export type ChatSoftware = (typeof CHAT_SOFTWARE_OPTIONS)[number]
@@ -171,8 +174,8 @@ export const REMARK_MAX_LENGTH = 250
 
 /**
  * 以字元（code point）計算，emoji 算一個字；表單驗證與送出前再檢查一次使用。
-* 輸入框用原生 maxlength（emoji 算兩個字），只會比後端更早擋住，不會超過上限。
-*/
+ * 輸入框用原生 maxlength（emoji 算兩個字），只會比後端更早擋住，不會超過上限。
+ */
 export function countRemarkChars(value: string): number {
   return Array.from(value).length
 }

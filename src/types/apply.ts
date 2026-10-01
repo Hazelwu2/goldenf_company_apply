@@ -42,7 +42,7 @@ export interface OperatorFormState {
   website: string
   testAccount: string
   testPassword: string
-  /** 通訊軟件，僅 A 使用；送出值為 'teams' 或 'telegram'。 */
+  /** 通訊軟體，僅 A 使用；送出值為 'teams' 或 'telegram'。 */
   chatSoftware: ChatSoftware | null
   /** 通訊群組名稱，僅 A 使用。 */
   chatGroup: string
@@ -59,7 +59,7 @@ export interface AgentFormState {
   adminAccount: string
   boWhitelist: string[]
   emails: string[]
-  /** 後台白名單沿用 A，勾選後同步上鎖。 */
+  /** 後台白名單沿用 A，勾選後同步並鎖定。 */
   sameWhitelistAsA: boolean
   /** 聯絡 Email 沿用 A，勾選後同步並鎖定。 */
   sameEmailsAsA: boolean
