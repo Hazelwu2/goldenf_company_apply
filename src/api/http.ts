@@ -84,20 +84,24 @@ export function createHttpClient(options: HttpClientOptions = {}): HttpClient {
       try {
         response = await instance.request(config)
       } catch (error) {
+        // 沒拿到正常回應：分成 http、逾時（no-response）、連不到（network）
         throw toApiError(error)
       }
       const body: unknown = response.data
+      // 外層不是 { status, message }：格式跟約定不同
       if (!isEnvelope(body)) {
         throw new ApiError('contract', 'Response is not an API envelope', {
           httpStatus: response.status,
         })
       }
+      // status 不是 1：後端判定失敗，保留 message 與 data 給畫面顯示
       if (!isSuccess(body)) {
         throw new ApiError('business', body.message, {
           httpStatus: response.status,
           data: body.data,
         })
       }
+      // 成功但 data 欄位對不上：一樣當成格式錯誤
       const parsed = parse(body.data)
       if (parsed === null) {
         throw new ApiError('contract', 'Response data does not match the API contract', {

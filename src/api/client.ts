@@ -15,6 +15,7 @@ if (apiMode === 'mock' && import.meta.env.DEV) {
 export const applyApi = createApplyApi(
   createHttpClient({
     baseURL: import.meta.env.VITE_API_BASE_URL ?? '',
+    // mock：換成假後端，不發網路請求；undefined：用 axios 預設，真的打後端
     adapter: apiMode === 'mock' ? mockAdapter : undefined,
   }),
 )

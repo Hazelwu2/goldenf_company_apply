@@ -138,6 +138,7 @@ const marketOptions = operatingMarketOptions
 const route = useRoute()
 
 onMounted(async () => {
+  // 頁面載入時請 store 準備幣別與產品商清單；已經載過就不會再打 API
   await Promise.all([referenceData.loadCurrencies(), referenceData.loadVendors()])
   // 從確認頁送出前檢查被導回時（?check=1），清單載入後直接標出第一個錯誤欄位並聚焦
   if (route.query.check !== '1') return

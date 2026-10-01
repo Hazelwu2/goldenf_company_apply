@@ -105,6 +105,7 @@ export function createApplyApi(http: HttpClient) {
         { method: 'get', url: '/api/v1/company_apply/vendor/list' },
         parseVendorList,
       )
+      // 只需要清單本身；外層的分頁欄位用不到
       return data.list
     },
 

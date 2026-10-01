@@ -124,6 +124,7 @@ function renderSelectedTag({
   )
 }
 
+// 依目前選的幣別把產品商分成三組顯示（規則見 vendorAvailability.ts）
 const options = computed(() => {
   const groups = groupVendorsForCurrency(props.vendors, props.currency)
 

@@ -36,11 +36,14 @@ function useRemoteList<T>(fetchList: () => Promise<T[]>) {
   }
 
   function load(): Promise<void> {
+    // 正在載入中：直接共用同一個請求
     if (pending) return pending
+    // 已經載過、也沒被標記過期：不再打 API
     if (status.value === 'success' && !stale) return Promise.resolve()
     return fetch()
   }
 
+  // 使用者按「重試」：不管有沒有載過都重新取得
   function retry(): Promise<void> {
     return pending ?? fetch()
   }
@@ -59,6 +62,7 @@ function useRemoteList<T>(fetchList: () => Promise<T[]>) {
 export function defineReferenceDataStore(api: ApplyApi) {
   return defineStore('referenceData', () => {
     const currencyList = useRemoteList<CurrencyDto>(() => api.listCurrencies())
+    // 產品商拿到後先濾掉不能申請的：非上線中、不支援 2.0、沒有任何原廠支援幣別
     const vendorList = useRemoteList<Vendor>(async () =>
       toSelectableVendors(await api.listVendors()),
     )
