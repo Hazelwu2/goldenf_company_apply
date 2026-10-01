@@ -94,7 +94,7 @@
 | `pending` | 待確認 |
 | `data_missing` | 資料需補充 |
 | `finish` | 已完成 |
-| `canceled` | 取消申請 |
+| `cancel` | 取消申請 |
 
 客戶建立申請時，最外層 `status` 固定傳 `pending`。
 
@@ -253,7 +253,7 @@ APY-20260911-0001
 | 參數 | 中文名稱 | 型別 | 規則 |
 | :--- | :--- | :--- | :--- |
 | `role` | 角色 | String | - 當`company_level: 'A'` 則帶`op`<br/>- 當`company_level: 'MA or SMA'`, 則帶 `agent` |
-| `version` | 版本號 | Number | 建立 key 值 |
+| `version` | 版本號 | String | 建立 key 值。僅 A 使用；MA／SMA 是否也要帶這個 key（值給空字串），待後端確認 |
 | `sort` | 排序 | Number | 帶 `0` |
 | `mongodb` | MongoDB | String | 建立 key 值 |
 | `mongodb_rep` | MongoDB Rep | String | 建立 key 值 |
@@ -613,7 +613,7 @@ Content-Type: application/json
         "name": "公司別名稱",
         "type": "operator",
         "parent_code": "MA12",
-        "version": 2,
+        "version": "2",
         "sort": 0,
         "admin_account": "op9admin",
         "admin_name": "管理員帳號",
@@ -679,6 +679,8 @@ Content-Type: application/json
 ```json
 {
   "_id": "68c157000000000000000001",
+  "reference_no": "APY-20260911-0001",
+  "combination": "MA + A",
   "status": "vendor_pending",
   "company_level": "A",
   "type": "operator",
@@ -698,6 +700,18 @@ Content-Type: application/json
   "chat_software": "telegram",
   "chat_group": "GoldenF 開線群組",
   "merchant_memo": "",
+  "version": "2",
+  "sort": 0,
+  "mongodb": "mongodb",
+  "mongodb_rep": "mongodb_rep",
+  "postgresql": "postgresql",
+  "group": [],
+  "seamless_host": "host",
+  "seamless_wtoken": "wtoken",
+  "k8s_group": "k8s_group",
+  "admin_name": "op9admin",
+  "role": "op",
+  "background": true,
   "business_memo": [
     {
       "created_at": 1788514888000,
@@ -715,12 +729,15 @@ Content-Type: application/json
 
 規則：
 
-- `reference_no` 不可修改。
-- `combination` 不可修改。
+- `reference_no`、`combination` 必填，必須原封不動帶入目前的值，後端不更新這兩個欄位。
+- `created_at`、`updated_at` 由後端維護，前端不傳。
 - 其他申請欄位與 `status` 均可修改。
 - 修改不保留舊值、修改人或修改時間歷程。
 - 驗證規則與 Create API 的對應角色一致。
-- 後台補填欄位 `version`、`sort`、`mongodb`、`mongodb_rep`、`postgresql`、`group`、`seamless_host`、`seamless_wtoken`、`k8s_group`、`admin_name`、`role`、`background` 一律選填，不擋送出；實際開線走到「批量添加代理階層」時才會驗證。
+- 後台補填欄位 `sort`、`admin_name`、`role`、`background`：A／MA／SMA 皆選填。
+- 後台補填欄位 `version`、`mongodb`、`mongodb_rep`、`postgresql`、`group`、`seamless_host`、`seamless_wtoken`、`k8s_group`：僅 A 使用，選填、不擋送出；實際開線走到「批量添加代理階層」時才會驗證。MA／SMA 不傳。
+- MA／SMA 不傳【僅 A】欄位（`currency`、`vendors`、`api_whitelist`、`operating_markets`、`website`、`test_account`、`test_password`、`chat_software`、`chat_group`，以及上一條的後台補填欄位）。
+- **待後端確認**：MA／SMA 編輯時，前端是否仍要把【僅 A】欄位以空值傳給 API。
 
 ### 6.2 Response
 
