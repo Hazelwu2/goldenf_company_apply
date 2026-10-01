@@ -32,7 +32,7 @@ export function isValidAgentCode(raw: string): boolean {
   return /^[A-Za-z0-9]{2,12}$/.test(raw.trim())
 }
 
-/** 依代码规则正规化输入：转大写、滤掉不允许的字元、裁切到最大长度。 */
+/** 依代碼規則正規化輸入：轉大寫、濾掉不允許的字元、裁切到最大長度。 */
 export function normalizeCodeInput(
   raw: string,
   opts: { maxLength: number; allowDigits: boolean },
