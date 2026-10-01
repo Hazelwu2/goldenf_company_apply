@@ -15,7 +15,7 @@
 | 使用端 | 功能 | Method | Path |
 | --- | --- | --- | --- |
 | 客戶表單 | 建立開線申請 | `POST` | `/api/v1/company_apply/create` |
-| 後台 2.0 | 查詢開線申請清單 | `GET` | `/api/v1/company_apply/list` |
+| 後台 2.0 | 查詢開線申請清單 | `POST` | `/api/v1/company_apply/list` |
 | 後台 2.0 | 編輯單筆申請資料 | `POST` | `/api/v1/company_apply/update` |
 | 後台 2.0 | 刪除多筆申請資料 | `POST` | `/api/v1/company_apply/delete` |
 | 客戶表單 | 取得產品商清單，下拉選單用 | `GET` | `/api/v1/company_apply/vendor/list` |
@@ -130,7 +130,7 @@ Content-Type: application/json
       "test_password": "password123",
       "chat_software": "telegram",
       "chat_group": "GoldenF 開線群組",
-      "merchant_remark": "",
+      "merchant_memo": "",
     },
     {
       "company_level": "MA",
@@ -141,7 +141,7 @@ Content-Type: application/json
       "admin_account": "maadmin",
       "bo_whitelist": ["192.168.1.10"],
       "emails": ["ops@example.com"],
-      "merchant_remark": ""
+      "merchant_memo": ""
     }
   ]
 }
@@ -167,10 +167,10 @@ Content-Type: application/json
 | `admin_account` | 後台管理者帳號 | string | 是 | 6～10 個小寫英數字符 |
 | `bo_whitelist` | 後台 IP 白名單 | string[] | 是 | 必須為非空陣列；每一筆須符合後端接受的 IP 或 CIDR 格式；不驗證 IP 所屬地區 |
 | `emails` | 聯絡電子郵件 | string[] | 否 | 可接受空陣列；有值時逐筆驗證 Email 格式 |
-| `merchant_remark` | 客戶備註 | string | 否 | 空值可接受；最多 250 個字，前後端皆須限制 |
-| `memo` | 內部備註 | object[] | 否 | 空陣列可接受；供小明在後台新增附帶建立時間與建立人的工作日記 |
+| `merchant_memo` | 客戶備註 | string | 否 | 空值可接受；最多 250 個字，前後端皆須限制 |
+| `business_memo` | 業務歷程備註 | object[] | 否 | 空陣列可接受；供小明在後台新增附帶建立時間與建立人的工作日記 |
 
-`memo` 陣列 item 格式：
+`business_memo` 陣列 item 格式：
 
 ```json
 {
@@ -262,7 +262,6 @@ APY-20260911-0001
 | `seamless_host` | host | String | 建立 key 值 |
 | `seamless_wtoken` | WToken | String | 建立 key 值 |
 | `k8s_group` | K8s 部署群組 | String | 建立 key 值 |
-| `memo` | 備註 | String | 建立 key 值 |
 | `business_memo` | 業務歷程備註 | Array[Object] | 建立 key 值 |
 | `background` | 資料是否完善 | Boolean | 供前端清單頁顯示 |
 
@@ -540,7 +539,8 @@ Content-Type: application/json
 ## 5. 查詢後台開線申請清單 API
 
 ```http
-GET /api/v1/company_apply/list
+POST /api/v1/company_apply/list
+Content-Type: application/json
 ```
 
 ### 5.1 資料顯示單位
@@ -552,12 +552,24 @@ GET /api/v1/company_apply/list
 - 每列有自己的 MongoDB `_id` 與 `status`。
 - 同一張申請拆出的 records 共用 `reference_no` 與 `combination`。
 
-### 5.2 Query parameters
+### 5.2 Request body
+
+```json
+{
+  "currentPage": 1,
+  "perPage": 20,
+  "field": [],
+  "filter": {
+    "vendors": ["CQ9"],
+    "currency": "CNY"
+  }
+}
+```
 
 | 參數 | 中文名稱 | 型別 | 必填 | 規則 |
 | --- | --- | --- | :---: | --- |
-| `page` | 頁碼 | integer | 否 | 沿用後台 2.0 分頁規則 |
-| `page_size` | 每頁筆數 | integer | 否 | 每頁回傳的資料筆數 |
+| `currentPage` | 頁碼 | integer | 否 | 沿用後台 2.0 分頁規則 |
+| `perPage` | 每頁筆數 | integer | 否 | 每頁回傳的資料筆數 |
 | `field` | 需要欄位 | array | 否 | 空陣列表示給全部欄位 |
 | `filter.reference_no` | 開線編號 | string | 否 | 依開線編號搜尋；精確搜尋 |
 | `filter.start_time` | 提交開始時間 | timestamp | 否 | 可單獨使用；給 0 表示不限時間 |
@@ -574,7 +586,7 @@ GET /api/v1/company_apply/list
 - 同時傳入 `start_time`, `end_time`：包含起訖時間。
 - Timestamp 的儲存與查詢方式沿用後台 2.0 既有規則。
 
-多個篩選條件同時傳入時採 AND。例如 `vendors=CQ9&currency=CNY` 只回傳同時符合 CQ9 與 CNY 的 records。
+多個篩選條件同時傳入時採 AND。例如 `filter.vendors: ["CQ9"]` 加 `filter.currency: "CNY"` 只回傳同時符合 CQ9 與 CNY 的 records。
 
 ### 5.3 Response
 
@@ -617,7 +629,7 @@ GET /api/v1/company_apply/list
         "seamless_host": "host",
         "seamless_wtoken": "wtoken",
         "k8s_group": "test",
-        "merchant_remark": "",
+        "merchant_memo": "",
         "business_memo": [
             {
               "created_at": 1788514888000,
@@ -685,8 +697,8 @@ Content-Type: application/json
   "test_password": "password123",
   "chat_software": "telegram",
   "chat_group": "GoldenF 開線群組",
-  "merchant_remark": "",
-  "memo": [
+  "merchant_memo": "",
+  "business_memo": [
     {
       "created_at": 1788514888000,
       "memo": "2026/09/04 客戶取消開線",
@@ -708,7 +720,7 @@ Content-Type: application/json
 - 其他申請欄位與 `status` 均可修改。
 - 修改不保留舊值、修改人或修改時間歷程。
 - 驗證規則與 Create API 的對應角色一致。
-- 後台補填欄位 `version`、`sort`、`mongodb`、`mongodb_rep`、`postgresql`、`group`、`seamless_host`、`seamless_wtoken`、`k8s_group` 一律選填，不擋送出；實際開線走到「批量添加代理階層」時才會驗證。
+- 後台補填欄位 `version`、`sort`、`mongodb`、`mongodb_rep`、`postgresql`、`group`、`seamless_host`、`seamless_wtoken`、`k8s_group`、`admin_name`、`role`、`background` 一律選填，不擋送出；實際開線走到「批量添加代理階層」時才會驗證。
 
 ### 6.2 Response
 
