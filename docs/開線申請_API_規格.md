@@ -190,7 +190,7 @@ Content-Type: application/json
 | `website` | 站台網址 | string \| null | 否 | 有值時驗證 URL 格式；與測試帳號、測試密碼全部有值或全部為 `null` |
 | `test_account` | 站台測試帳號 | string \| null | 否 | `website` 有值時必填；網站開發中時為 `null` |
 | `test_password` | 站台測試密碼 | string \| null | 否 | `website` 有值時必填；不需加密保存；網站開發中時為 `null` |
-| `chat_software` | 通訊軟體 | string | 是 | 僅接受 `Teams` 或 `telegram` |
+| `chat_software` | 通訊軟體 | string | 是 | 僅接受 `teams` 或 `telegram`（全小寫） |
 | `chat_group` | 通訊群組 | string | 是 | Telegram 或 Teams 的群組名稱 |
 
 ### 2.5 網站資料驗證
