@@ -168,23 +168,6 @@ Content-Type: application/json
 | `bo_whitelist` | 後台 IP 白名單 | string[] | 是 | 必須為非空陣列；每一筆須符合後端接受的 IP 或 CIDR 格式；不驗證 IP 所屬地區 |
 | `emails` | 聯絡電子郵件 | string[] | 否 | 可接受空陣列；有值時逐筆驗證 Email 格式 |
 | `merchant_memo` | 客戶備註 | string | 否 | 空值可接受；最多 250 個字，前後端皆須限制 |
-| `business_memo` | 業務歷程備註 | object[] | 否 | 空陣列可接受；供小明在後台新增附帶建立時間與建立人的工作日記 |
-
-`business_memo` 陣列 item 格式：
-
-```json
-{
-  "created_at": 1788514888000,
-  "memo": "2026/09/04 客戶取消開線",
-  "created_by": "小明"
-}
-```
-
-| 欄位 | 中文名稱 | 型別 | 必填 | 說明 |
-| --- | --- | --- | :---: | --- |
-| `created_at` | 建立時間 | integer | 是 | 備註建立時間，使用 Unix timestamp 毫秒 |
-| `memo` | 備註內容 | string | 是 | 小明在後台填寫的工作日記內容 |
-| `created_by` | 建立人 | string | 是 | 建立此筆備註的內部人員名稱 |
 
 代碼重複驗證包含三個範圍：
 
@@ -204,9 +187,9 @@ Content-Type: application/json
 | `vendors` | 申請開通的產品商 | string[] | 是 | 必須為非空陣列；每個 Vendor code 必須存在且可申請，並支援 `currency` 指定的幣別 |
 | `api_whitelist` | 營運商 API IP 白名單 | string[] | 是 | 必須為非空陣列；每一筆須符合 IP 或 CIDR 格式；不驗證 IP 所屬地區，也不阻擋美國 IP |
 | `operating_markets` | 營運市場 | string[] | 是 | 必須為非空陣列；傳國家／地區代碼，不傳中英文顯示名稱，例如 `["TH", "VN"]` |
-| `website` | 站台網址 | string | 否 | 有值時驗證 URL 格式；與測試帳號、測試密碼全空或全有 |
-| `test_account` | 站台測試帳號 | string | 否 | `website` 有值時必填 |
-| `test_password` | 站台測試密碼 | string | 否 | `website` 有值時必填；不需加密保存 |
+| `website` | 站台網址 | string \| null | 否 | 有值時驗證 URL 格式；與測試帳號、測試密碼全部有值或全部為 `null` |
+| `test_account` | 站台測試帳號 | string \| null | 否 | `website` 有值時必填；網站開發中時為 `null` |
+| `test_password` | 站台測試密碼 | string \| null | 否 | `website` 有值時必填；不需加密保存；網站開發中時為 `null` |
 | `chat_software` | 通訊軟體 | string | 是 | 僅接受 `Teams` 或 `telegram` |
 | `chat_group` | 通訊群組 | string | 是 | Telegram 或 Teams 的群組名稱 |
 
@@ -214,7 +197,7 @@ Content-Type: application/json
 
 `website_status` 是前端畫面狀態，不送後端。後端須按下列規則驗證：
 
-- `website`、`test_account`、`test_password` 全部為空：代表網站尚在開發中，允許送出。
+- `website`、`test_account`、`test_password` 全部為 `null`：代表網站尚在開發中，允許送出。
 - 三個欄位全部有值：代表已有網站，允許送出。
 - 只填其中一項或兩項：驗證失敗。
 
@@ -262,12 +245,11 @@ APY-20260911-0001
 | `seamless_host` | host | String | 建立 key 值 |
 | `seamless_wtoken` | WToken | String | 建立 key 值 |
 | `k8s_group` | K8s 部署群組 | String | 建立 key 值 |
-| `business_memo` | 業務歷程備註 | Array[Object] | 建立 key 值 |
 | `background` | 資料是否完善 | Boolean | 供前端清單頁顯示 |
 
 ### 2.8 成功 response
 
-`created_at` 由後端產生。每筆 record 各自回傳 `status`。
+`created_at` 由後端產生，Unix timestamp 毫秒。每筆 record 各自回傳 `status`。
 
 ```json
 {
@@ -275,7 +257,7 @@ APY-20260911-0001
   "message": "成功",
   "data": {
     "reference_no": "APY-20260911-0001",
-    "created_at": 1789056000,
+    "created_at": 1789056000000,
     "records": [
       {
         "_id": "68c157000000000000000001",
@@ -619,7 +601,7 @@ Content-Type: application/json
         "admin_name": "管理員帳號",
         "role": "op",
         "bo_whitelist": ["1.1.1.1"],
-        "website": "www.ddd.eee",
+        "website": "https://www.ddd.eee",
         "chat_software": "telegram",
         "chat_group": "group name",
         "mongodb": "mongodb",
@@ -738,6 +720,22 @@ Content-Type: application/json
 - 後台補填欄位 `version`、`mongodb`、`mongodb_rep`、`postgresql`、`group`、`seamless_host`、`seamless_wtoken`、`k8s_group`：僅 A 使用，選填、不擋送出；實際開線走到「批量添加代理階層」時才會驗證。MA／SMA 不傳。
 - MA／SMA 不傳【僅 A】欄位（`currency`、`vendors`、`api_whitelist`、`operating_markets`、`website`、`test_account`、`test_password`、`chat_software`、`chat_group`，以及上一條的後台補填欄位）。
 - **待後端確認**：MA／SMA 編輯時，前端是否仍要把【僅 A】欄位以空值傳給 API。
+
+`business_memo`（業務歷程備註）是小明在後台寫的工作日記，客戶表單的 Create API 不傳。陣列 item 格式：
+
+```json
+{
+  "created_at": 1788514888000,
+  "memo": "2026/09/04 客戶取消開線",
+  "created_by": "小明"
+}
+```
+
+| 欄位 | 中文名稱 | 型別 | 必填 | 說明 |
+| --- | --- | --- | :---: | --- |
+| `created_at` | 建立時間 | integer | 是 | 備註建立時間，使用 Unix timestamp 毫秒 |
+| `memo` | 備註內容 | string | 是 | 小明在後台填寫的工作日記內容 |
+| `created_by` | 建立人 | string | 是 | 建立此筆備註的內部人員名稱 |
 
 ### 6.2 Response
 
