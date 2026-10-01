@@ -84,9 +84,9 @@ test('maps known fields to label, role page and anchor, keeping backend messages
 
 test('name and remark errors have anchors for every role', () => {
   const items = mapSubmitErrors({
-    A: [backendError('name'), backendError('merchant_remark')],
-    MA: [backendError('name'), backendError('merchant_remark')],
-    SMA: [backendError('name'), backendError('merchant_remark')],
+    A: [backendError('name'), backendError('merchant_memo')],
+    MA: [backendError('name'), backendError('merchant_memo')],
+    SMA: [backendError('name'), backendError('merchant_memo')],
   })
 
   assert.deepEqual(
@@ -106,9 +106,9 @@ test('every editable operator and agent field resolves to an anchor', () => {
   const operatorFields = [
     'code', 'name', 'admin_account', 'bo_whitelist', 'api_whitelist', 'emails', 'currency',
     'vendors', 'operating_markets', 'website', 'test_account', 'test_password', 'chat_software',
-    'chat_group', 'merchant_remark',
+    'chat_group', 'merchant_memo',
   ]
-  const agentFields = ['code', 'name', 'admin_account', 'bo_whitelist', 'emails', 'merchant_remark']
+  const agentFields = ['code', 'name', 'admin_account', 'bo_whitelist', 'emails', 'merchant_memo']
   const items = mapSubmitErrors({
     A: operatorFields.map((field) => backendError(field)),
     SMA: agentFields.map((field) => backendError(field)),

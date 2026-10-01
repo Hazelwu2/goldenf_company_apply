@@ -52,7 +52,7 @@ const OPERATOR_FIELDS: Record<string, FieldTarget> = {
   test_password: { zh: '测试密码', en: 'Test Password', anchor: 'test-password' },
   chat_software: { zh: '通讯软体', en: 'Chat Software', anchor: 'chat-software' },
   chat_group: { zh: '通讯群组', en: 'Chat Group', anchor: 'chat-group' },
-  merchant_remark: { zh: '备注', en: 'Remarks', anchor: 'remark' },
+  merchant_memo: { zh: '备注', en: 'Remarks', anchor: 'remark' },
 }
 
 /** Create API 的 request key → 代理 MA／總代理 SMA 表單欄位。 */
@@ -64,7 +64,7 @@ function agentFields(level: 'MA' | 'SMA'): Record<string, FieldTarget> {
     admin_account: { zh: '后台账号', en: 'Admin Account', anchor: 'admin-account' },
     bo_whitelist: { zh: '后台 IP 白名单', en: 'Admin IP Whitelist', anchor: 'bo-whitelist' },
     emails: { zh: '联络 Email', en: 'Contact Email', anchor: 'email' },
-    merchant_remark: { zh: '备注', en: 'Remarks', anchor: 'remark' },
+    merchant_memo: { zh: '备注', en: 'Remarks', anchor: 'remark' },
   }
 }
 

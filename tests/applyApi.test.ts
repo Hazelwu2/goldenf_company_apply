@@ -202,7 +202,7 @@ const CREATE_BODY: CreateApplicationBody = {
       admin_account: 'maadmin01',
       bo_whitelist: ['192.168.1.10'],
       emails: [],
-      merchant_remark: '',
+      merchant_memo: '',
       memo: [],
     },
   ],

@@ -169,7 +169,7 @@ export function isValidChatGroup(raw: string): boolean {
   return raw.trim().length > 0
 }
 
-/** 客戶備註上限，前後端一致（API 規格 merchant_remark 最多 250 個字）。 */
+/** 客戶備註上限，前後端一致（API 規格 merchant_memo 最多 250 個字）。 */
 export const REMARK_MAX_LENGTH = 250
 
 /**

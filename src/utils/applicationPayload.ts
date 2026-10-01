@@ -61,7 +61,7 @@ function operatorRecord(form: OperatorFormState, parentCode: string): CreateOper
     test_password: isLive ? form.testPassword : '',
     chat_software: form.chatSoftware ?? '',
     chat_group: form.chatGroup.trim(),
-    merchant_remark: form.remark,
+    merchant_memo: form.remark,
     memo: [],
   }
 }
@@ -84,7 +84,7 @@ function agentRecord(
     admin_account: form.adminAccount.trim(),
     bo_whitelist: [...boWhitelist],
     emails: [...emails],
-    merchant_remark: form.remark,
+    merchant_memo: form.remark,
     memo: [],
   }
 }

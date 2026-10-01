@@ -48,7 +48,7 @@ interface CreateApplicationRecordBase {
   admin_account: string
   bo_whitelist: string[]
   emails: string[]
-  merchant_remark: string
+  merchant_memo: string
   /** 內部備註，客戶表單固定送空陣列。 */
   memo: []
 }

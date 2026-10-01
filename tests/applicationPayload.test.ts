@@ -100,7 +100,7 @@ test('operator record uses backend field names and sends no front-end-only state
     test_password: 'password123',
     chat_software: 'telegram',
     chat_group: 'GoldenF 開線群組',
-    merchant_remark: '請協助加開 PP',
+    merchant_memo: '請協助加開 PP',
     memo: [],
   })
 })
@@ -117,7 +117,7 @@ test('agent record only carries the shared fields', () => {
     admin_account: 'ma12admin',
     bo_whitelist: ['10.0.0.4'],
     emails: ['ma12@example.com'],
-    merchant_remark: 'MA 備註',
+    merchant_memo: 'MA 備註',
     memo: [],
   })
 })
@@ -176,14 +176,14 @@ test('trims only the agreed fields; password and remark are sent as typed', () =
   assert.equal(operator.test_account, 'tester01')
   assert.equal(operator.chat_group, '群組')
   assert.equal(operator.test_password, ' pass word ')
-  assert.equal(operator.merchant_remark, '  前後空白保留  ')
+  assert.equal(operator.merchant_memo, '  前後空白保留  ')
   // A 的 parent_code 使用 trim 後的 MA 代碼
   assert.equal(operator.parent_code, 'MA12')
 
   assert.equal(ma?.code, 'MA12')
   assert.equal(ma?.name, '')
   assert.equal(ma?.admin_account, 'ma12admin')
-  assert.equal(ma?.merchant_remark, ' 保留 ')
+  assert.equal(ma?.merchant_memo, ' 保留 ')
 })
 
 test('empty name is sent as an empty string so the backend uses the code', () => {
