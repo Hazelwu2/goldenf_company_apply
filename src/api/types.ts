@@ -23,6 +23,8 @@ export interface VendorDto {
   name: string
   /** 只有 `online` 的產品商可以申請。 */
   status: string
+  /** 3.0 狀態；申請表單目前只支援 2.0，不使用。 */
+  status_v3?: string
   /** 是否提供測試環境（可試玩）。 */
   demo: boolean
   support: { v2?: boolean; v3?: boolean }
@@ -49,8 +51,6 @@ interface CreateApplicationRecordBase {
   bo_whitelist: string[]
   emails: string[]
   merchant_memo: string
-  /** 內部備註，客戶表單固定送空陣列。 */
-  memo: []
 }
 
 export interface CreateOperatorRecordDto extends CreateApplicationRecordBase {
@@ -60,10 +60,10 @@ export interface CreateOperatorRecordDto extends CreateApplicationRecordBase {
   vendors: string[]
   api_whitelist: string[]
   operating_markets: string[]
-  /** 網站尚在開發中時，website、test_account、test_password 皆為空字串。 */
-  website: string
-  test_account: string
-  test_password: string
+  /** 網站尚在開發中時，website、test_account、test_password 皆為 null。 */
+  website: string | null
+  test_account: string | null
+  test_password: string | null
   chat_software: string
   chat_group: string
 }
@@ -93,7 +93,7 @@ export interface CreatedRecordDto {
 export interface CreateApplicationData {
   /** 開線編號，例如 APY-20260911-0001。 */
   reference_no: string
-  /** 建立時間，Unix 秒。 */
+  /** 建立時間，Unix 毫秒。 */
   created_at: number
   records: CreatedRecordDto[]
 }

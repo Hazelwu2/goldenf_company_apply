@@ -45,7 +45,7 @@ function createSuccess(config: InternalAxiosRequestConfig) {
   const records = sentRecords(config)
   return success({
     reference_no: nextReferenceNo(now),
-    created_at: Math.floor(now.getTime() / 1000),
+    created_at: now.getTime(),
     records: records.map((record, index) => ({
       _id: `mock${now.getTime().toString(16)}${index}`,
       company_level: record.company_level,

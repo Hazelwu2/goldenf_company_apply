@@ -101,7 +101,6 @@ test('operator record uses backend field names and sends no front-end-only state
     chat_software: 'telegram',
     chat_group: 'GoldenF 開線群組',
     merchant_memo: '請協助加開 PP',
-    memo: [],
   })
 })
 
@@ -118,11 +117,10 @@ test('agent record only carries the shared fields', () => {
     bo_whitelist: ['10.0.0.4'],
     emails: ['ma12@example.com'],
     merchant_memo: 'MA 備註',
-    memo: [],
   })
 })
 
-test('website in development sends empty site, account and password', () => {
+test('website in development sends null site, account and password', () => {
   const body = build('A', {
     operator: {
       websiteStatus: 'in_progress',
@@ -133,9 +131,9 @@ test('website in development sends empty site, account and password', () => {
   })
   const [record] = body.records
   assert.ok(record?.company_level === 'A')
-  assert.equal(record.website, '')
-  assert.equal(record.test_account, '')
-  assert.equal(record.test_password, '')
+  assert.equal(record.website, null)
+  assert.equal(record.test_account, null)
+  assert.equal(record.test_password, null)
 })
 
 test('"same as A" copies A whitelist and emails even when the store has not synced yet', () => {

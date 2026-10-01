@@ -282,8 +282,8 @@ export const useApplyStore = defineStore('apply', () => {
     try {
       const created = await send(body)
       referenceNo.value = created.reference_no
-      // 後端回傳 Unix 秒，轉成成功頁既有的 ISO 字串格式
-      submittedAt.value = new Date(created.created_at * 1000).toISOString()
+      // 後端回傳 Unix 毫秒，轉成成功頁既有的 ISO 字串格式
+      submittedAt.value = new Date(created.created_at).toISOString()
       return { kind: 'success' }
     } catch (error) {
       const failure = resolveSubmitFailure(error)

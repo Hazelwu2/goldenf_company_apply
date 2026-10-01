@@ -210,7 +210,7 @@ const CREATE_BODY: CreateApplicationBody = {
 
 const CREATED = {
   reference_no: 'APY-20260911-0001',
-  created_at: 1789056000,
+  created_at: 1789056000000,
   records: [
     { _id: '68c1', company_level: 'MA', type: 'company', code: 'MA12', status: 'pending' },
   ],
@@ -234,7 +234,7 @@ test('create application rejects a success response without a usable reference n
   for (const data of [
     { ...CREATED, reference_no: '' },
     { ...CREATED, reference_no: 1 },
-    { ...CREATED, created_at: '1789056000' },
+    { ...CREATED, created_at: '1789056000000' },
     { ...CREATED, records: null },
     null,
   ]) {

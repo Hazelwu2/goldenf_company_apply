@@ -5,6 +5,7 @@ import { ApiError, createHttpClient } from '../src/api/http.ts'
 import { mockAdapter, setMockCreateScenario } from '../src/mocks/mockAdapter.ts'
 import { parseCreateApplicationErrors } from '../src/api/applyApi.ts'
 import { toSelectableVendors } from '../src/utils/vendors.ts'
+import { MOCK_VENDORS } from '../src/mocks/vendors.ts'
 
 const http = createHttpClient({ adapter: mockAdapter })
 
@@ -72,7 +73,7 @@ test('mock vendor list covers every filtering scenario the form must handle', as
 })
 
 test('mock create succeeds by default with an APY reference number and the submitted roles', async () => {
-  const before = Math.floor(Date.now() / 1000)
+  const before = Date.now()
   const created = await createApplyApi(http).createApplication({
     combination: 'MA + A',
     status: 'pending',
@@ -83,7 +84,7 @@ test('mock create succeeds by default with an APY reference number and the submi
   })
 
   assert.match(created.reference_no, /^APY-\d{8}-\d{4,}$/)
-  assert.ok(created.created_at >= before && created.created_at <= before + 5, 'created_at is Unix seconds')
+  assert.ok(created.created_at >= before && created.created_at <= before + 5000, 'created_at is Unix milliseconds')
   assert.deepEqual(
     created.records.map((record) => [record.company_level, record.type, record.code, record.status]),
     [
@@ -145,4 +146,9 @@ test('mock create can fail without errors, time out, or lose the network', async
   const network = await createFailure('network')
   assert.ok(network instanceof ApiError)
   assert.equal(network.kind, 'network')
+})
+
+test('mock vendors carry status_v3 like the backend contract', () => {
+  assert.ok(MOCK_VENDORS.length > 0)
+  for (const vendor of MOCK_VENDORS) assert.equal(typeof vendor.status_v3, 'string', vendor.code)
 })

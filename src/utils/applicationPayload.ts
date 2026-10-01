@@ -40,7 +40,7 @@ function parentCodes(input: ApplicationPayloadInput) {
 }
 
 function operatorRecord(form: OperatorFormState, parentCode: string): CreateOperatorRecordDto {
-  // 「尚在開發中」時站台三欄一律送空字串，後端以此判定網站開發中
+  // 「尚在開發中」時站台三欄一律送 null，後端以此判定網站開發中
   const isLive = form.websiteStatus === 'live'
   return {
     company_level: 'A',
@@ -55,14 +55,13 @@ function operatorRecord(form: OperatorFormState, parentCode: string): CreateOper
     currency: form.currency ?? '',
     vendors: [...form.vendorCodes],
     operating_markets: [...form.operatingMarkets],
-    website: isLive ? form.website.trim() : '',
-    test_account: isLive ? form.testAccount.trim() : '',
+    website: isLive ? form.website.trim() : null,
+    test_account: isLive ? form.testAccount.trim() : null,
     // 密碼原樣送出，前後空白也可能是密碼的一部分
-    test_password: isLive ? form.testPassword : '',
+    test_password: isLive ? form.testPassword : null,
     chat_software: form.chatSoftware ?? '',
     chat_group: form.chatGroup.trim(),
     merchant_memo: form.remark,
-    memo: [],
   }
 }
 
@@ -85,7 +84,6 @@ function agentRecord(
     bo_whitelist: [...boWhitelist],
     emails: [...emails],
     merchant_memo: form.remark,
-    memo: [],
   }
 }
 

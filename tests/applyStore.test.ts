@@ -217,7 +217,7 @@ test('a remark over 250 characters blocks the role from being valid', () => {
 
 const CREATED: CreateApplicationData = {
   reference_no: 'APY-20260911-0001',
-  created_at: 1789056000,
+  created_at: 1789056000000,
   records: [],
 }
 
@@ -240,7 +240,7 @@ test('submitting sends the current form and records the backend reference number
   assert.equal(submittingDuringCall, true)
   assert.equal(store.submitting, false)
   assert.equal(store.referenceNo, 'APY-20260911-0001')
-  assert.equal(store.submittedAt, new Date(1789056000 * 1000).toISOString())
+  assert.equal(store.submittedAt, new Date(1789056000000).toISOString())
 })
 
 test('a second submit while the first is in flight does not call the API again', async () => {
