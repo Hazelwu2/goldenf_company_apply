@@ -12,7 +12,7 @@ test('required values treat blank text, empty collections, and missing selection
   assert.equal(isRequiredValueMissing('   '), true)
   assert.equal(isRequiredValueMissing([]), true)
 
-  assert.equal(isRequiredValueMissing('Teams'), false)
+  assert.equal(isRequiredValueMissing('teams'), false)
   assert.equal(isRequiredValueMissing(['TW']), false)
 })
 

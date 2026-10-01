@@ -1,5 +1,8 @@
 import { operatingMarketDisplayLabel } from './operatingMarkets.ts'
 
+/** 送出值全小寫，確認頁顯示產品名稱原本的大小寫。 */
+const CHAT_SOFTWARE_LABELS: Record<string, string> = { teams: 'Teams', telegram: 'Telegram' }
+
 export type ReviewFieldKind = 'text' | 'tags' | 'secret' | 'link'
 
 export interface ReviewField {
@@ -193,7 +196,9 @@ function buildOperatorFields(
     key: 'chatSoftware',
     labelZh: '通讯软体',
     labelEn: 'Chat Software',
-    value: operator.chatSoftware === 'telegram' ? 'Telegram' : (operator.chatSoftware ?? ''),
+    value: operator.chatSoftware
+      ? (CHAT_SOFTWARE_LABELS[operator.chatSoftware] ?? operator.chatSoftware)
+      : '',
   })
   addField(fields, {
     key: 'chatGroup',

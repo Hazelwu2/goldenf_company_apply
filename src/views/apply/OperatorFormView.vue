@@ -548,7 +548,7 @@ async function handleInvalidNext() {
                 :aria-invalid="showRequired('chatSoftware', store.operator.chatSoftware) ? 'true' : undefined"
                 :aria-describedby="showRequired('chatSoftware', store.operator.chatSoftware) ? 'operator-chat-software-required' : undefined"
               >
-                <NRadio value="Teams">Teams</NRadio>
+                <NRadio value="teams">Teams</NRadio>
                 <NRadio value="telegram">Telegram</NRadio>
               </NRadioGroup>
             </div>

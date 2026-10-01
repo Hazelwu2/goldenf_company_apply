@@ -212,7 +212,7 @@ test('review omits the contact email row when it is left empty', () => {
   )
 })
 
-test('review shows the chat contact fields for A and renders telegram capitalised', () => {
+test('review shows the chat contact fields for A and renders the software name capitalised', () => {
   const sections = buildApplicationReview({
     levels: ['A', 'MA'],
     operator,
@@ -226,6 +226,15 @@ test('review shows the chat contact fields for A and renders telegram capitalise
 
   assert.equal(software?.value, 'Telegram')
   assert.equal(group?.value, 'GoldenF 开线群组')
+
+  const teams = buildApplicationReview({
+    levels: ['A'],
+    operator: { ...operator, chatSoftware: 'teams' },
+    agentMA,
+    agentSMA,
+    vendorNames: {},
+  })
+  assert.equal(teams[0]?.fields.find((field) => field.key === 'chatSoftware')?.value, 'Teams')
 
   // 通讯栏位只属于 A，MA 区段不应出现。
   assert.equal(

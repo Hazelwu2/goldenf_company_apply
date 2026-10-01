@@ -20,7 +20,7 @@ const validOperator: OperatorFormState = {
   website: '',
   testAccount: '',
   testPassword: '',
-  chatSoftware: 'Teams',
+  chatSoftware: 'teams',
   chatGroup: 'Launch team',
   remark: '',
 }

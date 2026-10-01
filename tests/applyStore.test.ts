@@ -160,7 +160,7 @@ test('通讯软体与通讯群组为 A 的必填栏位', () => {
   store.operator.chatSoftware = null
   assert.equal(store.isOperatorValid, false)
 
-  store.operator.chatSoftware = 'Teams'
+  store.operator.chatSoftware = 'teams'
   assert.equal(store.isOperatorValid, true)
 
   store.operator.chatGroup = '   '

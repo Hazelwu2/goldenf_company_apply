@@ -1,8 +1,8 @@
 /**
- * 栏位验证规则（对应规格 §3，代理代码规则已依最新调整）。
- * 仅做格式验证：营运商代码 2–4 英数、不含 0；代理／总代理代码 2–12 码英数；
- * 账号 6–10 小写英数；IP 仅验格式，不验地区、不做网段显示。
- */
+ * 欄位驗證規則（對應規格 §3，代理程式碼規則已依最新調整）。
+* 僅做格式驗證：營運者代碼 2–4 英數、不含 0；代理／總代理代碼 2–12 碼英數；
+ * 帳號 6–10 小寫英數；IP 僅驗格式，不驗地區、不做網段顯示。
+*/
 
 export type OperatorCodeValidationError =
   | 'required'
@@ -10,7 +10,7 @@ export type OperatorCodeValidationError =
   | 'invalid-characters'
   | 'contains-zero'
 
-/** 营运商代码错误类型，供验证逻辑与栏位提示共用。 */
+/** 營運者代碼錯誤類型，供驗證邏輯與欄位提示共用。 */
 export function getOperatorCodeValidationError(
   raw: string,
 ): OperatorCodeValidationError | null {
@@ -57,23 +57,22 @@ function isValidIPv4(token: string): boolean {
 }
 
 function isValidIPv6(token: string): boolean {
-  // 仅做宽松格式检查，不验地区 / 网段语意
+  // 僅做寬鬆格式檢查，不驗地區 / 網段語意
   return /^[0-9a-fA-F:]+$/.test(token) && token.includes(':')
 }
 
 /**
- * 将贴上或输入的文字拆成多笔项目：以逗号、分号、空白或换行分隔，去除空白项。
- * 支援分号是因为从 Outlook 等客户端复制收件者时会以分号分隔。
- * IP 与 Email 都不含这些字元，故可共用同一组分隔符。
- */
+ * 將貼上或輸入的文字拆成多筆項目：以逗號、分號、空白或換行分隔，去除空白項。
+* 支援分號是因為從 Outlook 等用戶端複製收件者時會以分號分隔。
+* IP 與 Email 都不含這些字符，故可共用同一組分隔符號。
+*/
 export function splitEntries(raw: string): string[] {
   return raw
     .split(/[\s,;]+/)
     .map((s) => s.trim())
     .filter(Boolean)
 }
-
-/** 白名单格式验证：仅验 IP（可含 CIDR），不验地区。空字串视为「尚未填写」，由必填规则另外处理。 */
+/** 白名單格式驗證：僅驗 IP（可含 CIDR），不驗地區。空字符串視為“尚未填寫”，由必填規則另外處理。 */
 export function isValidWhitelistEntry(token: string): boolean {
   const [ip = '', cidr] = token.split('/')
   if (cidr !== undefined) {
@@ -84,25 +83,24 @@ export function isValidWhitelistEntry(token: string): boolean {
   return isValidIPv4(ip) || isValidIPv6(ip)
 }
 
-/** 白名单：至少一笔，且每一笔都必须合法。 */
+/** 白名單：至少一筆，每一筆都必須合法。 */
 export function areValidWhitelist(entries: string[]): boolean {
   if (entries.length === 0) return false
   return entries.every(isValidWhitelistEntry)
 }
 
-/** 单笔 Email 格式验证。 */
+/** 單筆 Email 格式驗證。 */
 export function isValidEmailEntry(token: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(token.trim())
 }
 
-/** 联络 Email：选填，可填多笔；只要有填，每一笔都必须合法。 */
+/** 聯絡 Email：選填，可填多筆；只要有填，每一筆都必須合法。 */
 export function areValidEmails(emails: string[]): boolean {
   return emails.every(isValidEmailEntry)
 }
-
 /**
- * 站台网址格式：必须是 http／https 的完整网址，且主机名含点号。
- * 只接受这两种协定，避免把 javascript: 之类的可执行内容当成网址存下来。
+ * 站台網址格式：必須是 http／https 的完整網址，且主機名稱含點號碼。
+ * 只接受這兩種協定，避免把 javascript: 之類的可執行內容當成網址存下來。
  */
 export function isValidWebsiteUrl(raw: string): boolean {
   const value = raw.trim()
@@ -120,7 +118,7 @@ export function isValidWebsiteUrl(raw: string): boolean {
   return host.includes('.') && !host.startsWith('.') && !host.endsWith('.')
 }
 
-/** 站台网址、测试账号、测试密码必须同时填写，或同时留空。 */
+/** 站台網址、測試帳號、測試密碼必須同時填寫，或同時留空。 */
 export function hasCompleteWebsiteCredentials(
   website: string,
   testAccount: string,
@@ -129,13 +127,12 @@ export function hasCompleteWebsiteCredentials(
   const values = [website, testAccount, testPassword].map((value) => value.trim())
   return values.every(Boolean) || values.every((value) => !value)
 }
-
 /**
- * 站台区块整体规则（站台状态 + 三个栏位一起判断）：
- * - 已有网站：站台网址、测试账号、测试密码三者必须同时填写，且网址格式须合法。
- * - 尚在开发中：三者必须同时留空。
- * - 尚未选择状态：一律视为未完成。
- */
+ * 站台區塊整體規則（站台狀態 + 三個欄位一起判斷）：
+ * - 已有網站：月台網址、測試帳號、測試密碼三者必須同時填寫，且網址格式須合法。
+* - 尚在開發中：三者必須同時留空。
+* - 尚未選擇狀態：一律視為未完成。
+*/
 export function isValidWebsiteSection(
   status: 'live' | 'in_progress' | null,
   website: string,
@@ -146,25 +143,25 @@ export function isValidWebsiteSection(
   if (!hasCompleteWebsiteCredentials(website, testAccount, testPassword)) return false
   const isFilled = Boolean(website.trim())
   if (status !== 'live') return !isFilled
-  // 已有网站：网址必须是合法的 http／https 网址，不能只是有填。
+  // 已有網站：網址必須是合法的 http／https 網址，不能只是有填入。
   return isFilled && isValidWebsiteUrl(website)
 }
 
 /**
- * 通讯软体允许值，直接送出至 Create API 的 chat_software。
- * 大小写依 API 规格：`Teams` 首字大写、`telegram` 全小写。
- */
-export const CHAT_SOFTWARE_OPTIONS = ['Teams', 'telegram'] as const
+ * 通訊軟體允許值，直接送出至 Create API 的 chat_software。
+* API 規格只接受全小寫的 `teams`、`telegram`。
+*/
+export const CHAT_SOFTWARE_OPTIONS = ['teams', 'telegram'] as const
 
 export type ChatSoftware = (typeof CHAT_SOFTWARE_OPTIONS)[number]
 
-/** 通讯软体：必填，且只接受规格允许的两个值（区分大小写）。 */
+/** 通訊軟體：必填，且只接受規格允許的兩個值（區分大小寫）。 */
 export function isValidChatSoftware(value: string | null): boolean {
   if (value === null) return false
   return (CHAT_SOFTWARE_OPTIONS as readonly string[]).includes(value)
 }
 
-/** 通讯群组：必填，去除前后空白後不可为空。 */
+/** 通訊群組：必填，移除前後空白後不可為空。 */
 export function isValidChatGroup(raw: string): boolean {
   return raw.trim().length > 0
 }
@@ -174,8 +171,8 @@ export const REMARK_MAX_LENGTH = 250
 
 /**
  * 以字元（code point）計算，emoji 算一個字；表單驗證與送出前再檢查一次使用。
- * 輸入框用原生 maxlength（emoji 算兩個字），只會比後端更早擋住，不會超過上限。
- */
+* 輸入框用原生 maxlength（emoji 算兩個字），只會比後端更早擋住，不會超過上限。
+*/
 export function countRemarkChars(value: string): number {
   return Array.from(value).length
 }

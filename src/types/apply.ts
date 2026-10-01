@@ -1,11 +1,11 @@
 import type { ChatSoftware } from '@/utils/validators'
 
-/** 四种允许的申请组合（USER 仅能选这四种） */
+/** 四種允許的申請組合（USER 只能選這四種） */
 export type ComboKey = 'A' | 'MA' | 'MA_A' | 'SMA_MA_A'
 
 export type CompanyLevel = 'A' | 'MA' | 'SMA'
 
-/** 每个组合实际包含哪些 level；阵列排列供表单流程建立步骤使用。 */
+/** 每個組合實際包含哪些 level；陣列排列供表單流程建立步驟使用。 */
 export const COMBO_LEVELS: Record<ComboKey, CompanyLevel[]> = {
   A: ['A'],
   MA: ['MA'],
@@ -15,14 +15,14 @@ export const COMBO_LEVELS: Record<ComboKey, CompanyLevel[]> = {
 
 export interface ComboOption {
   key: ComboKey
-  /** 卡片标题（中） */
+  /** 卡片標題（中） */
   title: string
-  /** 卡片标题（英） */
+  /** 卡片標題（英） */
   titleEn: string
   levels: CompanyLevel[]
-  /** 卡片说明（中） */
+  /** 卡片說明（中） */
   description: string
-  /** 卡片说明（英） */
+  /** 卡片說明（英） */
   descriptionEn: string
 }
 
@@ -42,15 +42,15 @@ export interface OperatorFormState {
   website: string
   testAccount: string
   testPassword: string
-  /** 通讯软体，仅 A 使用；送出值为 'Teams' 或 'telegram'。 */
+  /** 通訊軟件，僅 A 使用；送出值為 'teams' 或 'telegram'。 */
   chatSoftware: ChatSoftware | null
-  /** 通讯群组名称，仅 A 使用。 */
+  /** 通訊群組名稱，僅 A 使用。 */
   chatGroup: string
-  /** 客户可自行填写的额外需求说明，选填。 */
+  /** 客戶可自行填寫的額外需求說明，選填。 */
   remark: string
 }
 
-/** 「与 A 相同」可分别套用的栏位。 */
+/** 「與 A 相同」可分別套用的欄位。 */
 export type SameAsAField = 'whitelist' | 'emails'
 
 export interface AgentFormState {
@@ -59,11 +59,11 @@ export interface AgentFormState {
   adminAccount: string
   boWhitelist: string[]
   emails: string[]
-  /** 后台白名单沿用 A，勾选後同步并锁定。 */
+  /** 後台白名單沿用 A，勾選後同步上鎖。 */
   sameWhitelistAsA: boolean
-  /** 联络 Email 沿用 A，勾选後同步并锁定。 */
+  /** 聯絡 Email 沿用 A，勾選後同步並鎖定。 */
   sameEmailsAsA: boolean
-  /** 客户可自行填写的额外需求说明，选填。 */
+  /** 客戶可自行填寫的額外需求說明，選填。 */
   remark: string
 }
 
