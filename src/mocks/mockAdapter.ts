@@ -1,3 +1,16 @@
+/*
+  Mock API Adapter 模組
+  一句話形容：模擬後端 API 回應，取代真正的網路請求。
+
+  🔷 此檔案核心任務
+  1. 提供 Axios Adapter 攔截請求，完全不發出實際網路封包
+  2. 依 HTTP Method + API URL 對應 Mock資料，回應格式完全符合後端 API Response 格式
+  3. 模擬建立申請表單的各種情境：：成功、驗證失敗、業務邏輯錯誤、逾時 (Timeout)、網路中斷 (Network Error)
+
+  🔷 使用方式
+  - 在 client.ts 初始化 createHttpClient() 時傳入 `adapter: mockAdapter` 即可
+*/
+
 import { AxiosError, type AxiosAdapter, type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { MOCK_CURRENCIES } from './currencies'
 import { MOCK_VENDORS } from './vendors'
@@ -162,7 +175,9 @@ function noResponseError(config: InternalAxiosRequestConfig, code: string, messa
 
 /** 以「METHOD 路徑」對應假回應；回應格式與後端完全相同（含外層 envelope）。 */
 const routes: Record<string, MockHandler> = {
-  'POST /api/v1/company_apply/exchange/list': () => success({ list: MOCK_CURRENCIES }),
+  // 'POST /api/v1/company_apply/exchange/list': () => success({ list: MOCK_CURRENCIES }),
+  'POST /api/v1/company_apply/exchange/list': () =>
+    ({ body: { status: 0, message: '測試錯誤', data: {} } }),
   'GET /api/v1/company_apply/vendor/list': () =>
     success({ totalCount: MOCK_VENDORS.length, currentPage: 0, perPage: 0, list: MOCK_VENDORS }),
   'POST /api/v1/company_apply/create': async (config) => {

@@ -8,8 +8,12 @@ import { toSelectableVendors, type Vendor } from '@/utils/vendors'
 export type LoadStatus = 'idle' | 'loading' | 'success' | 'error'
 
 /**
- * 管理一份從 API 載入的清單：成功後不再重打；載入中重複呼叫共用同一個請求；
- * retry 一律重新載入；markStale 後下一次 load 會重新載入（重新載入期間狀態為 loading）。
+ * 管理下拉選單資料：幣別清單、產品商清單
+ *
+ * - 成功取得資料後預設快取，不再重複發送請求
+ * - 載入期間若重複呼叫，將自動共用同一個 Promise (De-duplication)
+ * - 呼叫 retry() 會強制重新載入
+ * - 呼叫 markStale() 後，下一次 load() 將重新向 API 取得最新資料
  */
 function useRemoteList<T>(fetchList: () => Promise<T[]>) {
   const items = shallowRef<T[]>([])
@@ -56,12 +60,14 @@ function useRemoteList<T>(fetchList: () => Promise<T[]>) {
 }
 
 /**
- * 幣別與產品商清單只載入一次，營運商 A 頁、確認頁、換幣別確認框共用。
- * 以 factory 注入 API，測試時可以換成假的後端。
+ * 管理全域下拉選單資料
+ * - 資料僅載入一次，供「營運商 A 頁」、「確認頁」與「換幣別確認彈窗」跨頁面共用
+ * - 採用 Factory 模式注入 API 實例，便於單元測試 (Unit Test) 替換 Mock 資料
  */
 export function defineReferenceDataStore(api: ApplyApi) {
   return defineStore('referenceData', () => {
     const currencyList = useRemoteList<CurrencyDto>(() => api.listCurrencies())
+
     // 產品商拿到後先濾掉不能申請的：非上線中、不支援 2.0、沒有任何原廠支援幣別
     const vendorList = useRemoteList<Vendor>(async () =>
       toSelectableVendors(await api.listVendors()),
@@ -83,7 +89,7 @@ export function defineReferenceDataStore(api: ApplyApi) {
       vendorNames,
       loadVendors: vendorList.load,
       retryVendors: vendorList.retry,
-      /** 後端回報產品商相關錯誤時使用（ticket 08 串接），下次進入營運商 A 頁會重新取得清單。 */
+      /** 後端回報產品商相關錯誤時使用，下次進入營運商 A 頁會重新取得清單。 */
       markVendorsStale: vendorList.markStale,
     }
   })

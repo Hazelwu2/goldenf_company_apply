@@ -1,3 +1,15 @@
+/*
+  client.ts
+  一句話形容：現在是 mock 還是 live？決定最後一步用誰送。
+
+  🔷 此檔案核心任務
+  1. 提供全域統一使用的 `applyApi` 實例。
+  2. 根據環境變數自動切換「請求實際後端 API」或「使用 Mock 假資料」。
+
+  🔷 匯出的內容
+  - applyApi：包含取得幣別、產品商清單與送出表單的 API 實例
+*/
+
 import { createApplyApi } from './applyApi'
 import { resolveApiMode } from './apiMode'
 import { createHttpClient } from './http'

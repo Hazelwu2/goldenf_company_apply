@@ -1,3 +1,17 @@
+/*
+  HTTP 請求用戶端與 API 錯誤處理模組
+
+  🔷 此檔案核心任務
+  1. 封裝 Axios 實例：統一設定逾時時間（Timeout）、基底網址（BaseURL）與 Header。
+  2. 建立自訂錯誤類別（ApiError）：將各種異常狀況精準分類（業務邏輯錯誤、HTTP 狀態碼異常、逾時、網路連線失敗、API 契約不符合）。
+  3. 實作 API 信封格式（Envelope）與資料結構解析（Data Parser）：確保回傳資料符合預期，避免非法資料導致前端頁面崩潰（防禦性程式設計）。
+
+  🔷 核心介面與函式
+  - createHttpClient()：建立具備安全解析機制與錯誤分類處理的 HttpClient 實例
+  - ApiError：統一的 API 異常物件，提供精準的 kind 狀態類別供前端 UI 做對應處理
+  - DataParser<T>：Runtime 型別防衛函式介面，驗證成功回傳解析後的資料，失敗回傳 null
+*/
+
 import axios, { type AxiosAdapter, type AxiosRequestConfig } from 'axios'
 
 /**
